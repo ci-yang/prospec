@@ -3,127 +3,64 @@
 ## Core Principles
 
 ### I. Progressive Disclosure First
-Every feature must respect context window limits:
-- AI Knowledge uses 3-layer loading: index → README → details
-- Skills use metadata (~100 words) → body (<5k words) → resources
-- Target 70-80% token savings compared to full-context loading
-- Never load all modules at once; use keywords to identify relevant modules
+Context window is a shared resource:
+- Never load all information at once
+- Provide index/summary first, details on demand
+- Respect AI context limits in all designs
 
-### II. Clean Architecture (NON-NEGOTIABLE)
-Strict separation of concerns:
-```
-src/
-├── cli/        → Commander commands (entry points only)
-├── core/       → Business logic (pure functions, no I/O)
-├── adapters/   → External integrations (file system, AI APIs)
-└── types/      → Zod schemas + TypeScript types
-```
-- MUST NOT put business logic in CLI layer
-- MUST NOT put I/O operations in core layer
-- Each layer only depends on layers below it
+### II. Spec is Source of Truth
+Requirements live in specs, not in code or comments:
+- Changes must be documented in Patch Specs before implementation
+- Code follows spec, not the other way around
+- Specs are human-readable and version-controlled
 
-### III. Hybrid Architecture (CLI + Skills)
-Clear separation between CLI and Skills:
-- **CLI commands** (`src/commands/`): Bootstrap operations that don't require AI
-  - `prospec init` - must work without Claude Code
-  - File system operations, config management
-- **Skills** (`skills/`): AI-assisted workflows
-  - `prospec-steering`, `prospec-knowledge`, `prospec-story`, etc.
-  - Require Claude Code environment
-  - Follow skill-creator best practices
+### III. Zero Startup Cost for Brownfield
+Existing projects can adopt Prospec incrementally:
+- No requirement to document entire codebase upfront
+- Start with one change, build specs over time
+- AI Knowledge generated from code, not written manually
 
-### IV. Schema-First Development
-All data structures defined with Zod before implementation:
-- Define schema in `shared/types/` first
-- Use `z.infer<typeof Schema>` for TypeScript types
-- Validate all external inputs (CLI args, config files, user input)
-- Use `.strict()` to reject unknown properties
+### IV. AI Agent Agnostic
+Prospec works with any AI coding assistant:
+- Core knowledge in universal Markdown format
+- Adapter layer for specific CLI tools
+- No lock-in to single AI provider
 
-### V. Test-Driven Quality
-Testing requirements:
-- Unit tests for all core/ logic (Vitest)
-- Integration tests for CLI commands
-- Test files named `test_<module>.ts`
-- Minimum 80% coverage for core/ modules
+### V. User Controls the Rules
+Constitution belongs to the user, not the tool:
+- Users define their own project red lines
+- Natural language input, not wizard/questionnaire
+- Tool enforces rules, doesn't invent them
 
-## Technical Constraints
+## Quality Standards
 
-### Technology Stack (MUST USE)
-```
-Runtime:        Bun (preferred) or Node.js 20+
-Language:       TypeScript 5.0+
-CLI Framework:  Commander.js
-Validation:     Zod
-Config Format:  YAML
-Doc Format:     Markdown
-Template:       Handlebars
-Testing:        Vitest
-```
+### Code Quality
+- All user-facing errors must have actionable messages
+- No silent failures
+- Verbose mode available for debugging
 
-### Forbidden Patterns
-```
-MUST NOT hardcode file paths (use config)
-MUST NOT use any/unknown types (use Zod inference)
-MUST NOT skip error handling (wrap all I/O in try-catch)
-MUST NOT commit secrets or credentials
-MUST NOT use synchronous file operations (use async/await)
-```
+### Documentation Quality
+- Generated docs must be human-readable
+- No placeholder text in outputs
+- Clear structure with consistent formatting
 
-## CLI Design Standards
+### User Experience
+- Commands should be discoverable (--help everywhere)
+- Consistent command structure across all operations
+- Provide suggestions on errors, not just error messages
 
-### Command Structure
-```
-prospec <resource> <action> [options]
+## Forbidden Practices
 
-Examples:
-  prospec init [path]
-  prospec knowledge generate
-  prospec change story <name>
-  prospec agent sync --cli claude
-```
-
-### Required for All Commands
-- `--help` flag with usage examples
-- `--verbose` flag for debug output
-- Meaningful error messages with suggestions
-- Exit codes: 0 (success), 1 (error), 2 (invalid usage)
-
-### Output Standards
-- Use colors sparingly (support `NO_COLOR` env)
-- Progress indicators for long operations
-- Summary at end of successful operations
-- JSON output option for programmatic use (`--json`)
-
-## File Structure Standards
-
-### Project Initialization Output
-```
-project/
-├── .prospec.yaml              # Project configuration
-├── AGENTS.md                  # Universal agent instructions
-└── docs/
-    ├── ai-knowledge/
-    │   ├── _index.md          # Module index with keywords
-    │   └── _conventions.md    # Development conventions
-    ├── CONSTITUTION.md        # Project rules
-    └── specs/                 # Spec documents
-```
-
-### Change Directory Structure
-```
-.prospec/changes/{change-name}/
-├── proposal.md        # User Story
-├── plan.md            # Implementation plan
-├── delta-spec.md      # Patch Spec (ADDED/MODIFIED/REMOVED)
-├── tasks.md           # Task breakdown
-└── metadata.yaml      # Change metadata
-```
+- MUST NOT require full codebase documentation before use
+- MUST NOT lock users into specific AI tool
+- MUST NOT generate unreadable or overly verbose output
+- MUST NOT fail silently without explanation
+- MUST NOT make decisions without user awareness
 
 ## Governance
 
-- Constitution supersedes all other coding practices
-- All PRs must verify compliance with these principles
-- Amendments require: documentation update, team approval, migration plan
-- Use DEVELOPMENT_GUIDE.md for implementation guidance
+- Constitution principles override implementation convenience
+- Amendments require explicit documentation and approval
+- When in doubt, favor user control over automation
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-03 | **Last Amended**: 2026-02-03
+**Version**: 1.0.0 | **Ratified**: 2026-02-03

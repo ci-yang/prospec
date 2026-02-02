@@ -1,3 +1,5 @@
+> **Language**: This document MUST be written in Traditional Chinese. Technical terms may remain in English.
+
 # Implementation Plan: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]

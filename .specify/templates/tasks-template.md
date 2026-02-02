@@ -3,6 +3,8 @@
 description: "Task list template for feature implementation"
 ---
 
+> **Language**: This document MUST be written in Traditional Chinese. Technical terms may remain in English.
+
 # Tasks: [FEATURE NAME]
 
 **Input**: Design documents from `/specs/[###-feature-name]/`

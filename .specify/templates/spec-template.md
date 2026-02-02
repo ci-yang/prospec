@@ -1,3 +1,5 @@
+> **Language**: This document MUST be written in Traditional Chinese. Technical terms may remain in English.
+
 # Feature Specification: [FEATURE NAME]
 
 **Feature Branch**: `[###-feature-name]`  
