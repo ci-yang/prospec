@@ -32,6 +32,13 @@ Constitution belongs to the user, not the tool:
 - Natural language input, not wizard/questionnaire
 - Tool enforces rules, doesn't invent them
 
+### VI. Language Policy (Bilingual Standards)
+Clear separation between documentation language and code language:
+- **Documentation outputs** (spec.md, plan.md, tasks.md): MUST be written in Traditional Chinese
+- **Code artifacts** (source code, variable names, function names, comments in code): MUST be written in English
+- **Technical terms**: May retain English where translation would reduce clarity (e.g., API, CLI, YAML)
+- **File names**: MUST use English
+
 ## Quality Standards
 
 ### Code Quality
@@ -63,4 +70,23 @@ Constitution belongs to the user, not the tool:
 - Amendments require explicit documentation and approval
 - When in doubt, favor user control over automation
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-03
+**Version**: 1.1.0 | **Ratified**: 2026-02-03 | **Last Amended**: 2026-02-03
+
+<!--
+SYNC IMPACT REPORT
+==================
+Version change: 1.0.0 → 1.1.0
+
+Added sections:
+- Principle VI: Language Policy (Bilingual Standards)
+
+Modified principles: None
+Removed sections: None
+
+Templates requiring updates:
+- .specify/templates/spec-template.md ✓ updated
+- .specify/templates/plan-template.md ✓ updated
+- .specify/templates/tasks-template.md ✓ updated
+
+Follow-up TODOs: None
+-->
