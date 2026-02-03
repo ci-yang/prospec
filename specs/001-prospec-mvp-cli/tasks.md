@@ -148,9 +148,9 @@
 
 ### Implementation
 
-- [ ] T040 [P] [US5] 建立 change 模板（`src/templates/change/`）：`proposal.md.hbs`（User Story 格式骨架：As a / I want / So that + 驗收標準區域 + Related Modules + Notes）、`metadata.yaml.hbs`（name, created_at, status: story, related_modules, description）
-- [ ] T041 [US5] 建立 `src/services/change-story.service.ts`：validateNotExists（目錄已存在 → AlreadyExistsError）→ renderProposal + renderMetadata → matchRelatedModules（讀取 `_index.md` 關鍵字比對變更名稱）— 依賴 T040, T018, T013
-- [ ] T042 [US5] 建立 `src/cli/commands/change-story.ts`：註冊 `change story <name>` 命令（`--description <desc>`），呼叫 changeStoryService — 🔧 `/cli-developer`：設計 Commander.js argument + option 組合（required argument `<name>` + optional option `--description`）
+- [x] T040 [P] [US5] 建立 change 模板（`src/templates/change/`）：`proposal.md.hbs`（User Story 格式骨架：As a / I want / So that + 驗收標準區域 + Related Modules + Notes）、`metadata.yaml.hbs`（name, created_at, status: story, related_modules, description）
+- [x] T041 [US5] 建立 `src/services/change-story.service.ts`：validateNotExists（目錄已存在 → AlreadyExistsError）→ renderProposal + renderMetadata → matchRelatedModules（讀取 `_index.md` 關鍵字比對變更名稱）— 依賴 T040, T018, T013
+- [x] T042 [US5] 建立 `src/cli/commands/change-story.ts`：註冊 `change story <name>` 命令（`--description <desc>`），呼叫 changeStoryService — 🔧 `/cli-developer`：設計 Commander.js argument + option 組合（required argument `<name>` + optional option `--description`）
 
 **Checkpoint**: `prospec change story` 完整可用 — 變更管理目錄結構建立
 

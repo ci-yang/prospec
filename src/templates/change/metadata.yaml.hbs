@@ -1,0 +1,12 @@
+name: "{{change_name}}"
+created_at: "{{isoDate}}"
+status: story
+{{#if related_modules}}
+related_modules:
+{{#each related_modules}}
+  - "{{this.name}}"
+{{/each}}
+{{/if}}
+{{#if description}}
+description: "{{description}}"
+{{/if}}

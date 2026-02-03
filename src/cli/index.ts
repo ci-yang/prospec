@@ -9,6 +9,7 @@ import { registerInitCommand } from './commands/init.js';
 import { registerSteeringCommand } from './commands/steering.js';
 import { registerKnowledgeCommand } from './commands/knowledge-generate.js';
 import { registerAgentCommand } from './commands/agent-sync.js';
+import { registerChangeCommand } from './commands/change-story.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -65,7 +66,7 @@ export function createProgram(): Command {
   registerSteeringCommand(program);
   registerKnowledgeCommand(program);
   registerAgentCommand(program);
-  // Phase 7-9: change (with story/plan/tasks subcommands)
+  registerChangeCommand(program);
 
   return program;
 }

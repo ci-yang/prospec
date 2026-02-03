@@ -1,0 +1,33 @@
+# {{change_name}}
+
+## User Story
+
+As a [角色/使用者類型],
+I want [功能/需求],
+So that [目的/價值].
+
+## Acceptance Criteria
+
+1. [具體可驗證的條件 1]
+2. [具體可驗證的條件 2]
+3. [具體可驗證的條件 3]
+
+{{#if related_modules}}
+## Related Modules
+
+{{#each related_modules}}
+- **{{this.name}}**: {{this.description}}
+{{/each}}
+{{else}}
+## Related Modules
+
+_No related modules detected. Run `prospec steering` and `prospec knowledge generate` first for module matching._
+{{/if}}
+
+## Notes
+
+{{#if description}}
+- {{description}}
+{{else}}
+- [額外的上下文或技術考量]
+{{/if}}
