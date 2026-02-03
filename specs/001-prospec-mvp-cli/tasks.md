@@ -43,22 +43,22 @@
 
 ### Types Layer（`src/types/`）
 
-- [ ] T006 [P] 建立 `src/types/errors.ts`：ProspecError base class（含 `message`, `code`, `suggestion`）+ 完整 error hierarchy（ConfigNotFound, ConfigInvalid, ScanError, WriteError, PermissionError, YamlParseError, TemplateError, ModuleDetectionError, AlreadyExistsError, PrerequisiteError）
-- [ ] T007 [P] 建立 `src/types/config.ts`：使用 Zod 4 定義 `ProspecConfigSchema`（project.name required、tech_stack optional、paths Record、exclude string[]、agents string[]、knowledge.base_path）— 使用統一 `error` 參數（如 `z.string({ error: "project.name 為必填欄位" })`）— 📚 `context7`：查詢 Zod 4 的 `z.object().catchall()` 和 `z.passthrough()` 正確用法
-- [ ] T008 [P] 建立 `src/types/module-map.ts`：ModuleMap schema（modules[].name, description, paths[], keywords[], relationships.depends_on[], used_by[]）
-- [ ] T009 [P] 建立 `src/types/change.ts`：ChangeMetadata schema（name, created_at ISO 8601, status enum: story|plan|tasks, related_modules[], description）
+- [x] T006 [P] 建立 `src/types/errors.ts`：ProspecError base class（含 `message`, `code`, `suggestion`）+ 完整 error hierarchy（ConfigNotFound, ConfigInvalid, ScanError, WriteError, PermissionError, YamlParseError, TemplateError, ModuleDetectionError, AlreadyExistsError, PrerequisiteError）
+- [x] T007 [P] 建立 `src/types/config.ts`：使用 Zod 4 定義 `ProspecConfigSchema`（project.name required、tech_stack optional、paths Record、exclude string[]、agents string[]、knowledge.base_path）— 使用統一 `error` 參數（如 `z.string({ error: "project.name 為必填欄位" })`）— 📚 `context7`：查詢 Zod 4 的 `z.object().catchall()` 和 `z.passthrough()` 正確用法
+- [x] T008 [P] 建立 `src/types/module-map.ts`：ModuleMap schema（modules[].name, description, paths[], keywords[], relationships.depends_on[], used_by[]）
+- [x] T009 [P] 建立 `src/types/change.ts`：ChangeMetadata schema（name, created_at ISO 8601, status enum: story|plan|tasks, related_modules[], description）
 
 ### Lib Layer 核心工具（`src/lib/`）
 
-- [ ] T010 [P] 建立 `src/lib/logger.ts`：createLogger 工廠函數，三層模式（quiet: 只 stderr errors、normal: 結果摘要、verbose: 每步驟詳細）+ TTY 偵測（`process.stdout.isTTY`）+ picocolors 色彩支援 — 🎨 `@cli-ui-designer`：設計三層 logger 輸出風格（成功 ✓、警告 ⚠、錯誤 ✗ 等符號選擇）— 📚 `context7`：查詢 picocolors API（`pc.green()`, `pc.red()`, `pc.dim()` 等）
-- [ ] T011 [P] 建立 `src/lib/fs-utils.ts`：`atomicWrite`（寫入暫存檔 → `fs.rename` 原子替換）、`ensureDir`（遞迴建立目錄）、`fileExists`（同步檢查存在）
-- [ ] T012 [P] 建立 `src/lib/yaml-utils.ts`：`parseYaml` / `stringifyYaml`，使用 eemeli/yaml Document API 保留 comment — 📚 `context7`：查詢 eemeli/yaml 2.x 的 Document API 和 comment 保留用法
-- [ ] T013 建立 `src/lib/config.ts`：`readConfig`（讀取 `.prospec.yaml` + Zod 驗證）、`writeConfig`（原子寫入 + comment 保留）、`validateConfig`（REQ-CLI-007~009：缺少 project.name 報錯、不明欄位警告不阻擋）— 依賴 T007, T011, T012
+- [x] T010 [P] 建立 `src/lib/logger.ts`：createLogger 工廠函數，三層模式（quiet: 只 stderr errors、normal: 結果摘要、verbose: 每步驟詳細）+ TTY 偵測（`process.stdout.isTTY`）+ picocolors 色彩支援 — 🎨 `@cli-ui-designer`：設計三層 logger 輸出風格（成功 ✓、警告 ⚠、錯誤 ✗ 等符號選擇）— 📚 `context7`：查詢 picocolors API（`pc.green()`, `pc.red()`, `pc.dim()` 等）
+- [x] T011 [P] 建立 `src/lib/fs-utils.ts`：`atomicWrite`（寫入暫存檔 → `fs.rename` 原子替換）、`ensureDir`（遞迴建立目錄）、`fileExists`（同步檢查存在）
+- [x] T012 [P] 建立 `src/lib/yaml-utils.ts`：`parseYaml` / `stringifyYaml`，使用 eemeli/yaml Document API 保留 comment — 📚 `context7`：查詢 eemeli/yaml 2.x 的 Document API 和 comment 保留用法
+- [x] T013 建立 `src/lib/config.ts`：`readConfig`（讀取 `.prospec.yaml` + Zod 驗證）、`writeConfig`（原子寫入 + comment 保留）、`validateConfig`（REQ-CLI-007~009：缺少 project.name 報錯、不明欄位警告不阻擋）— 依賴 T007, T011, T012
 
 ### CLI Layer 入口（`src/cli/`）
 
-- [ ] T014 建立 `src/cli/index.ts`：Commander.js 14 program 定義（`.name('prospec')`, `.version()`, `.configureOutput()`, `.exitOverride()`）+ global options（`--verbose`, `--quiet`, `--version`）+ `preAction` hook 統一檢查 `.prospec.yaml` 存在 — 🔧 `/cli-developer`：設計 Commander.js 14 的 subcommand 結構模式（`program.command('change').command('story')`） — 📚 `context7`：查詢 Commander.js 14 的 `preAction` hook、`configureOutput`、`exitOverride` 用法
-- [ ] T015 [P] 建立 `src/cli/formatters/error-output.ts`：格式化 ProspecError（顯示 message + suggestion）、統一 catch block 設定 `process.exitCode` — 🎨 `@cli-ui-designer`：設計錯誤訊息排版（紅色標題、灰色 suggestion、退出碼提示）
+- [x] T014 建立 `src/cli/index.ts`：Commander.js 14 program 定義（`.name('prospec')`, `.version()`, `.configureOutput()`, `.exitOverride()`）+ global options（`--verbose`, `--quiet`, `--version`）+ `preAction` hook 統一檢查 `.prospec.yaml` 存在 — 🔧 `/cli-developer`：設計 Commander.js 14 的 subcommand 結構模式（`program.command('change').command('story')`） — 📚 `context7`：查詢 Commander.js 14 的 `preAction` hook、`configureOutput`、`exitOverride` 用法
+- [x] T015 [P] 建立 `src/cli/formatters/error-output.ts`：格式化 ProspecError（顯示 message + suggestion）、統一 catch block 設定 `process.exitCode` — 🎨 `@cli-ui-designer`：設計錯誤訊息排版（紅色標題、灰色 suggestion、退出碼提示）
 
 **Checkpoint**: CLI 基礎設施就緒 — `prospec --help`、`prospec --version` 可執行，錯誤處理框架到位
 
