@@ -1,0 +1,30 @@
+# AI Knowledge Index
+
+> This file is the entry point for AI assistants. Read this first to understand the project structure, then load specific module knowledge as needed.
+
+<!-- prospec:auto-start -->
+## Modules
+
+| Module | Keywords | Status | Description | Depends On |
+|--------|----------|--------|-------------|------------|
+{{#each modules}}| {{this.name}} | {{join this.keywords ", "}} | active | {{this.description}} | {{#if this.relationships.depends_on}}{{join this.relationships.depends_on ", "}}{{else}}—{{/if}} |
+{{/each}}
+
+## Project Info
+
+- **Project**: {{project_name}}
+{{#if tech_stack}}- **Tech Stack**: {{#if tech_stack.language}}{{tech_stack.language}}{{/if}}{{#if tech_stack.framework}} / {{tech_stack.framework}}{{/if}}
+{{/if}}- **Knowledge Base**: `{{knowledge_base_path}}`
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add custom project notes here. This section is preserved on regeneration. -->
+<!-- prospec:user-end -->
+
+## How to Use
+
+1. Read this `_index.md` to understand available modules
+2. Identify the modules relevant to your current task
+3. Load `modules/{module}/README.md` for specific module knowledge
+4. Check `_conventions.md` for project-specific coding patterns
+5. Refer to `architecture.md` for overall system structure

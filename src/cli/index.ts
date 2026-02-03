@@ -7,6 +7,7 @@ import { handleError } from './formatters/error-output.js';
 import { ConfigNotFound } from '../types/errors.js';
 import { registerInitCommand } from './commands/init.js';
 import { registerSteeringCommand } from './commands/steering.js';
+import { registerKnowledgeCommand } from './commands/knowledge-generate.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -61,7 +62,7 @@ export function createProgram(): Command {
   // Register subcommand groups
   registerInitCommand(program);
   registerSteeringCommand(program);
-  // Phase 5: knowledge (with generate subcommand)
+  registerKnowledgeCommand(program);
   // Phase 6: agent (with sync subcommand)
   // Phase 7-9: change (with story/plan/tasks subcommands)
 

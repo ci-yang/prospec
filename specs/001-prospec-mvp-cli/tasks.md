@@ -111,10 +111,10 @@
 
 ### Implementation
 
-- [ ] T029 [P] [US3] 建立 `src/lib/content-merger.ts`：`mergeContent` — 解析 `<!-- prospec:auto-start/end -->` 和 `<!-- prospec:user-start/end -->` 標記，重新生成時覆寫系統區域、保留使用者區域
-- [ ] T030 [P] [US3] 建立 knowledge 模板（`src/templates/knowledge/`）：`module-map.yaml.hbs`（modules schema）— 並確認 `src/templates/steering/module-readme.hbs` 可供 knowledge generate 複用（README.md 模板：Overview, Key Files, Public API, Internal Notes 使用者區域）
-- [ ] T031 [US3] 建立 `src/services/knowledge.service.ts`：readModuleMap → scanModules（遵循 .prospec.yaml exclude 模式排除敏感檔案，REQ-KNOW-007）→ generateModuleReadme（每個模組一個 README.md）→ updateIndex（_index.md Markdown 表格）— ContentMerger 保護使用者區域 — 支援 `--dry-run` — 依賴 T029, T030, T018
-- [ ] T032 [US3] 建立 `src/cli/commands/knowledge-generate.ts`：註冊 `knowledge generate` 子命令（`--dry-run`），呼叫 knowledgeService — 🔧 `/cli-developer`：設計 Commander.js nested subcommand（`program.command('knowledge').command('generate')`）
+- [x] T029 [P] [US3] 建立 `src/lib/content-merger.ts`：`mergeContent` — 解析 `<!-- prospec:auto-start/end -->` 和 `<!-- prospec:user-start/end -->` 標記，重新生成時覆寫系統區域、保留使用者區域
+- [x] T030 [P] [US3] 建立 knowledge 模板（`src/templates/knowledge/`）：`module-map.yaml.hbs`（modules schema）— 並確認 `src/templates/steering/module-readme.hbs` 可供 knowledge generate 複用（README.md 模板：Overview, Key Files, Public API, Internal Notes 使用者區域）
+- [x] T031 [US3] 建立 `src/services/knowledge.service.ts`：readModuleMap → scanModules（遵循 .prospec.yaml exclude 模式排除敏感檔案，REQ-KNOW-007）→ generateModuleReadme（每個模組一個 README.md）→ updateIndex（_index.md Markdown 表格）— ContentMerger 保護使用者區域 — 支援 `--dry-run` — 依賴 T029, T030, T018
+- [x] T032 [US3] 建立 `src/cli/commands/knowledge-generate.ts`：註冊 `knowledge generate` 子命令（`--dry-run`），呼叫 knowledgeService — 🔧 `/cli-developer`：設計 Commander.js nested subcommand（`program.command('knowledge').command('generate')`）
 
 **Checkpoint**: `prospec knowledge generate` 完整可用 — AI Knowledge 漸進式揭露機制建立
 

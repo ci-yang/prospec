@@ -1,0 +1,15 @@
+modules:
+{{#each modules}}
+  - name: {{this.name}}
+{{#if this.description}}    description: "{{this.description}}"
+{{/if}}    paths:
+{{#each this.paths}}      - "{{this}}"
+{{/each}}    keywords:
+{{#each this.keywords}}      - {{this}}
+{{/each}}{{#if this.relationships}}    relationships:
+{{#if this.relationships.depends_on}}      depends_on:
+{{#each this.relationships.depends_on}}        - {{this}}
+{{/each}}{{/if}}{{#if this.relationships.used_by}}      used_by:
+{{#each this.relationships.used_by}}        - {{this}}
+{{/each}}{{/if}}{{/if}}
+{{/each}}
