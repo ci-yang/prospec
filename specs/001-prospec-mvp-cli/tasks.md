@@ -164,9 +164,9 @@
 
 ### Implementation
 
-- [ ] T043 [P] [US6] 建立 change plan 模板（`src/templates/change/`）：`plan.md.hbs`（概述、受影響模組、實作步驟、風險考量骨架）、`delta-spec.md.hbs`（ADDED/MODIFIED/REMOVED 格式骨架，REQ ID 遵循 `REQ-{MODULE}-{NUMBER}`）
-- [ ] T044 [US6] 建立 `src/services/change-plan.service.ts`：resolveChange（自動偵測 / 多選提示 / `--quiet` 模式報錯 / PrerequisiteError）→ 讀取 proposal.md 驗證存在 → renderPlan + renderDeltaSpec → updateMetadataStatus(`plan`) — 依賴 T043, T018, T013
-- [ ] T045 [US6] 建立 `src/cli/commands/change-plan.ts`：註冊 `change plan` 命令（`--change <name>`），呼叫 changePlanService — Change Resolution Strategy 依 contracts/cli-commands.md 實作
+- [x] T043 [P] [US6] 建立 change plan 模板（`src/templates/change/`）：`plan.md.hbs`（概述、受影響模組、實作步驟、風險考量骨架）、`delta-spec.md.hbs`（ADDED/MODIFIED/REMOVED 格式骨架，REQ ID 遵循 `REQ-{MODULE}-{NUMBER}`）
+- [x] T044 [US6] 建立 `src/services/change-plan.service.ts`：resolveChange（自動偵測 / 多選提示 / `--quiet` 模式報錯 / PrerequisiteError）→ 讀取 proposal.md 驗證存在 → renderPlan + renderDeltaSpec → updateMetadataStatus(`plan`) — 依賴 T043, T018, T013
+- [x] T045 [US6] 建立 `src/cli/commands/change-plan.ts`：註冊 `change plan` 命令（`--change <name>`），呼叫 changePlanService — Change Resolution Strategy 依 contracts/cli-commands.md 實作
 
 **Checkpoint**: `prospec change plan` 完整可用 — 計劃和 Delta Spec 骨架建立
 
