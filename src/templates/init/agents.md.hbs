@@ -1,0 +1,33 @@
+# AI Agents Configuration: {{project_name}}
+
+> This file provides general instructions for all AI assistants working on this project.
+> For agent-specific configurations, run `prospec agent sync`.
+
+## Project Overview
+
+- **Name**: {{project_name}}
+{{#if tech_stack}}
+{{#if tech_stack.language}}
+- **Language**: {{tech_stack.language}}
+{{/if}}
+{{#if tech_stack.framework}}
+- **Framework**: {{tech_stack.framework}}
+{{/if}}
+{{/if}}
+
+## Key References
+
+- **Constitution**: `docs/CONSTITUTION.md` — Project principles and constraints
+- **AI Knowledge**: `docs/ai-knowledge/_index.md` — Module index and project structure
+- **Conventions**: `docs/ai-knowledge/_conventions.md` — Coding conventions
+
+## General Instructions
+
+1. Always read the Constitution before making architectural decisions
+2. Use AI Knowledge index to understand project modules before modifying code
+3. Follow the coding conventions defined in `_conventions.md`
+4. When making changes, consider impact on related modules (check `module-map.yaml`)
+
+## Setup
+
+Run `prospec agent sync` to generate agent-specific configurations and SDD Skills.

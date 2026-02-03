@@ -1,0 +1,36 @@
+version: "1.0"
+
+project:
+  name: {{project_name}}
+
+{{#if tech_stack}}
+tech_stack:
+{{#if tech_stack.language}}
+  language: {{tech_stack.language}}
+{{/if}}
+{{#if tech_stack.framework}}
+  framework: {{tech_stack.framework}}
+{{/if}}
+{{#if tech_stack.package_manager}}
+  package_manager: {{tech_stack.package_manager}}
+{{/if}}
+{{/if}}
+
+paths: {}
+
+exclude:
+  - "*.env*"
+  - "*credential*"
+  - "*secret*"
+  - "node_modules"
+  - ".git"
+
+{{#if agents}}
+agents:
+{{#each agents}}
+  - {{this}}
+{{/each}}
+{{/if}}
+
+knowledge:
+  base_path: docs/ai-knowledge

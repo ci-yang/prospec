@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import pc from 'picocolors';
 import { handleError } from './formatters/error-output.js';
 import { ConfigNotFound } from '../types/errors.js';
+import { registerInitCommand } from './commands/init.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -57,8 +58,7 @@ export function createProgram(): Command {
   });
 
   // Register subcommand groups
-  // Individual command files will be registered in their respective phases
-  // Phase 3: init
+  registerInitCommand(program);
   // Phase 4: steering
   // Phase 5: knowledge (with generate subcommand)
   // Phase 6: agent (with sync subcommand)
