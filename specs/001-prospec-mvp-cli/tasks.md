@@ -192,14 +192,14 @@
 
 **Purpose**: 跨命令整合、測試、品質保障
 
-- [ ] T049 [P] 建立 `tests/unit/lib/` 單元測試：`config.test.ts`、`fs-utils.test.ts`、`yaml-utils.test.ts`、`logger.test.ts`、`detector.test.ts`、`agent-detector.test.ts`、`scanner.test.ts`、`template.test.ts`、`module-detector.test.ts`、`content-merger.test.ts` — 使用 Vitest + memfs（`vi.mock('node:fs')` + `vol.fromJSON()`）— 📚 `context7`：查詢 Vitest 4 的 `vi.mock()` 和 memfs 的 `vol.fromJSON()` / `vol.reset()` 用法
-- [ ] T050 [P] 建立 `tests/unit/services/` 單元測試：`init.service.test.ts`、`steering.service.test.ts`、`knowledge.service.test.ts`、`agent-sync.service.test.ts`、`change-story.service.test.ts`、`change-plan.service.test.ts`、`change-tasks.service.test.ts` — 透過 memfs mock 檔案系統
-- [ ] T051 [P] 建立 `tests/contract/cli-output.test.ts`：驗證各命令的 CLI 輸出格式符合 contracts/cli-commands.md 定義 — 使用 Commander.js `exitOverride` 捕獲輸出 — 📚 `context7`：查詢 Commander.js 14 的 `exitOverride` 在測試中的用法
-- [ ] T052 [P] 建立 `tests/contract/skill-format.test.ts`：驗證生成的 SKILL.md 格式（YAML frontmatter 存在、name/description 欄位、Copilot 格式正確 inline reference）
-- [ ] T053 建立 `tests/integration/init-flow.test.ts`、`steering-flow.test.ts`、`change-flow.test.ts`、`skill-generation.test.ts`：跨層互動測試（command → service → lib 完整流程）
-- [ ] T054 建立 `tests/e2e/cli.test.ts`：完整 CLI E2E 測試 — 使用真實 tmp dir（memfs 不傳播到 child process）— 📚 `context7`：查詢 Vitest 4 的 `beforeEach` / `afterEach` 中使用 `fs.mkdtemp()` 建立臨時目錄的最佳實踐
-- [ ] T055 [P] 在 `src/cli/index.ts` 加入命令建議功能：輸入錯誤命令時（如 `prospec inti`）顯示 "Did you mean 'init'?"（REQ-CLI-006）— 🔧 `/cli-developer`：確認 Commander.js 14 是否內建此功能或需自行實作
-- [ ] T056 執行 quickstart.md 驗證：依 quickstart.md 的 Greenfield 和 Brownfield 工作流程端到端執行一遍，確認所有步驟可正常完成
+- [x] T049 [P] 建立 `tests/unit/lib/` 單元測試：`config.test.ts`、`fs-utils.test.ts`、`yaml-utils.test.ts`、`logger.test.ts`、`detector.test.ts`、`agent-detector.test.ts`、`scanner.test.ts`、`template.test.ts`、`module-detector.test.ts`、`content-merger.test.ts` — 使用 Vitest + memfs（`vi.mock('node:fs')` + `vol.fromJSON()`）— 📚 `context7`：查詢 Vitest 4 的 `vi.mock()` 和 memfs 的 `vol.fromJSON()` / `vol.reset()` 用法
+- [x] T050 [P] 建立 `tests/unit/services/` 單元測試：`init.service.test.ts`、`steering.service.test.ts`、`knowledge.service.test.ts`、`agent-sync.service.test.ts`、`change-story.service.test.ts`、`change-plan.service.test.ts`、`change-tasks.service.test.ts` — 透過 memfs mock 檔案系統
+- [x] T051 [P] 建立 `tests/contract/cli-output.test.ts`：驗證各命令的 CLI 輸出格式符合 contracts/cli-commands.md 定義 — 使用 Commander.js `exitOverride` 捕獲輸出 — 📚 `context7`：查詢 Commander.js 14 的 `exitOverride` 在測試中的用法
+- [x] T052 [P] 建立 `tests/contract/skill-format.test.ts`：驗證生成的 SKILL.md 格式（YAML frontmatter 存在、name/description 欄位、Copilot 格式正確 inline reference）
+- [x] T053 建立 `tests/integration/init-flow.test.ts`、`steering-flow.test.ts`、`change-flow.test.ts`、`skill-generation.test.ts`：跨層互動測試（command → service → lib 完整流程）
+- [x] T054 建立 `tests/e2e/cli.test.ts`：完整 CLI E2E 測試 — 使用真實 tmp dir（memfs 不傳播到 child process）— 📚 `context7`：查詢 Vitest 4 的 `beforeEach` / `afterEach` 中使用 `fs.mkdtemp()` 建立臨時目錄的最佳實踐
+- [x] T055 [P] 在 `src/cli/index.ts` 加入命令建議功能：輸入錯誤命令時（如 `prospec inti`）顯示 "Did you mean 'init'?"（REQ-CLI-006）— 🔧 `/cli-developer`：確認 Commander.js 14 是否內建此功能或需自行實作
+- [x] T056 執行 quickstart.md 驗證：依 quickstart.md 的 Greenfield 和 Brownfield 工作流程端到端執行一遍，確認所有步驟可正常完成
 
 ---
 

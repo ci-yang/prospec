@@ -43,6 +43,8 @@ export function createProgram(): Command {
     .configureOutput({
       outputError: (str, write) => write(pc.red(str)),
     })
+    .showSuggestionAfterError()
+    .showHelpAfterError('(use --help for additional information)')
     .exitOverride();
 
   // preAction hook: check .prospec.yaml existence for non-init commands
