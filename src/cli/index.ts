@@ -6,6 +6,7 @@ import pc from 'picocolors';
 import { handleError } from './formatters/error-output.js';
 import { ConfigNotFound } from '../types/errors.js';
 import { registerInitCommand } from './commands/init.js';
+import { registerSteeringCommand } from './commands/steering.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -59,7 +60,7 @@ export function createProgram(): Command {
 
   // Register subcommand groups
   registerInitCommand(program);
-  // Phase 4: steering
+  registerSteeringCommand(program);
   // Phase 5: knowledge (with generate subcommand)
   // Phase 6: agent (with sync subcommand)
   // Phase 7-9: change (with story/plan/tasks subcommands)

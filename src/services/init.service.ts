@@ -6,6 +6,7 @@ import { writeConfig } from '../lib/config.js';
 import { fileExists, ensureDir, atomicWrite } from '../lib/fs-utils.js';
 import { detectTechStack } from '../lib/detector.js';
 import type { TechStackResult } from '../lib/detector.js';
+export type { TechStackResult };
 import { detectAgents } from '../lib/agent-detector.js';
 import type { AgentInfo } from '../lib/agent-detector.js';
 import { renderTemplate } from '../lib/template.js';

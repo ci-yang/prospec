@@ -1,7 +1,6 @@
 import pc from 'picocolors';
-import type { LogLevel } from '../../lib/logger.js';
-import type { InitResult } from '../../services/init.service.js';
-import type { TechStackResult } from '../../lib/detector.js';
+import type { LogLevel } from '../../types/config.js';
+import type { InitResult, TechStackResult } from '../../services/init.service.js';
 
 /**
  * Format the InitResult for terminal output with proper styling.

@@ -1,6 +1,7 @@
 import pc from 'picocolors';
+import type { LogLevel } from '../types/config.js';
 
-export type LogLevel = 'quiet' | 'normal' | 'verbose';
+export type { LogLevel };
 
 export interface Logger {
   success(message: string, detail?: string): void;

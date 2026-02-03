@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
 /**
+ * CLI output verbosity level.
+ */
+export type LogLevel = 'quiet' | 'normal' | 'verbose';
+
+/**
  * ProspecConfig schema — validates .prospec.yaml
  *
  * Uses Zod 4 unified `error` parameter for custom messages.

@@ -1,0 +1,37 @@
+# {{module_name}}
+
+> {{description}}
+
+## Overview
+
+| Property | Value |
+|----------|-------|
+| Path | `{{path}}` |
+| Keywords | {{join keywords ", "}} |
+{{#if relationships.depends_on.length}}| Depends On | {{join relationships.depends_on ", "}} |
+{{/if}}{{#if relationships.used_by.length}}| Used By | {{join relationships.used_by ", "}} |
+{{/if}}
+
+## Key Files
+
+<!-- prospec:auto-start -->
+| File | Description |
+|------|-------------|
+{{#each key_files}}| `{{this.path}}` | {{this.description}} |
+{{/each}}
+<!-- prospec:auto-end -->
+
+## Public API
+
+<!-- prospec:auto-start -->
+{{#each public_api}}- **{{this.name}}**: {{this.description}}
+{{/each}}
+{{#unless public_api}}(No public API detected yet — run `prospec knowledge generate` to populate)
+{{/unless}}
+<!-- prospec:auto-end -->
+
+## Internal Notes
+
+<!-- prospec:user-start -->
+<!-- Add your notes about this module here. This section is preserved on regeneration. -->
+<!-- prospec:user-end -->

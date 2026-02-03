@@ -92,12 +92,12 @@
 
 ### Implementation
 
-- [ ] T023 [P] [US2] 建立 `src/lib/scanner.ts`：`scanDir` 封裝 fast-glob — 支援 `depth` 控制、negative patterns（排除 node_modules, .git, exclude patterns）、內建敏感檔案預設排除（`*.env*`、`*credential*`、`*secret*`，REQ-STEER-008）、sync/async API — 📚 `context7`：查詢 fast-glob 3 的 `fg.glob()` API（options: `deep`, `ignore`, `onlyFiles`, `cwd`）
-- [ ] T024 [P] [US2] 建立 `src/lib/module-detector.ts`：五步模組偵測演算法 — ① module-map.yaml 優先（如存在）→ ② 目錄名稱匹配 → ③ 架構模式識別（MVC, Clean Architecture, 三層架構）→ ④ 關鍵字生成 → ⑤ 衝突解決（分散在不同目錄的相關檔案歸入同一模組）
-- [ ] T025 [P] [US2] 建立 steering 模板（`src/templates/steering/`）：`architecture.md.hbs`（Tech Stack 表格、Directory Structure、Architecture Layers、Entry Points、Key Design Decisions）、`module-readme.hbs`（Phase 5 共用）
-- [ ] T026 [US2] 建立 `src/services/steering.service.ts`：掃描 → 偵測架構 → 生成 module-map.yaml → 寫入 architecture.md → 更新 .prospec.yaml 的 tech_stack 和 paths — 支援 `--dry-run`（只預覽不寫入）、`--depth`（掃描深度）— 依賴 T023, T024, T025
-- [ ] T027 [US2] 建立 `src/cli/commands/steering.ts`：註冊 `steering` 命令（`--dry-run`, `--depth <n>`），呼叫 steeringService — 🔧 `/cli-developer`：設定 Commander.js option 的 number 型別轉換（`--depth <n>` → parseInt）
-- [ ] T028 [US2] 建立 `src/cli/formatters/steering-output.ts`：格式化 steering 結果 — 掃描摘要（檔案數、模組數）、architecture.md 路徑、module-map.yaml 路徑、dry-run 提示 — 🎨 `@cli-ui-designer`：設計掃描進度和結果輸出排版
+- [x] T023 [P] [US2] 建立 `src/lib/scanner.ts`：`scanDir` 封裝 fast-glob — 支援 `depth` 控制、negative patterns（排除 node_modules, .git, exclude patterns）、內建敏感檔案預設排除（`*.env*`、`*credential*`、`*secret*`，REQ-STEER-008）、sync/async API — 📚 `context7`：查詢 fast-glob 3 的 `fg.glob()` API（options: `deep`, `ignore`, `onlyFiles`, `cwd`）
+- [x] T024 [P] [US2] 建立 `src/lib/module-detector.ts`：五步模組偵測演算法 — ① module-map.yaml 優先（如存在）→ ② 目錄名稱匹配 → ③ 架構模式識別（MVC, Clean Architecture, 三層架構）→ ④ 關鍵字生成 → ⑤ 衝突解決（分散在不同目錄的相關檔案歸入同一模組）
+- [x] T025 [P] [US2] 建立 steering 模板（`src/templates/steering/`）：`architecture.md.hbs`（Tech Stack 表格、Directory Structure、Architecture Layers、Entry Points、Key Design Decisions）、`module-readme.hbs`（Phase 5 共用）
+- [x] T026 [US2] 建立 `src/services/steering.service.ts`：掃描 → 偵測架構 → 生成 module-map.yaml → 寫入 architecture.md → 更新 .prospec.yaml 的 tech_stack 和 paths — 支援 `--dry-run`（只預覽不寫入）、`--depth`（掃描深度）— 依賴 T023, T024, T025
+- [x] T027 [US2] 建立 `src/cli/commands/steering.ts`：註冊 `steering` 命令（`--dry-run`, `--depth <n>`），呼叫 steeringService — 🔧 `/cli-developer`：設定 Commander.js option 的 number 型別轉換（`--depth <n>` → parseInt）
+- [x] T028 [US2] 建立 `src/cli/formatters/steering-output.ts`：格式化 steering 結果 — 掃描摘要（檔案數、模組數）、architecture.md 路徑、module-map.yaml 路徑、dry-run 提示 — 🎨 `@cli-ui-designer`：設計掃描進度和結果輸出排版
 
 **Checkpoint**: `prospec steering` 完整可用 — Brownfield 專案可自動分析架構
 
