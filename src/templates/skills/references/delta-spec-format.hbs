@@ -1,0 +1,176 @@
+# Delta Spec 格式參考
+
+本文件說明 `delta-spec.md` 的預期格式，供 **prospec-plan** Skill 參考。
+
+---
+
+## 檔案用途
+
+`delta-spec.md` 描述需求的變更差異（Delta），使用 ADDED/MODIFIED/REMOVED 分類，追蹤需求演進。
+
+---
+
+## REQ ID 命名規則
+
+```
+REQ-{MODULE}-{NUMBER}
+```
+
+- `{MODULE}`: 模組名稱大寫，用連字符分隔（e.g., `AUTH`, `API-MIDDLEWARE`, `ERROR-HANDLER`）
+- `{NUMBER}`: 三位數編號（e.g., `001`, `002`, `003`）
+
+**範例：**
+- `REQ-AUTH-001`
+- `REQ-API-MIDDLEWARE-001`
+- `REQ-ERROR-HANDLER-002`
+
+---
+
+## 標準格式
+
+### 1. ADDED - 新增需求
+
+新增的需求，包含完整的詳細資訊：
+
+```markdown
+## ADDED
+
+### REQ-{MODULE}-{NUMBER}: [需求標題]
+
+**Description:**
+[需求的詳細描述]
+
+**Acceptance Criteria:**
+1. [具體可驗證的條件 1]
+2. [具體可驗證的條件 2]
+3. [具體可驗證的條件 3]
+
+**Priority:** [High/Medium/Low]
+
+---
+```
+
+**範例：**
+
+```markdown
+## ADDED
+
+### REQ-ERROR-HANDLER-001: Centralized Error Types
+
+**Description:**
+Define a set of standard error types that can be used across all modules in {{project_name}}. Each error type should have a unique error code and HTTP status mapping.
+
+**Acceptance Criteria:**
+1. Error types include ValidationError, NotFoundError, UnauthorizedError, ServerError
+2. Each error type has a unique error code following the convention in {{constitution_path}}
+3. Error codes map to appropriate HTTP status codes (400, 401, 404, 500, etc.)
+
+**Priority:** High
+
+---
+
+### REQ-ERROR-HANDLER-002: Error Response Formatter
+
+**Description:**
+Implement a formatter that converts errors into standardized JSON responses for API endpoints.
+
+**Acceptance Criteria:**
+1. Response includes error code, message, and timestamp
+2. Stack traces are excluded from production responses
+3. Supports localization for error messages
+
+**Priority:** Medium
+
+---
+```
+
+---
+
+### 2. MODIFIED - 修改需求
+
+修改的需求，顯示變更前後的對比：
+
+```markdown
+## MODIFIED
+
+### REQ-{MODULE}-{NUMBER}: [需求標題]
+
+**Before:**
+[原本的需求描述或條件]
+
+**After:**
+[修改後的需求描述或條件]
+
+**Reason:**
+[為什麼要修改]
+
+**Priority:** [High/Medium/Low]
+
+---
+```
+
+**範例：**
+
+```markdown
+## MODIFIED
+
+### REQ-API-MIDDLEWARE-003: Error Logging
+
+**Before:**
+Log all errors to console with full stack traces.
+
+**After:**
+Log errors to the logger module with configurable log levels. Stack traces are only logged in development mode.
+
+**Reason:**
+Align with the logging strategy defined in {{constitution_path}} and improve production security.
+
+**Priority:** Medium
+
+---
+```
+
+---
+
+### 3. REMOVED - 移除需求
+
+移除的需求，說明移除的理由：
+
+```markdown
+## REMOVED
+
+### REQ-{MODULE}-{NUMBER}: [需求標題]
+
+**Reason:**
+[為什麼移除這個需求]
+
+---
+```
+
+**範例：**
+
+```markdown
+## REMOVED
+
+### REQ-ERROR-HANDLER-004: Email Notification on Errors
+
+**Reason:**
+Out of scope for this story. Email notification will be handled by a separate monitoring module in a future story.
+
+---
+```
+
+---
+
+## 檔案長度建議
+
+- 保持在 **100 行以內**
+- 如果 Delta 過多（>10 個需求），考慮拆分成多個 Story
+
+---
+
+## 參考資訊
+
+- 專案名稱: `{{project_name}}`
+- AI Knowledge 路徑: `{{knowledge_base_path}}`
+- Constitution 檔案: `{{constitution_path}}`

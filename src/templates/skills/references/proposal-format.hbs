@@ -1,0 +1,112 @@
+# Proposal 格式參考
+
+本文件說明 `proposal.md` 的預期格式，供 **prospec-new-story** Skill 參考。
+
+---
+
+## 檔案用途
+
+`proposal.md` 是 Story 的起點，描述使用者需求、驗收條件和相關模組。
+
+---
+
+## 標準格式
+
+### 1. User Story
+
+使用標準 User Story 格式：
+
+```markdown
+## User Story
+
+As a [角色/使用者類型],
+I want [功能/需求],
+So that [目的/價值].
+```
+
+**範例：**
+
+```markdown
+## User Story
+
+As a backend developer,
+I want a unified error handling mechanism,
+So that I can manage errors consistently across the application.
+```
+
+---
+
+### 2. Acceptance Criteria
+
+使用編號列表清楚列出驗收條件：
+
+```markdown
+## Acceptance Criteria
+
+1. [具體可驗證的條件 1]
+2. [具體可驗證的條件 2]
+3. [具體可驗證的條件 3]
+...
+```
+
+**範例：**
+
+```markdown
+## Acceptance Criteria
+
+1. All API endpoints return standardized error responses
+2. Error codes follow the convention defined in {{constitution_path}}
+3. Stack traces are logged but not exposed to clients
+4. HTTP status codes map correctly to error types
+```
+
+---
+
+### 3. Related Modules
+
+根據 `{{knowledge_base_path}}/_index.md` 的關鍵字比對，列出相關模組：
+
+```markdown
+## Related Modules
+
+- **module-name-1**: [為什麼相關的簡短說明]
+- **module-name-2**: [為什麼相關的簡短說明]
+```
+
+**範例：**
+
+```markdown
+## Related Modules
+
+- **error-handler**: Core error handling logic
+- **api-middleware**: HTTP error response formatting
+- **logger**: Error logging and monitoring
+```
+
+---
+
+### 4. Notes (選用)
+
+額外的上下文、技術考量或限制：
+
+```markdown
+## Notes
+
+- [額外的上下文或技術考量]
+- [已知的限制或風險]
+```
+
+---
+
+## 檔案長度建議
+
+- 保持在 **100 行以內**
+- 如果 Acceptance Criteria 過多（>10 條），考慮拆分成多個 Story
+
+---
+
+## 參考資訊
+
+- 專案名稱: `{{project_name}}`
+- AI Knowledge 路徑: `{{knowledge_base_path}}`
+- Constitution 檔案: `{{constitution_path}}`

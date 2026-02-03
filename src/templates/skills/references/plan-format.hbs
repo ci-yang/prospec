@@ -1,0 +1,153 @@
+# Plan 格式參考
+
+本文件說明 `plan.md` 的預期格式，供 **prospec-plan** Skill 參考。
+
+---
+
+## 檔案用途
+
+`plan.md` 是 Story 的執行計劃，描述實作概覽、受影響模組、實作步驟和風險評估。
+
+---
+
+## 標準格式
+
+### 1. Overview
+
+1-2 段落的摘要，說明整體實作策略：
+
+```markdown
+## Overview
+
+[第一段：這個 Story 要解決什麼問題]
+
+[第二段：採用的實作策略和關鍵設計決策]
+```
+
+**範例：**
+
+```markdown
+## Overview
+
+This story implements a unified error handling mechanism for {{project_name}}. Currently, errors are handled inconsistently across different modules, making debugging difficult.
+
+We will create a centralized error handler module that defines standard error types, response formats, and logging strategies. This follows the error handling conventions specified in {{constitution_path}}.
+```
+
+---
+
+### 2. Affected Modules
+
+使用表格列出受影響的模組：
+
+```markdown
+## Affected Modules
+
+| Module | Impact | Changes |
+|--------|--------|---------|
+| [模組名稱] | [High/Medium/Low] | [簡短描述變更內容] |
+| [模組名稱] | [High/Medium/Low] | [簡短描述變更內容] |
+```
+
+**範例：**
+
+```markdown
+## Affected Modules
+
+| Module | Impact | Changes |
+|--------|--------|---------|
+| error-handler | High | New module creation |
+| api-middleware | Medium | Integrate centralized error handler |
+| logger | Low | Add error-specific log formatting |
+```
+
+---
+
+### 3. Implementation Steps
+
+使用有序編號列表，每個步驟包含細節：
+
+```markdown
+## Implementation Steps
+
+1. **[步驟標題]**
+   - [細節 1]
+   - [細節 2]
+
+2. **[步驟標題]**
+   - [細節 1]
+   - [細節 2]
+
+3. **[步驟標題]**
+   - [細節 1]
+   - [細節 2]
+```
+
+**範例：**
+
+```markdown
+## Implementation Steps
+
+1. **Create error-handler module**
+   - Define standard error types (ValidationError, NotFoundError, etc.)
+   - Implement error code mapping system
+   - Create error response formatter
+
+2. **Integrate with existing modules**
+   - Update api-middleware to use centralized error handler
+   - Refactor existing error handling code
+   - Ensure backward compatibility
+
+3. **Add logging and monitoring**
+   - Integrate with logger module
+   - Add error tracking hooks
+   - Configure log levels per error type
+
+4. **Update documentation**
+   - Document error codes in {{knowledge_base_path}}
+   - Add usage examples for developers
+   - Update API documentation
+```
+
+---
+
+### 4. Risk Assessment
+
+使用表格列出風險、影響和緩解策略：
+
+```markdown
+## Risk Assessment
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| [風險描述] | [High/Medium/Low] | [如何緩解] |
+| [風險描述] | [High/Medium/Low] | [如何緩解] |
+```
+
+**範例：**
+
+```markdown
+## Risk Assessment
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Breaking existing error handling | High | Implement gradual migration, maintain backward compatibility |
+| Performance overhead | Low | Optimize error handler, benchmark critical paths |
+| Incomplete error coverage | Medium | Conduct thorough code review, add integration tests |
+```
+
+---
+
+## 檔案長度建議
+
+- 保持在 **120 行以內**
+- Implementation Steps 理想數量：4-8 步驟
+- 如果步驟過多（>10），考慮拆分成多個 Story
+
+---
+
+## 參考資訊
+
+- 專案名稱: `{{project_name}}`
+- AI Knowledge 路徑: `{{knowledge_base_path}}`
+- Constitution 檔案: `{{constitution_path}}`

@@ -1,0 +1,58 @@
+# {{project_name}}
+
+> AI-augmented project with Prospec Skills and structured AI Knowledge
+
+## Tech Stack
+
+{{#if tech_stack}}
+{{#if tech_stack.language}}
+- **Language**: {{tech_stack.language}}
+{{/if}}
+{{#if tech_stack.framework}}
+- **Framework**: {{tech_stack.framework}}
+{{/if}}
+{{#if tech_stack.package_manager}}
+- **Package Manager**: {{tech_stack.package_manager}}
+{{/if}}
+{{/if}}
+
+## Core Resources
+
+### Constitution
+讀取專案原則與約束: [`{{constitution_path}}`]({{constitution_path}})
+
+### AI Knowledge Base
+模組索引與專案結構: [`{{knowledge_base_path}}/_index.md`]({{knowledge_base_path}}/_index.md)
+
+### Coding Conventions
+程式碼規範與最佳實踐: [`{{knowledge_base_path}}/_conventions.md`]({{knowledge_base_path}}/_conventions.md)
+
+## Available Prospec Skills
+
+此專案配備以下 Prospec Skills，可透過 slash command 觸發:
+
+{{#each skills}}
+### /{{name}}
+
+{{description}}
+
+**Type**: {{type}}
+{{#if hasReferences}}
+**References**: `.prospec/skills/{{name}}/references/`
+{{/if}}
+
+{{/each}}
+
+## Working with This Project
+
+1. **開始前**: 閱讀 Constitution 了解專案原則
+2. **理解結構**: 查閱 AI Knowledge Index 掌握模組架構
+3. **程式碼規範**: 遵循 Conventions 文件中的風格指南
+4. **使用 Skills**: 透過 `/skill-name` 指令觸發專用工作流程
+5. **模組依賴**: 修改前檢查 `{{knowledge_base_path}}/module-map.yaml`
+
+## Notes
+
+- 此檔案為 Layer 0 (always loaded) - 保持簡潔，指向其他資源
+- Skills 為 Layer 1-2 - 按需載入詳細指令
+- Knowledge Base 為 on-demand - 根據工作範圍載入

@@ -8,6 +8,7 @@ import { ConfigNotFound } from '../types/errors.js';
 import { registerInitCommand } from './commands/init.js';
 import { registerSteeringCommand } from './commands/steering.js';
 import { registerKnowledgeCommand } from './commands/knowledge-generate.js';
+import { registerAgentCommand } from './commands/agent-sync.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -63,7 +64,7 @@ export function createProgram(): Command {
   registerInitCommand(program);
   registerSteeringCommand(program);
   registerKnowledgeCommand(program);
-  // Phase 6: agent (with sync subcommand)
+  registerAgentCommand(program);
   // Phase 7-9: change (with story/plan/tasks subcommands)
 
   return program;
