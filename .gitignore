@@ -1,1 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Coverage
+coverage/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# Temp files
+*.tmp
+*.swp
+
+# Claude Code
 .claude/
+CLAUDE.md
