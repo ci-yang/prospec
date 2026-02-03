@@ -1,0 +1,55 @@
+# Tasks: {{change_name}}
+
+**Input**: Design documents from `.prospec/changes/{{change_name}}/`
+**Prerequisites**: plan.md, delta-spec.md
+
+## Format: `[ID] [P?] Description (~lines)`
+
+- **[P]**: 可並行執行（不同檔案，無相互依賴）
+- **~N lines**: 預估變更行數
+
+---
+
+## Phase 1: Models & Types
+
+{{#if related_modules}}
+{{#each related_modules}}
+- [ ] [P] 更新 `{{this.name}}` 相關的型別定義 ~20 lines
+{{/each}}
+{{else}}
+- [ ] T1 [P] [建立/更新型別定義] ~20 lines
+- [ ] T2 [P] [建立/更新資料模型] ~30 lines
+{{/if}}
+
+## Phase 2: Services & Business Logic
+
+- [ ] T3 [建立/更新核心服務邏輯] ~50 lines
+- [ ] T4 [建立/更新輔助工具函數] ~30 lines
+
+## Phase 3: Routes & Commands
+
+- [ ] T5 [建立/更新 API 路由或 CLI 命令] ~40 lines
+- [ ] T6 [建立/更新輸出格式化] ~25 lines
+
+## Phase 4: Tests
+
+- [ ] T7 [P] 建立單元測試 ~40 lines
+- [ ] T8 [P] 建立整合測試 ~50 lines
+
+---
+
+## Summary
+
+| Item | Count |
+|------|-------|
+| Total tasks | [N] |
+| Parallelizable | [N] |
+| Estimated lines | ~[N] lines |
+
+---
+
+## Notes
+
+- [P] = 不同檔案、無依賴，可並行執行
+- 每個 Phase 完成後建議驗證功能正常
+- ~N lines 為預估值，實際可能因需求調整

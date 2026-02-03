@@ -180,9 +180,9 @@
 
 ### Implementation
 
-- [ ] T046 [P] [US7] 建立 tasks 模板（`src/templates/change/tasks.md.hbs`）：checkbox 格式骨架（`- [ ]`）、按架構層次分組（Models → Services → Routes → Tests）、複雜度估算佔位（`~{lines} lines`）、`[P]` 並行標記佔位、摘要佔位（總任務數、可並行數、總估算行數）
-- [ ] T047 [US7] 建立 `src/services/change-tasks.service.ts`：resolveChange（同 change-plan 解析策略）→ 讀取 plan.md 驗證存在 → renderTasks → updateMetadataStatus(`tasks`) — 依賴 T046, T018, T013
-- [ ] T048 [US7] 建立 `src/cli/commands/change-tasks.ts`：註冊 `change tasks` 命令（`--change <name>`），呼叫 changeTasksService
+- [x] T046 [P] [US7] 建立 tasks 模板（`src/templates/change/tasks.md.hbs`）：checkbox 格式骨架（`- [ ]`）、按架構層次分組（Models → Services → Routes → Tests）、複雜度估算佔位（`~{lines} lines`）、`[P]` 並行標記佔位、摘要佔位（總任務數、可並行數、總估算行數）
+- [x] T047 [US7] 建立 `src/services/change-tasks.service.ts`：resolveChange（同 change-plan 解析策略）→ 讀取 plan.md 驗證存在 → renderTasks → updateMetadataStatus(`tasks`) — 依賴 T046, T018, T013
+- [x] T048 [US7] 建立 `src/cli/commands/change-tasks.ts`：註冊 `change tasks` 命令（`--change <name>`），呼叫 changeTasksService
 
 **Checkpoint**: `prospec change tasks` 完整可用 — 完整變更管理 CLI（story → plan → tasks）就緒
 

@@ -11,6 +11,7 @@ import { registerKnowledgeCommand } from './commands/knowledge-generate.js';
 import { registerAgentCommand } from './commands/agent-sync.js';
 import { registerChangeCommand } from './commands/change-story.js';
 import { registerChangePlanCommand } from './commands/change-plan.js';
+import { registerChangeTasksCommand } from './commands/change-tasks.js';
 
 // Read version from package.json at build time via Node.js import
 import { createRequire } from 'node:module';
@@ -69,6 +70,7 @@ export function createProgram(): Command {
   registerAgentCommand(program);
   registerChangeCommand(program);
   registerChangePlanCommand(program);
+  registerChangeTasksCommand(program);
 
   return program;
 }
