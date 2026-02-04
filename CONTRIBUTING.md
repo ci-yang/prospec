@@ -6,7 +6,7 @@ Thank you for considering contributing to Prospec! This guide will help you get 
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/prospec.git
+git clone https://github.com/ci-yang/prospec.git
 cd prospec
 
 # Install dependencies

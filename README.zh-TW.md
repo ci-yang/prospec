@@ -44,21 +44,17 @@ Prospec 是一套 **CLI 工具**，串接人類需求與 AI 驅動開發之間�
 
 ## 📦 安裝
 
-### 全域安裝（建議）
+### 從原始碼安裝
 
 ```bash
-npm install -g prospec
-```
-
-### 本地開發
-
-```bash
-git clone https://github.com/your-org/prospec.git
+git clone https://github.com/ci-yang/prospec.git
 cd prospec
 npm install
 npm run build
 npm link
 ```
+
+> **注意**：`npm install -g prospec` 將在首次 npm 發佈後可用。
 
 ### 前置需求
 
@@ -295,7 +291,7 @@ Prospec 強制執行 6 大核心原則：
 
 ```bash
 # Clone 並安裝
-git clone https://github.com/your-org/prospec.git
+git clone https://github.com/ci-yang/prospec.git
 cd prospec
 npm install
 

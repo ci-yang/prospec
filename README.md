@@ -44,21 +44,17 @@ Prospec is a **CLI tool** that bridges the gap between human requirements and AI
 
 ## 📦 Installation
 
-### Global Install (Recommended)
+### Install from Source
 
 ```bash
-npm install -g prospec
-```
-
-### Local Development
-
-```bash
-git clone https://github.com/your-org/prospec.git
+git clone https://github.com/ci-yang/prospec.git
 cd prospec
 npm install
 npm run build
 npm link
 ```
+
+> **Note**: `npm install -g prospec` will be available after the first npm release.
 
 ### Prerequisites
 
@@ -295,7 +291,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for gu
 
 ```bash
 # Clone and install
-git clone https://github.com/your-org/prospec.git
+git clone https://github.com/ci-yang/prospec.git
 cd prospec
 npm install
 
