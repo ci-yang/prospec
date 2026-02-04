@@ -15,10 +15,11 @@ description: 規劃實作 | Plan Implementation - 從需求生成實作計畫和
 - **變更規格產生**：產出 delta-spec.md 定義所有程式碼變更
 - **憲法符合度檢查**：確保實作計畫符合專案原則
 
-### 2. CLI + AI 協作模式
-- **CLI 建立骨架**：`prospec change plan` 建立 plan.md 和 delta-spec.md 模板
+### 2. Skill 自主模式
+- **自主建立骨架**：Skill 自動偵測並建立 plan.md 和 delta-spec.md（或偵測已存在的骨架直接填充）
 - **AI 填充內容**：協助使用者填寫技術細節和實作步驟
 - **漸進式知識載入**：Layer 1 載入 _index.md，Layer 2 載入相關模組 README
+- **向下相容**：使用者若已先跑 `prospec change plan`，Skill 會偵測到骨架並直接填充
 
 ### 3. 參考文件
 此 Skill 依賴以下參考格式文件：
@@ -172,22 +173,73 @@ const constitutionContent = readFile(constitutionPath);
 console.log('✓ 已載入專案憲法');
 ```
 
-### Step 3: 執行 CLI 建立骨架
+### Step 3: 確認或建立骨架
 
-```bash
-$ prospec change plan [變更名稱]
+檢查 `.prospec/changes/[變更名稱]/` 中的 plan.md 和 delta-spec.md 是否已存在，決定行為：
+
+**情況 A：骨架不存在（自主建立）**
+
+你需要自行建立以下檔案：
+
+1. 建立空的 `plan.md`，使用以下模板：
+   ```markdown
+   # [變更名稱]：實作計畫
+
+   ## 技術架構
+
+   _待設計_
+
+   ## 實作階段
+
+   _待規劃_
+
+   ## 技術決策
+
+   _待分析_
+
+   ## 風險
+
+   _待評估_
+   ```
+
+2. 建立空的 `delta-spec.md`，使用以下模板：
+   ```markdown
+   # [變更名稱]：Delta Spec
+
+   ## 修改檔案
+
+   _待定義_
+
+   ## 不修改的檔案
+
+   _待列出_
+
+   ## 測試影響
+
+   _待分析_
+   ```
+
+3. 更新 `metadata.yaml` 的狀態：
+   ```yaml
+   status: plan
+   ```
+
 ```
-
-```
-✓ 執行 CLI 指令：prospec change plan [變更名稱]
-
-CLI 已建立以下檔案：
+✓ 已自主建立骨架：
 📁 .prospec/changes/[變更名稱]/
   ├── proposal.md         (已存在)
   ├── plan.md            (新建，待填充)
   └── delta-spec.md      (新建，待填充)
 
+metadata.yaml 狀態已更新為 plan。
 接下來我會協助你填寫 plan.md 和 delta-spec.md 的內容。
+```
+
+**情況 B：骨架已存在（使用者先跑了 CLI）**
+
+```
+✓ 偵測到骨架已存在：plan.md 和 delta-spec.md
+  直接讀取現有檔案，進入填充流程。
 ```
 
 ### Step 4: 設計實作計畫 (plan.md)
@@ -593,12 +645,12 @@ Layer 3: 原始碼 (可選)
 路徑：.prospec/changes/[變更名稱]/proposal.md
 
 可能原因：
-- 尚未執行 prospec change story
+- 尚未建立 User Story
 - 變更名稱錯誤
 - 檔案被刪除
 
 建議：
-1. 先執行 /prospec-new-story 建立 User Story
+1. 先執行 /prospec-new-story 建立 User Story（Skill 會自動建立骨架）
 2. 確認變更名稱是否正確
 3. 列出所有可用的變更
 
@@ -687,9 +739,8 @@ So that 我可以提供正式格式的報告給客戶
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✓ 執行 CLI：prospec change plan add-report-pdf-export
-
-已建立 plan.md 和 delta-spec.md 模板。
+✓ 已自主建立 plan.md 和 delta-spec.md 骨架
+  metadata.yaml 狀態更新為 plan
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

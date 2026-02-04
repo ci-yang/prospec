@@ -15,10 +15,12 @@ description: 快轉規劃 | Fast-Forward Planning - 一次生成完整規劃（S
 - **漸進式驗證**：每個階段完成後進行憲法檢查
 - **錯誤恢復**：任何階段失敗，保留已完成的部分
 
-### 2. CLI + AI 協作模式
-- **多階段 CLI 執行**：依序執行 `story` → `plan` → `tasks` 指令
+### 2. Skill 自主完成全流程
+- **自主建檔**：Skill 自動建立所有目錄和檔案，不需要先跑 CLI
 - **AI 快速填充**：在每個階段快速產出高品質內容
 - **無縫銜接**：前一階段的輸出自動成為下一階段的輸入
+- **metadata 狀態推進**：自動維護 story → plan → tasks 的狀態生命週期
+- **向下相容**：若使用者已先跑 CLI 建骨架，Skill 偵測到後直接填充
 
 ### 3. 適用場景
 - 需求非常明確，不需要深度探索
@@ -105,15 +107,22 @@ Q3: 關鍵驗收條件有哪些？（3-5 個重點）
 [如果使用者調整] → 使用新名稱
 ```
 
-#### 1.3 執行 CLI 並快速填充
+#### 1.3 確認或建立骨架並快速填充
 
-```bash
-$ prospec change story [變更名稱]
+檢查 `.prospec/changes/[變更名稱]/` 是否已存在：
+- **若不存在**：建立目錄，建立 `metadata.yaml`（status: story），建立空 `proposal.md`
+- **若已存在**：直接讀取現有檔案
+
+metadata.yaml 內容：
+```yaml
+name: "[變更名稱]"
+created_at: "[當前 ISO 8601 時間戳]"
+status: story
 ```
 
 ```
-✓ CLI 執行完成
-✓ 已建立 .prospec/changes/[變更名稱]/proposal.md
+✓ 已確認/建立骨架：.prospec/changes/[變更名稱]/
+✓ metadata.yaml (status: story)
 
 正在快速填充 User Story...
 
@@ -178,15 +187,15 @@ $ prospec change story [變更名稱]
 ✓ 模組知識載入完成
 ```
 
-#### 2.2 執行 CLI 並快速設計
+#### 2.2 確認或建立骨架並快速設計
 
-```bash
-$ prospec change plan [變更名稱]
-```
+檢查 `plan.md` 和 `delta-spec.md` 是否已存在：
+- **若不存在**：建立空 `plan.md` 和 `delta-spec.md`，更新 `metadata.yaml` 狀態為 `plan`
+- **若已存在**：直接讀取現有檔案
 
 ```
-✓ CLI 執行完成
-✓ 已建立 plan.md 和 delta-spec.md
+✓ 已確認/建立 plan.md 和 delta-spec.md
+✓ metadata.yaml 狀態更新為 plan
 
 正在快速設計架構...
 
@@ -253,15 +262,15 @@ $ prospec change plan [變更名稱]
 ✓ Tests：[數量] 個任務
 ```
 
-#### 3.2 執行 CLI 並快速填充
+#### 3.2 確認或建立骨架並快速填充
 
-```bash
-$ prospec change tasks [變更名稱]
-```
+檢查 `tasks.md` 是否已存在：
+- **若不存在**：建立空 `tasks.md`，更新 `metadata.yaml` 狀態為 `tasks`
+- **若已存在**：直接讀取現有檔案
 
 ```
-✓ CLI 執行完成
-✓ 已建立 tasks.md
+✓ 已確認/建立 tasks.md
+✓ metadata.yaml 狀態更新為 tasks
 
 填充任務清單...
 
@@ -618,7 +627,7 @@ AI：好的！建議變更名稱：add-report-pdf-export
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 AI：⚡ Step 1: Story 生成
 
-✓ CLI 執行完成
+✓ 已自主建立骨架
 ✓ User Story 已生成
 
 As a 專案經理
@@ -713,5 +722,7 @@ Fast-Forward vs 分階段 Skills
 2. **憲法檢查嚴格**：任何階段違反憲法都會暫停，必須處理
 3. **錯誤恢復機制**：失敗不會丟失已完成的工作
 4. **適時切換**：如果發現不適合，及時切換到標準流程
+5. **CLI 仍可用**：`prospec change story/plan/tasks` 指令仍可作為 non-AI fallback，適用於 CI/CD 自動化或腳本整合
+6. **metadata 狀態推進**：完整流程中 metadata.yaml 的 status 必須依序推進：story → plan → tasks，不可跳步
 
 讓我們快速推進你的專案！⚡

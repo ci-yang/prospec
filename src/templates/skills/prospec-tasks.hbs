@@ -15,10 +15,11 @@ description: 拆解任務 | Break Down Tasks - 將實作計畫拆解為可執行
 - **複雜度估算**：標記每個任務的預估時間或複雜度
 - **平行化標記**：使用 `[P]` 標記可平行執行的任務
 
-### 2. CLI + AI 協作模式
-- **CLI 建立骨架**：`prospec change tasks` 建立 tasks.md 模板
+### 2. Skill 自主模式
+- **自主建立骨架**：Skill 自動偵測並建立 tasks.md（或偵測已存在的骨架直接填充）
 - **AI 填充內容**：將 plan.md 拆解成細粒度的可執行任務
 - **憲法測試檢查**：確保包含充足的測試任務
+- **向下相容**：使用者若已先跑 `prospec change tasks`，Skill 會偵測到骨架並直接填充
 
 ### 3. 參考文件
 此 Skill 依賴以下參考格式文件：
@@ -98,19 +99,39 @@ delta-spec.md
 基於這些資訊，我會拆解成可執行的任務。
 ```
 
-### Step 3: 執行 CLI 建立骨架
+### Step 3: 確認或建立骨架
 
-```bash
-$ prospec change tasks [變更名稱]
+檢查 `.prospec/changes/[變更名稱]/tasks.md` 是否已存在，決定行為：
+
+**情況 A：骨架不存在（自主建立）**
+
+你需要自行建立以下檔案：
+
+1. 建立空的 `tasks.md`，使用以下模板：
+   ```markdown
+   # [變更名稱]：任務清單
+
+   _待拆解_
+   ```
+
+2. 更新 `metadata.yaml` 的狀態：
+   ```yaml
+   status: tasks
+   ```
+
 ```
-
-```
-✓ 執行 CLI 指令：prospec change tasks [變更名稱]
-
-CLI 已建立：
+✓ 已自主建立骨架：
 📄 .prospec/changes/[變更名稱]/tasks.md
 
+metadata.yaml 狀態已更新為 tasks。
 接下來我會填充任務清單。
+```
+
+**情況 B：骨架已存在（使用者先跑了 CLI）**
+
+```
+✓ 偵測到骨架已存在：tasks.md
+  直接讀取現有檔案，進入填充流程。
 ```
 
 ### Step 4: 拆解任務（按架構層級）
@@ -539,12 +560,12 @@ Models          Services        Routes          UI              Tests
 - .prospec/changes/[變更名稱]/delta-spec.md
 
 可能原因：
-- 尚未執行 prospec change plan
+- 尚未建立實作計畫
 - 檔案被刪除
 - 路徑錯誤
 
 建議：
-1. 先執行 /prospec-plan 建立實作計畫
+1. 先執行 /prospec-plan 建立實作計畫（Skill 會自動建立骨架）
 2. 確認變更名稱是否正確
 
 要執行 /prospec-plan 嗎？
@@ -617,7 +638,8 @@ AI：讓我開始拆解任務 ✅
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✓ 執行 CLI：prospec change tasks add-report-pdf-export
+✓ 已自主建立 tasks.md 骨架
+  metadata.yaml 狀態更新為 tasks
 
 開始拆解任務...
 

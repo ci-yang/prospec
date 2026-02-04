@@ -15,10 +15,11 @@ description: 新增故事 | New Story - 建立新的變更需求，定義 User S
 - **憲法符合度檢查 (Constitution Compliance)**
 - **相關模組識別 (Related Modules)**
 
-### 2. CLI + AI 協作模式
-- **CLI 建立骨架**：`prospec change story` 建立目錄結構和空白模板
+### 2. Skill 自主模式
+- **自主建立骨架**：Skill 自動偵測並建立目錄結構和空白模板（或偵測已存在的骨架直接填充）
 - **AI 填充內容**：協助使用者填寫 User Story 和驗收標準
 - **漸進式完善**：透過對話逐步完善需求細節
+- **向下相容**：使用者若已先跑 `prospec change story`，Skill 會偵測到骨架並直接填充
 
 ### 3. 參考文件
 此 Skill 依賴以下參考格式文件：
@@ -92,27 +93,66 @@ Q4: 有沒有特定的限制或約束條件？
 - 反映核心功能（如 `add-pdf-export`, `update-auth-flow`）
 - 避免過長（建議 2-4 個單字）
 
-### Step 3: 執行 CLI 建立骨架
+### Step 3: 確認或建立骨架
 
-```bash
-$ prospec change story [變更名稱]
+檢查 `.prospec/changes/[變更名稱]/` 是否已存在，決定行為：
+
+**情況 A：骨架不存在（自主建立）**
+
+你需要自行建立以下目錄和檔案：
+
+1. 建立目錄：`.prospec/changes/[變更名稱]/`
+2. 建立 `metadata.yaml`，內容如下：
+   ```yaml
+   name: "[變更名稱]"
+   created_at: "[當前 ISO 8601 時間戳]"
+   status: story
+   ```
+3. 建立空的 `proposal.md`，使用以下模板：
+   ```markdown
+   # [變更名稱]
+
+   ## User Story
+
+   As a [角色/使用者類型],
+   I want [功能/需求],
+   So that [目的/價值].
+
+   ## Acceptance Criteria
+
+   1. [具體可驗證的條件 1]
+   2. [具體可驗證的條件 2]
+   3. [具體可驗證的條件 3]
+
+   ## Related Modules
+
+   _待識別_
+
+   ## Notes
+
+   - [額外的上下文或技術考量]
+   ```
+
 ```
-
-```
-✓ 執行 CLI 指令：prospec change story [變更名稱]
-
-CLI 已建立以下結構：
+✓ 已自主建立骨架結構：
 📁 .prospec/changes/[變更名稱]/
-  ├── proposal.md     (User Story 模板)
-  └── .gitkeep
+  ├── metadata.yaml   (status: story)
+  └── proposal.md     (User Story 模板)
 
 接下來我會協助你填寫 proposal.md 的內容。
 ```
 
-### Step 4: 讀取生成的模板
+**情況 B：骨架已存在（使用者先跑了 CLI）**
+
+```
+✓ 偵測到骨架已存在：.prospec/changes/[變更名稱]/
+  直接讀取現有檔案，進入填充流程。
+```
+
+### Step 4: 讀取模板
 
 ```typescript
-// 讀取 CLI 生成的 proposal.md 模板
+// 讀取 proposal.md 模板（無論是自主建立或 CLI 生成的）
 const proposalPath = `.prospec/changes/[變更名稱]/proposal.md`;
 const proposalContent = readFile(proposalPath);
 
@@ -295,22 +335,23 @@ User Story:
 
 ## 錯誤處理
 
-### 情況 1：CLI 執行失敗
+### 情況 1：骨架建立失敗
 
 ```
-❌ CLI 執行失敗
+❌ 骨架建立失敗
 
 錯誤訊息：[錯誤內容]
 
 可能原因：
 - 專案根目錄找不到 .prospec.yaml
-- 變更名稱重複
+- 變更名稱重複（目錄已存在但狀態不一致）
 - 權限問題
 
 建議：
 1. 確認在專案根目錄執行
 2. 嘗試不同的變更名稱
 3. 檢查檔案權限
+4. 或使用 CLI fallback：`prospec change story [變更名稱]`
 
 要重試嗎？
 ```
@@ -383,9 +424,9 @@ Q4: 有沒有特殊的格式要求？
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-✓ 執行 CLI：prospec change story add-report-pdf-export
+✓ 已自主建立骨架：.prospec/changes/add-report-pdf-export/
 
-已建立目錄結構。現在讓我們填寫 User Story：
+現在讓我們填寫 User Story：
 
 ┌─────────────────────────────────────────┐
 │ As a 專案經理                            │
@@ -461,5 +502,6 @@ Q4: 有沒有特殊的格式要求？
 2. **從使用者角度思考**：User Story 應該聚焦價值，不是技術實作
 3. **憲法檢查是重點**：這是確保專案一致性的關鍵步驟
 4. **適時收斂**：當資訊足夠時，主動推進到下一步
+5. **CLI 仍可用**：`prospec change story` 指令仍可作為 non-AI fallback 使用，適用於不使用 AI 時手動建骨架、CI/CD 自動化、腳本整合等場景
 
 讓我們一起建立清晰、可執行的需求文件！
