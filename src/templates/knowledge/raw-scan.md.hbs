@@ -1,0 +1,55 @@
+# Raw Scan: {{project_name}}
+
+> 此檔案由 `prospec knowledge init` 自動產生，供 `/prospec-knowledge-generate` Skill 分析使用。
+> 請勿手動編輯。每次執行 `prospec knowledge init` 時會重新產生。
+
+## Tech Stack
+
+| 項目 | 值 |
+|------|-----|
+| Language | {{#if tech_stack.language}}{{tech_stack.language}}{{else}}unknown{{/if}} |
+| Framework | {{#if tech_stack.framework}}{{tech_stack.framework}}{{else}}—{{/if}} |
+| Package Manager | {{#if tech_stack.package_manager}}{{tech_stack.package_manager}}{{else}}—{{/if}} |
+
+## Entry Points
+
+{{#if entry_points}}
+{{#each entry_points}}
+- `{{this}}`
+{{/each}}
+{{else}}
+_未偵測到入口點_
+{{/if}}
+
+## Directory Tree
+
+```
+{{directory_tree}}
+```
+
+## Dependencies
+
+{{#if dependencies}}
+{{#each dependencies}}
+- `{{this.name}}`{{#if this.version}} @ {{this.version}}{{/if}}
+{{/each}}
+{{else}}
+_未偵測到依賴套件_
+{{/if}}
+
+## Config Files
+
+{{#if config_files}}
+{{#each config_files}}
+- `{{this}}`
+{{/each}}
+{{else}}
+_未偵測到設定檔_
+{{/if}}
+
+## File Stats
+
+| 指標 | 值 |
+|------|-----|
+| 總檔案數 | {{file_stats.total_files}} |
+| 掃描深度 | {{file_stats.scan_depth}} |

@@ -208,6 +208,60 @@ describe('CLI E2E', () => {
     });
   });
 
+  describe('prospec knowledge init', () => {
+    it('should fail without .prospec.yaml', async () => {
+      const { exitCode } = await runCli(['knowledge', 'init']);
+      expect(exitCode).not.toBe(0);
+    });
+
+    it('should generate raw-scan.md and skeleton files', async () => {
+      // Setup: init first
+      await fs.promises.writeFile(
+        path.join(tmpDir, 'package.json'),
+        JSON.stringify({
+          name: 'knowledge-init-test',
+          dependencies: { express: '^4.0.0' },
+        }),
+      );
+      await runCli(['init', '--name', 'knowledge-init-test', '--agents', 'claude']);
+
+      // Create some source files
+      const srcDir = path.join(tmpDir, 'src');
+      await fs.promises.mkdir(srcDir, { recursive: true });
+      await fs.promises.writeFile(
+        path.join(srcDir, 'index.ts'),
+        'export const app = "hello";\n',
+      );
+
+      const { exitCode, stdout } = await runCli(['knowledge', 'init']);
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain('raw-scan.md');
+
+      // Verify raw-scan.md was created
+      const rawScanPath = path.join(tmpDir, 'docs', 'ai-knowledge', 'raw-scan.md');
+      expect(fs.existsSync(rawScanPath)).toBe(true);
+
+      const rawScan = await fs.promises.readFile(rawScanPath, 'utf-8');
+      expect(rawScan).toContain('knowledge-init-test');
+    });
+
+    it('should not produce files in dry-run mode', async () => {
+      await fs.promises.writeFile(
+        path.join(tmpDir, 'package.json'),
+        JSON.stringify({ name: 'dry-run-test' }),
+      );
+      await runCli(['init', '--name', 'dry-run-test', '--agents', 'claude']);
+
+      const { exitCode, stdout } = await runCli(['knowledge', 'init', '--dry-run']);
+      expect(exitCode).toBe(0);
+      expect(stdout).toContain('Dry-run');
+
+      // raw-scan.md should NOT exist
+      const rawScanPath = path.join(tmpDir, 'docs', 'ai-knowledge', 'raw-scan.md');
+      expect(fs.existsSync(rawScanPath)).toBe(false);
+    });
+  });
+
   describe('prospec agent sync', () => {
     it('should fail without .prospec.yaml', async () => {
       const { exitCode } = await runCli(['agent', 'sync']);

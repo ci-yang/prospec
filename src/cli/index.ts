@@ -8,6 +8,7 @@ import { ConfigNotFound } from '../types/errors.js';
 import { registerInitCommand } from './commands/init.js';
 import { registerSteeringCommand } from './commands/steering.js';
 import { registerKnowledgeCommand } from './commands/knowledge-generate.js';
+import { registerKnowledgeInitCommand } from './commands/knowledge-init.js';
 import { registerAgentCommand } from './commands/agent-sync.js';
 import { registerChangeCommand } from './commands/change-story.js';
 import { registerChangePlanCommand } from './commands/change-plan.js';
@@ -68,7 +69,8 @@ export function createProgram(): Command {
   // Register subcommand groups
   registerInitCommand(program);
   registerSteeringCommand(program);
-  registerKnowledgeCommand(program);
+  const knowledge = registerKnowledgeCommand(program);
+  registerKnowledgeInitCommand(knowledge, program);
   registerAgentCommand(program);
   registerChangeCommand(program);
   registerChangePlanCommand(program);

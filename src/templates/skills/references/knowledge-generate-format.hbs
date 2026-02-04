@@ -1,0 +1,158 @@
+# Knowledge Generate 格式參考
+
+本文件定義 `/prospec-knowledge-generate` Skill 產出的檔案格式規範。
+
+---
+
+## 1. modules/{module}/README.md 格式
+
+### 必要區段
+
+每個模組 README 必須包含以下區段，且使用 `prospec:auto-start/end` 和 `prospec:user-start/end` 標記：
+
+```markdown
+# [模組名稱]
+
+> [一句話描述模組職責]
+
+<!-- prospec:auto-start -->
+## 概述
+
+[2-3 段落描述：]
+- 模組在系統中的角色和定位
+- 核心設計理念
+- 主要使用場景
+
+## 職責
+
+- [職責 1：具體描述此模組負責什麼]
+- [職責 2]
+- [職責 3]
+
+## 關鍵檔案
+
+| 檔案 | 用途 |
+|------|------|
+| `[相對路徑]` | [檔案的具體用途] |
+| `[相對路徑]` | [檔案的具體用途] |
+
+## 公開介面
+
+### [函式/類別名稱]
+
+- **簽名**: `functionName(param: Type): ReturnType`
+- **用途**: [簡述]
+
+### [函式/類別名稱]
+
+- **簽名**: `className.method(param: Type): ReturnType`
+- **用途**: [簡述]
+
+## 依賴關係
+
+- **依賴**: [列出此模組 import 的其他模組]
+- **被依賴**: [列出 import 此模組的其他模組]
+
+## 設計決策
+
+- **[決策標題]**: [選擇了什麼] — [為什麼這樣選擇]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- 在此添加手動筆記、備忘、待辦事項等。此區段不會被覆蓋。 -->
+<!-- prospec:user-end -->
+```
+
+### 格式規則
+
+1. **模組名稱**：使用目錄名稱，如 `cli`、`services`、`lib`
+2. **職責**：3-7 項，每項用動詞開頭（如「處理」、「管理」、「提供」）
+3. **關鍵檔案**：只列主要檔案（5-15 個），不需要列出所有檔案
+4. **公開介面**：只列 export 的函式/類別，內部實作不列
+5. **依賴關係**：使用模組名稱而非檔案路徑
+
+---
+
+## 2. _index.md 模組表格格式
+
+### 表格結構
+
+```markdown
+## Modules
+
+| Module | Keywords | Status | Description | Depends On |
+|--------|----------|--------|-------------|------------|
+| [名稱] | [關鍵字] | active | [描述] | [依賴] |
+```
+
+### 欄位規範
+
+- **Module**: 模組名稱，與 `modules/` 下的目錄名稱一致
+- **Keywords**: 3-5 個關鍵字，逗號分隔，用於搜尋定位
+- **Status**: `active`（使用中）、`deprecated`（已棄用）、`planned`（計劃中）
+- **Description**: 一句話描述，不超過 50 字
+- **Depends On**: 依賴的其他模組名稱，無依賴填 `—`
+
+### 排序規則
+
+模組按架構層次排序（由底到頂）：
+1. types / 型別定義
+2. lib / 共用工具
+3. services / 業務邏輯
+4. cli / 命令介面
+5. templates / 模板
+
+---
+
+## 3. _conventions.md 格式
+
+```markdown
+# Coding Conventions
+
+> {{project_name}} 的程式碼規範與最佳實踐
+
+<!-- prospec:auto-start -->
+## 命名規範
+
+- **檔案**: [規範，如 kebab-case]
+- **變數/函式**: [規範，如 camelCase]
+- **類別/介面**: [規範，如 PascalCase]
+- **常數**: [規範，如 UPPER_SNAKE_CASE]
+
+## 專案模式
+
+### [模式名稱，如錯誤處理]
+[描述此專案如何處理此模式]
+
+### [模式名稱，如日誌]
+[描述]
+
+## Import 排序
+
+1. Node.js 內建模組
+2. 第三方套件
+3. 專案內部模組（絕對路徑）
+4. 相對路徑模組
+
+## 測試慣例
+
+- 測試檔案位置：[如 tests/unit/]
+- 命名格式：[如 *.test.ts]
+- 測試框架：[如 vitest]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- 在此添加團隊特有的規範、例外規則等 -->
+<!-- prospec:user-end -->
+```
+
+---
+
+## 4. 重跑安全規則
+
+| 操作 | prospec:auto-start/end | prospec:user-start/end |
+|------|----------------------|----------------------|
+| 首次生成 | 填入內容 | 留空（含註解提示） |
+| 重跑生成 | 覆蓋更新 | 保留不動 |
+
+**實作方式**：讀取現有檔案 → 提取 `prospec:user-start/end` 內容 → 重新生成 `prospec:auto-start/end` → 合併寫入。

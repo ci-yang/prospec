@@ -52,7 +52,7 @@ export interface AgentConfig {
 export type AgentFormat = 'skills-dir' | 'instructions';
 
 /**
- * Predefined Skill definitions for MVP (7 Skills, excluding archive).
+ * Predefined Skill definitions for MVP (8 Skills, excluding archive).
  */
 export const SKILL_DEFINITIONS: SkillConfig[] = [
   {
@@ -100,6 +100,12 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
     description: '驗證實作是否符合規格和計劃。執行 Constitution 完整驗證、tasks.md 完成度、spec 一致性、測試通過率。',
     type: 'Execution',
     hasReferences: false,
+  },
+  {
+    name: 'prospec-knowledge-generate',
+    description: '生成 AI Knowledge。讀取 raw-scan.md，分析專案結構，自主決定模組切割並產出模組 README 和索引。',
+    type: 'Lifecycle',
+    hasReferences: true,
   },
 ];
 

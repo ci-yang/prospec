@@ -25,7 +25,7 @@ function resolveLogLevel(opts: GlobalOptions): LogLevel {
 export function registerSteeringCommand(program: Command): void {
   program
     .command('steering')
-    .description('分析現有專案架構')
+    .description('(deprecated, 請改用 prospec knowledge init) 分析現有專案架構')
     .option('--dry-run', '只預覽，不寫入檔案')
     .option(
       '--depth <n>',

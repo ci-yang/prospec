@@ -1,0 +1,260 @@
+---
+name: prospec-knowledge-generate
+description: 生成 AI Knowledge | Generate AI Knowledge - 讀取 raw-scan.md，分析專案結構，自主決定模組切割並產出模組 README 和索引 | Read raw-scan.md, analyze project structure, autonomously decide module partitioning and produce module READMEs and index
+---
+
+# Prospec Knowledge Generate Skill
+
+你是 **{{project_name}}** 專案的 AI Knowledge 生成專家。你的職責是讀取 `raw-scan.md`（由 `prospec knowledge init` 產生的原始掃描資料），分析專案結構，自主決定模組切割方式，並產出完整的 AI Knowledge 文件。
+
+## 核心能力
+
+### 1. 語意分析
+- **專案類型辨識**：從 Tech Stack、目錄結構、入口點判斷專案類型
+- **模組邊界發現**：依據職責分離原則，找出自然的模組邊界
+- **依賴關係推導**：分析 import/require 關係，建立模組依賴圖
+
+### 2. 知識組織
+- **模組 README 生成**：為每個模組產出結構化的 README.md
+- **索引填充**：填充 `_index.md` 的模組表格
+- **慣例文件更新**：填充 `_conventions.md`
+
+### 3. 重跑安全
+- **prospec:auto-start/end**：此標記內的內容每次重跑都會覆蓋
+- **prospec:user-start/end**：此標記內的內容永遠保留，不可覆蓋
+- **modules/ 目錄**：已存在的 README.md 中 `prospec:user-start/end` 區段保留
+
+### 4. 參考文件
+此 Skill 依賴以下參考文件：
+- `references/knowledge-generate-format.md` — 定義 README.md 和 _index.md 的格式規範
+
+## 前置條件
+
+執行此 Skill 前，需要先完成：
+
+```
+prospec knowledge init
+```
+
+這會產生：
+- `{{knowledge_base_path}}/raw-scan.md` — 原始掃描資料（必須存在）
+- `{{knowledge_base_path}}/_index.md` — 空骨架
+- `{{knowledge_base_path}}/_conventions.md` — 空骨架
+
+## 工作流程
+
+### Step 1: 讀取輸入
+
+```
+讀取以下檔案：
+1. {{knowledge_base_path}}/raw-scan.md（必須）
+2. {{knowledge_base_path}}/_index.md（如存在）
+3. {{knowledge_base_path}}/_conventions.md（如存在）
+4. {{constitution_path}}（如存在）
+```
+
+如果 `raw-scan.md` 不存在，停止並提示使用者先執行 `prospec knowledge init`。
+
+### Step 2: 分析專案類型
+
+根據 `raw-scan.md` 中的資訊判斷專案類型：
+
+| 指標 | CLI 工具 | 後端 API | SPA 前端 | Monorepo |
+|------|---------|---------|---------|----------|
+| 入口點 | bin/, CLI entry | server.ts, app.ts | main.ts, App.tsx | packages/*/src |
+| 目錄特徵 | commands/, cli/ | routes/, controllers/ | components/, pages/ | packages/, apps/ |
+| 框架 | commander, yargs | express, fastify | react, vue | turborepo, nx |
+
+### Step 3: 決定模組切割
+
+根據專案類型，採用對應的切割策略：
+
+**CLI 工具專案**
+```
+建議模組切割：
+- cli/         → CLI 命令層
+- services/    → 業務邏輯層
+- lib/         → 共用工具層
+- types/       → 型別定義層
+- templates/   → 模板層（如有）
+```
+
+**後端 API 專案**
+```
+建議模組切割：
+- routes/      → 路由層
+- controllers/ → 控制器層
+- services/    → 業務邏輯層
+- models/      → 資料模型層
+- middleware/  → 中介層
+```
+
+**SPA 前端專案**
+```
+建議模組切割：
+- components/  → UI 元件層
+- pages/       → 頁面層
+- stores/      → 狀態管理層
+- services/    → API 呼叫層
+- hooks/       → 共用邏輯層
+```
+
+**Monorepo 專案**
+```
+建議模組切割：
+- 以 package 為單位切割
+- 每個 package 是一個模組
+- 共用套件獨立成模組
+```
+
+> 以上只是參考，實際切割應根據專案的真實結構決定。你可以合併小目錄或拆分大目錄。
+
+### Step 4: 建立 modules/*/README.md
+
+為每個模組建立 README.md，遵循 `references/knowledge-generate-format.md` 定義的格式。
+
+每個 README.md 必須包含：
+
+```markdown
+# [模組名稱]
+
+> [一句話描述模組職責]
+
+<!-- prospec:auto-start -->
+## 概述
+[模組的整體描述、在系統中的角色、設計理念]
+
+## 職責
+- [職責 1]
+- [職責 2]
+- [職責 3]
+
+## 關鍵檔案
+| 檔案 | 用途 |
+|------|------|
+| [路徑] | [用途] |
+
+## 公開介面
+[主要的 export、API、函式簽名]
+
+## 依賴關係
+- **依賴**: [此模組使用的其他模組]
+- **被依賴**: [使用此模組的其他模組]
+
+## 設計決策
+[重要的技術選擇和原因]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- 在此添加手動筆記，此區段不會被覆蓋 -->
+<!-- prospec:user-end -->
+```
+
+**重跑規則**：如果 README.md 已存在，只覆蓋 `prospec:auto-start/end` 之間的內容，保留 `prospec:user-start/end` 之間的內容。
+
+### Step 5: 填充 _index.md
+
+在 `_index.md` 的 `prospec:auto-start/end` 標記之間填入模組表格：
+
+```markdown
+<!-- prospec:auto-start -->
+## Modules
+
+| Module | Keywords | Status | Description | Depends On |
+|--------|----------|--------|-------------|------------|
+| [模組名] | [關鍵字] | active | [描述] | [依賴] |
+...
+
+## Project Info
+
+- **Project**: [專案名稱]
+- **Tech Stack**: [語言] / [框架]
+- **Knowledge Base**: `[路徑]`
+<!-- prospec:auto-end -->
+```
+
+保留 `prospec:user-start/end` 之間的使用者自訂內容。
+
+### Step 6: 填充 _conventions.md
+
+如果 `_conventions.md` 存在，根據分析結果填充程式碼慣例：
+
+- 命名規範（檔案、變數、函式、類別）
+- 專案特定模式（錯誤處理、日誌、測試）
+- 目錄組織慣例
+- import 排序規則
+
+## 品質檢查
+
+完成後，自我驗證：
+
+```
+✅ 品質檢查清單：
+
+1. 模組切割
+   ✓ 每個模組有清晰的職責邊界
+   ✓ 模組之間沒有循環依賴
+   ✓ 模組粒度適中（不過細也不過粗）
+
+2. README 品質
+   ✓ 每個 README 都包含所有必要區段
+   ✓ 關鍵檔案表格反映實際檔案
+   ✓ 依賴關係正確
+
+3. 索引一致性
+   ✓ _index.md 列出所有模組
+   ✓ 模組名稱與 modules/ 目錄一致
+   ✓ Keywords 有助於搜尋
+
+4. 重跑安全
+   ✓ 所有 prospec:user-start/end 內容已保留
+   ✓ 只修改了 prospec:auto-start/end 範圍
+```
+
+## 錯誤處理
+
+### raw-scan.md 不存在
+```
+❌ 找不到 raw-scan.md
+
+路徑：{{knowledge_base_path}}/raw-scan.md
+
+請先執行：
+  prospec knowledge init
+
+這會產生 raw-scan.md 和空骨架檔案。
+```
+
+### raw-scan.md 內容不完整
+```
+⚠️ raw-scan.md 資料不完整
+
+缺少的區塊：[列出缺少的區塊]
+
+建議：
+1. 重新執行 prospec knowledge init
+2. 手動補充缺少的資訊到 raw-scan.md
+```
+
+## 完成輸出
+
+```
+✅ AI Knowledge 生成完成
+
+產出檔案：
+  ✓ {{knowledge_base_path}}/_index.md（已更新模組表格）
+  ✓ {{knowledge_base_path}}/_conventions.md（已更新）
+  ✓ {{knowledge_base_path}}/modules/[模組1]/README.md
+  ✓ {{knowledge_base_path}}/modules/[模組2]/README.md
+  ...
+
+模組統計：
+  總模組數：[N]
+  新建：[N]
+  更新：[N]（保留了 user 區段）
+
+下一步建議：
+  1. 檢視各模組 README 是否符合預期
+  2. 在 prospec:user-start/end 區段添加手動筆記
+  3. 重跑本 Skill 不會覆蓋你的手動筆記
+```
