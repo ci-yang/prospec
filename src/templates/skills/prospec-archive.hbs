@@ -47,11 +47,14 @@ For each confirmed change:
 3. Place generated summary.md in archive directory
 4. Update `metadata.yaml` to `status: archived`
 
-### Phase 4: Knowledge Update Hint
+### Phase 4: Auto Knowledge Update
 
-After archiving, analyze affected modules and suggest:
-- Which module README.md files may need updating
-- Display: "Consider running `/prospec-knowledge-generate` to refresh affected modules"
+After archiving, automatically trigger incremental Knowledge update:
+1. For each archived change with `delta-spec.md`, call the knowledge-update service
+2. The service parses ADDED/MODIFIED/REMOVED sections and updates affected module README.md, _index.md, and module-map.yaml
+3. Knowledge update is **non-fatal** — if it fails, archiving still succeeds
+
+**On failure:** Display affected modules and suggest: "Knowledge auto-update failed. Run `/prospec-knowledge-update` manually to sync."
 
 ## NEVER
 
@@ -60,7 +63,7 @@ After archiving, analyze affected modules and suggest:
 - **NEVER** skip summary.md generation — every archived change must have a summary
 - **NEVER** delete original files instead of moving — archive is a move operation, not delete
 - **NEVER** modify the content of artifacts during archive — only move files and generate summary
-- **NEVER** auto-run Knowledge update — only suggest, let user decide
+- **NEVER** let Knowledge update failure block archiving — update is non-fatal
 - **NEVER** archive without reading delta-spec.md — affected modules must be identified
 
 ## Error Handling

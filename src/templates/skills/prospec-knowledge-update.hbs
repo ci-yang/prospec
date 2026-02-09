@@ -1,0 +1,99 @@
+---
+name: prospec-knowledge-update
+description: "Incremental Knowledge Update | 增量更新 AI Knowledge - Parse delta-spec.md to identify affected modules, scan source code, and update module README, _index.md, and module-map.yaml incrementally. Triggers: knowledge update, incremental update, sync knowledge, update docs, 增量更新, 同步知識, 更新文件"
+---
+
+# Prospec Knowledge Update Skill
+
+## Activation
+
+When triggered, briefly describe in the user's language:
+- That you'll parse delta-spec.md to identify affected modules
+- Only affected modules will be scanned (not the entire codebase)
+- Module README.md, _index.md, and module-map.yaml will be updated incrementally
+- User-written sections (prospec:user-start/end) are always preserved
+
+## Startup Loading
+
+1. Read `.prospec/changes/[name]/delta-spec.md` — identify ADDED/MODIFIED/REMOVED requirements
+2. Read `{{knowledge_base_path}}/_index.md` — current module index
+3. Read `{{knowledge_base_path}}/module-map.yaml` — current dependency graph (if exists)
+4. Read `{{constitution_path}}` — verify compliance constraints
+5. **MANDATORY** — Read [`references/knowledge-update-format.md`](references/knowledge-update-format.md) for output format
+
+## Core Workflow
+
+### Phase 1: Parse Delta Spec
+
+Parse delta-spec.md to extract affected modules:
+
+| Section | Action | Example |
+|---------|--------|---------|
+| ADDED | Create new module README.md + add to _index.md + add to module-map.yaml | REQ-AUTH-001 → new `auth` module |
+| MODIFIED | Update existing module README.md with current implementation | REQ-SERVICES-010 → update `services` README |
+| REMOVED | Mark module as deprecated in README.md (do NOT delete) | REQ-LEGACY-001 → deprecate `legacy` module |
+
+Extract module names from REQ IDs: `REQ-{MODULE}-{NNN}` → module name is `{MODULE}` (lowercased).
+
+**Fallback (no delta-spec):** Ask user to specify module names manually.
+
+### Phase 2: Scan Affected Modules
+
+For each affected module:
+1. Locate module paths from `module-map.yaml` (or infer from module name)
+2. Scan source files (max 20 key files per module)
+3. Infer file descriptions from naming patterns (service.ts, test.ts, etc.)
+
+### Phase 3: Update Knowledge Files
+
+#### 3a: Module README.md (ADDED/MODIFIED)
+
+For ADDED modules:
+- Create `{{knowledge_base_path}}/modules/{module}/README.md`
+- Generate full README from scanned source
+
+For MODIFIED modules:
+- Read existing README.md
+- Regenerate auto sections, preserve user sections via ContentMerger
+- Update key files table, public API list, dependency info
+
+#### 3b: Module README.md (REMOVED)
+
+- Add deprecated banner at top of README.md
+- Do NOT delete the file or directory
+- Update status in _index.md to "Deprecated"
+
+#### 3c: _index.md
+
+Update the module table within `prospec:auto-start/end` markers:
+- Add new modules (ADDED)
+- Update descriptions (MODIFIED)
+- Mark as Deprecated (REMOVED)
+
+#### 3d: module-map.yaml
+
+- Add new module entries (ADDED)
+- Update relationships if changed (MODIFIED)
+- Remove module entries (REMOVED)
+- Skip if module-map.yaml doesn't exist
+
+## NEVER
+
+- **NEVER** overwrite content between `prospec:user-start/end` markers — always preserve user notes
+- **NEVER** delete module directories for REMOVED requirements — mark as deprecated only
+- **NEVER** scan the entire codebase — only scan modules identified from delta-spec
+- **NEVER** run without either delta-spec.md or manual module specification — one input source is required
+- **NEVER** skip _index.md update — the index must always reflect current module state
+- **NEVER** ignore module-map.yaml when it exists — dependency graph must stay in sync
+
+## Error Handling
+
+| Scenario | Action |
+|----------|--------|
+| delta-spec.md not found | Ask user to specify modules manually or point to delta-spec path |
+| module-map.yaml not found | Skip module-map update, proceed with README and _index.md only |
+| Module directory doesn't exist (MODIFIED) | Treat as ADDED — create new module directory and README |
+| ContentMerger conflict | Prefer new auto content, always preserve user sections |
+| Source scan returns 0 files | Generate minimal README with module name only, warn user |
+
+All generated files must be written in English.

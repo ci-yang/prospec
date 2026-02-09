@@ -1,0 +1,120 @@
+# Knowledge Update Format Reference
+
+This document defines the expected output format for incremental AI Knowledge updates performed by the **prospec-knowledge-update** Skill.
+
+---
+
+## Purpose
+
+The incremental update modifies only the modules affected by a change (identified via delta-spec.md), rather than regenerating the entire knowledge base.
+
+---
+
+## Module README.md Update Format
+
+### New Module (ADDED)
+
+Create `{{knowledge_base_path}}/modules/{module}/README.md`:
+
+```markdown
+# {module-name}
+
+<!-- prospec:auto-start -->
+## Overview
+
+{Brief description inferred from source files}
+
+## Key Files
+
+| File | Description |
+|------|-------------|
+| {path} | {inferred description} |
+
+## Public API
+
+{Extracted exports and interfaces}
+
+## Dependencies
+
+- Depends on: {list}
+- Used by: {list}
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add custom notes here. This section is preserved on regeneration. -->
+<!-- prospec:user-end -->
+```
+
+### Existing Module (MODIFIED)
+
+Only the content between `prospec:auto-start` and `prospec:auto-end` is regenerated. Content between `prospec:user-start` and `prospec:user-end` is always preserved.
+
+### Deprecated Module (REMOVED)
+
+Add a deprecation banner **before** the first heading:
+
+```markdown
+> **DEPRECATED**: This module was removed in change `{change-name}`. Reason: {reason from delta-spec}
+
+# {module-name}
+...
+```
+
+Update the module's status to "Deprecated" in `_index.md`.
+
+---
+
+## _index.md Table Format
+
+Update the module table within `prospec:auto-start/end` markers:
+
+```markdown
+<!-- prospec:auto-start -->
+## Modules
+
+| Module | Keywords | Status | Description | Files | Depends On |
+|--------|----------|--------|-------------|-------|------------|
+| {name} | {keywords} | Active | {description} | README | {deps} |
+| {name} | {keywords} | Deprecated | {description} | README | {deps} |
+<!-- prospec:auto-end -->
+```
+
+Status values: `Active`, `Deprecated`
+
+---
+
+## module-map.yaml Schema
+
+```yaml
+modules:
+  - name: {module-name}
+    description: {brief description}
+    paths:
+      - {source path glob}
+    keywords:
+      - {keyword}
+    relationships:
+      depends_on:
+        - {module-name}
+      used_by:
+        - {module-name}
+```
+
+For ADDED modules: append new entry to `modules` array.
+For REMOVED modules: remove entry from `modules` array.
+
+---
+
+## File Length Guidelines
+
+- Module README.md: keep under **120 lines**
+- _index.md changes: only the auto section is modified
+- module-map.yaml: one entry per module
+
+---
+
+## Reference Information
+
+- Project name: `{{project_name}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Module map: `{{knowledge_base_path}}/module-map.yaml`

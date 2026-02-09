@@ -88,6 +88,7 @@ describe('Skill Format Contract', () => {
       'knowledge-format.hbs',
       'knowledge-generate-format.hbs',
       'archive-format.hbs',
+      'knowledge-update-format.hbs',
     ];
 
     for (const ref of REFERENCE_TEMPLATES) {
@@ -103,8 +104,8 @@ describe('Skill Format Contract', () => {
   });
 
   describe('Skill definitions', () => {
-    it('should have 9 skill definitions', () => {
-      expect(SKILL_DEFINITIONS).toHaveLength(9);
+    it('should have 10 skill definitions', () => {
+      expect(SKILL_DEFINITIONS).toHaveLength(10);
     });
 
     it('should include all expected skill names', () => {
@@ -118,6 +119,7 @@ describe('Skill Format Contract', () => {
       expect(names).toContain('prospec-verify');
       expect(names).toContain('prospec-knowledge-generate');
       expect(names).toContain('prospec-archive');
+      expect(names).toContain('prospec-knowledge-update');
     });
 
     it('should have valid skill types', () => {
@@ -139,6 +141,7 @@ describe('Skill Format Contract', () => {
       expect(refSkillNames).toContain('prospec-implement');
       expect(refSkillNames).toContain('prospec-knowledge-generate');
       expect(refSkillNames).toContain('prospec-archive');
+      expect(refSkillNames).toContain('prospec-knowledge-update');
     });
   });
 

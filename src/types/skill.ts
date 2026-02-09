@@ -52,7 +52,7 @@ export interface AgentConfig {
 export type AgentFormat = 'skills-dir' | 'instructions';
 
 /**
- * Predefined Skill definitions (9 Skills).
+ * Predefined Skill definitions (10 Skills).
  */
 export const SKILL_DEFINITIONS: SkillConfig[] = [
   {
@@ -110,6 +110,12 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
   {
     name: 'prospec-archive',
     description: '歸檔已完成的變更。掃描 changes 目錄，將 verified 狀態的變更搬移至 archive，生成 summary.md 並提示 Knowledge 更新。',
+    type: 'Lifecycle',
+    hasReferences: true,
+  },
+  {
+    name: 'prospec-knowledge-update',
+    description: '增量更新 AI Knowledge。解析 delta-spec.md 識別受影響模組，掃描原始碼後更新模組 README、_index.md 和 module-map.yaml。Incremental knowledge update, delta-spec driven.',
     type: 'Lifecycle',
     hasReferences: true,
   },

@@ -5,6 +5,7 @@ import { ensureDir, atomicWrite } from '../lib/fs-utils.js';
 import { parseYaml, stringifyYaml } from '../lib/yaml-utils.js';
 import type { ChangeStatus } from '../types/change.js';
 import { ScanError, WriteError } from '../types/errors.js';
+import { execute as executeKnowledgeUpdate } from './knowledge-update.service.js';
 
 // --- Interfaces (Task 5) ---
 
@@ -28,6 +29,7 @@ export interface ArchiveResult {
   archived: ArchivedChange[];
   skipped: string[];
   affectedModules: string[];
+  knowledgeUpdated: boolean;
 }
 
 export interface ArchivedChange {
@@ -280,10 +282,27 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
     }
   }
 
+  // Auto-trigger incremental Knowledge update (non-fatal)
+  let knowledgeUpdated = false;
+  if (archived.length > 0) {
+    for (const change of archived) {
+      const deltaSpecPath = path.join(change.archivePath, 'delta-spec.md');
+      if (fs.existsSync(deltaSpecPath)) {
+        try {
+          await executeKnowledgeUpdate({ deltaSpecPath, cwd });
+          knowledgeUpdated = true;
+        } catch {
+          // Knowledge update failure is non-fatal
+        }
+      }
+    }
+  }
+
   return {
     archived,
     skipped,
     affectedModules: [...allAffectedModules],
+    knowledgeUpdated,
   };
 }
 
