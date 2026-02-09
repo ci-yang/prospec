@@ -1,121 +1,121 @@
-# Implementation 指引
+# Implementation Guide
 
-本文件提供實作階段的指引，供 **prospec-implement** Skill 參考。
+This document provides implementation guidelines for the **prospec-implement** Skill.
 
 ---
 
-## 實作原則
+## Implementation Principles
 
-### 1. TDD Approach（如 Constitution 要求）
+### 1. TDD Approach (If Required by Constitution)
 
-如果 `{{constitution_path}}` 要求 TDD（Test-Driven Development）：
+If `{{constitution_path}}` requires TDD (Test-Driven Development):
 
-1. **先寫測試：** 在實作功能前，先寫對應的單元測試
-2. **紅-綠-重構循環：**
-   - 紅：寫測試，確保測試失敗
-   - 綠：實作最小功能讓測試通過
-   - 重構：優化程式碼品質
-3. **測試覆蓋率：** 確保核心邏輯有足夠的測試覆蓋
+1. **Write tests first:** Write corresponding unit tests before implementing functionality
+2. **Red-Green-Refactor cycle:**
+   - Red: Write test, ensure it fails
+   - Green: Implement minimum functionality to pass the test
+   - Refactor: Optimize code quality
+3. **Test coverage:** Ensure core logic has sufficient test coverage
 
 ---
 
 ### 2. Task Execution Order
 
-按照 `tasks.md` 的架構層次順序執行：
+Follow the architecture layer sequence in `tasks.md`:
 
 ```
 Types → Lib → Services → CLI → Tests
 ```
 
-**依賴規則：**
-- 先完成被依賴的模組（e.g., Types, Lib）
-- 再實作依賴其他模組的功能（e.g., Services, CLI）
-- `[P]` 標記的任務可以同時執行（無依賴關係）
+**Dependency rules:**
+- Complete depended-upon modules first (e.g., Types, Lib)
+- Then implement modules that depend on others (e.g., Services, CLI)
+- `[P]` marked tasks can be executed simultaneously (no dependencies)
 
-**範例執行順序：**
+**Example execution order:**
 
 ```
 1. Types/Define ErrorType enum
 2. Types/Create ErrorResponse interface
-3. [P] Lib/Implement BaseError class (可平行)
-   [P] Lib/Implement ErrorFormatter utility (可平行)
-4. Lib/Create error factory functions (依賴 BaseError)
-5. Services/Integrate with API middleware (依賴 BaseError, ErrorFormatter)
+3. [P] Lib/Implement BaseError class (parallelizable)
+   [P] Lib/Implement ErrorFormatter utility (parallelizable)
+4. Lib/Create error factory functions (depends on BaseError)
+5. Services/Integrate with API middleware (depends on BaseError, ErrorFormatter)
 ```
 
 ---
 
-### 3. Progressive Disclosure（漸進式揭露）
+### 3. Progressive Disclosure
 
-**只載入當前任務相關的 AI Knowledge：**
+**Only load AI Knowledge relevant to the current task:**
 
-1. **開始前：** 讀取 `{{knowledge_base_path}}/_index.md` 了解整體架構
-2. **執行任務時：** 只讀取相關模組的 `{{knowledge_base_path}}/modules/{module}/README.md`
-3. **避免：** 一次載入所有 AI Knowledge 文件
+1. **Before starting:** Read `{{knowledge_base_path}}/_index.md` to understand overall architecture
+2. **During task execution:** Only read `{{knowledge_base_path}}/modules/{module}/README.md` for the relevant module
+3. **Avoid:** Loading all AI Knowledge files at once
 
-**範例：**
+**Example:**
 
-執行任務 `Implement BaseError class` 時：
-- 讀取 `{{knowledge_base_path}}/modules/error-handler/README.md`
-- 不需要讀取 `api-middleware`, `logger` 等其他模組的 README
+When executing task `Implement BaseError class`:
+- Read `{{knowledge_base_path}}/modules/error-handler/README.md`
+- No need to read `api-middleware`, `logger`, or other module READMEs
 
 ---
 
 ### 4. Task Completion Marking
 
-**立即標記完成：**
+**Mark complete immediately:**
 
-在完成每個任務後，立即更新 `tasks.md` 標記為 `[x]`：
+After completing each task, immediately update `tasks.md` to mark as `[x]`:
 
 ```markdown
 - [x] Implement BaseError class with error code mapping ~50 lines
 ```
 
-這有助於追蹤進度和避免重複工作。
+This helps track progress and avoid duplicate work.
 
 ---
 
 ### 5. Commit Strategy
 
-**建議的 Commit 策略：**
+**Recommended commit strategy:**
 
-- **邏輯分組：** 每完成一組相關任務後 commit
-- **Commit Message 格式：**
+- **Logical grouping:** Commit after completing a group of related tasks
+- **Commit message format:**
   ```
-  feat: [簡短描述] (Task ID)
+  feat: [brief description] (Task ID)
   ```
-  或
+  or
   ```
-  test: [測試描述] (Task ID)
+  test: [test description] (Task ID)
   ```
 
-**範例：**
+**Example:**
 
 ```bash
-# 完成 Types 相關任務
+# After completing Types tasks
 git add src/types/error.ts
 git commit -m "feat: define error types and interfaces (T001-T002)"
 
-# 完成 Lib 相關任務
+# After completing Lib tasks
 git add src/lib/error-handler.ts src/lib/error-formatter.ts
 git commit -m "feat: implement error handler core logic (T003-T005)"
 
-# 完成 Tests
+# After completing Tests
 git add tests/error-handler.test.ts
 git commit -m "test: add unit tests for error handler (T011-T012)"
 ```
 
 ---
 
-### 6. Error Handling（錯誤處理）
+### 6. Error Handling
 
-**如果任務失敗：**
+**If a task fails:**
 
-1. **記錄 Blocker：** 在 `tasks.md` 或 Story 的 Notes 中記錄問題
-2. **繼續執行：** 如果有其他獨立的任務，繼續執行
-3. **回報：** 在 Story 完成時回報未完成的任務和原因
+1. **Record blocker:** Document the issue in `tasks.md` or the Story's Notes
+2. **Continue execution:** If there are other independent tasks, continue with them
+3. **Report:** Report incomplete tasks and reasons when Story is finalized
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Blockers
@@ -125,37 +125,31 @@ git commit -m "test: add unit tests for error handler (T011-T012)"
 
 ---
 
-### 7. 程式碼品質檢查
+### 7. Code Quality Checks
 
-**完成實作後：**
+**After completing implementation:**
 
-1. **Lint：** 執行 linter 確保程式碼風格一致
+1. **Lint:** Run linter to ensure consistent code style
    ```bash
-   npm run lint
-   # 或
-   bun run lint
+   {{tech_stack.package_manager}} run lint
    ```
 
-2. **Type Check：** 執行 TypeScript 型別檢查
+2. **Type Check:** Run TypeScript type checking
    ```bash
-   npm run type-check
-   # 或
-   bun run type-check
+   {{tech_stack.package_manager}} run type-check
    ```
 
-3. **測試：** 執行測試確保功能正確
+3. **Tests:** Run tests to verify functionality
    ```bash
-   npm test
-   # 或
-   bun test
+   {{tech_stack.package_manager}} test
    ```
 
 ---
 
-## 參考資訊
+## Reference Information
 
-- 專案名稱: `{{project_name}}`
-- 技術棧: `{{tech_stack.language}}` + `{{tech_stack.framework}}`
-- 套件管理: `{{tech_stack.package_manager}}`
-- AI Knowledge 路徑: `{{knowledge_base_path}}`
-- Constitution 檔案: `{{constitution_path}}`
+- Project name: `{{project_name}}`
+- Tech stack: `{{tech_stack.language}}` + `{{tech_stack.framework}}`
+- Package manager: `{{tech_stack.package_manager}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Constitution file: `{{constitution_path}}`

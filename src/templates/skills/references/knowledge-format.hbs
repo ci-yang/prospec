@@ -1,17 +1,17 @@
-# AI Knowledge 格式參考
+# AI Knowledge Format Reference
 
-本文件說明 AI Knowledge 的格式和使用方式，供所有 Skill 參考。
+This document describes the AI Knowledge format and usage patterns, referenced by all Skills.
 
 ---
 
-## AI Knowledge 結構
+## AI Knowledge Structure
 
 ```
 {{knowledge_base_path}}/
-├── _index.md                    # 總覽：模組列表與關鍵字索引
+├── _index.md                    # Overview: module list and keyword index
 └── modules/
     ├── {module-1}/
-    │   └── README.md            # 模組詳細文件
+    │   └── README.md            # Module detailed documentation
     ├── {module-2}/
     │   └── README.md
     └── {module-3}/
@@ -20,13 +20,13 @@
 
 ---
 
-## 1. `_index.md` 格式
+## 1. `_index.md` Format
 
-### 用途
+### Purpose
 
-提供專案的模組總覽和關鍵字索引，用於快速定位相關模組。
+Provides a module overview and keyword index for the project, enabling quick identification of relevant modules.
 
-### 標準格式
+### Standard Format
 
 ```markdown
 # {{project_name}} - AI Knowledge Index
@@ -35,43 +35,43 @@
 
 | Module | Keywords | Status | Description | Depends On |
 |--------|----------|--------|-------------|------------|
-| [module-1] | keyword1, keyword2 | Active | [簡短描述] | - |
-| [module-2] | keyword3, keyword4 | Active | [簡短描述] | module-1 |
-| [module-3] | keyword5, keyword6 | Deprecated | [簡短描述] | module-1, module-2 |
+| [module-1] | keyword1, keyword2 | Active | [Brief description] | - |
+| [module-2] | keyword3, keyword4 | Active | [Brief description] | module-1 |
+| [module-3] | keyword5, keyword6 | Deprecated | [Brief description] | module-1, module-2 |
 ```
 
-### 欄位說明
+### Field Descriptions
 
-- **Module:** 模組名稱（連結到對應的 README.md）
-- **Keywords:** 用於關鍵字比對的標籤（逗號分隔）
-- **Status:** 模組狀態（Active, Deprecated, Planned）
-- **Description:** 簡短描述模組的功能
-- **Depends On:** 依賴的其他模組（逗號分隔）
+- **Module:** Module name (links to corresponding README.md)
+- **Keywords:** Tags for keyword matching (comma-separated)
+- **Status:** Module status (Active, Deprecated, Planned)
+- **Description:** Brief description of module functionality
+- **Depends On:** Other modules this depends on (comma-separated)
 
 ---
 
-## 2. `modules/{module}/README.md` 格式
+## 2. `modules/{module}/README.md` Format
 
-### 用途
+### Purpose
 
-提供單一模組的詳細文件，包含概覽、檔案清單、API 和內部筆記。
+Provides detailed documentation for a single module, including overview, file listing, API, and internal notes.
 
-### 標準格式
+### Standard Format
 
 ```markdown
 # Module: {module-name}
 
 ## Overview
 
-[1-2 段落描述模組的功能、用途和設計理念]
+[1-2 paragraphs describing the module's functionality, purpose, and design principles]
 
 ---
 
 ## Key Files
 
-- **src/{module}/index.ts**: [檔案用途]
-- **src/{module}/core.ts**: [檔案用途]
-- **src/{module}/utils.ts**: [檔案用途]
+- **src/{module}/index.ts**: [File purpose]
+- **src/{module}/core.ts**: [File purpose]
+- **src/{module}/utils.ts**: [File purpose]
 
 ---
 
@@ -79,17 +79,17 @@
 
 ### Function: functionName(param1, param2)
 
-**Description:** [功能描述]
+**Description:** [Functionality description]
 
 **Parameters:**
-- `param1` (Type): [參數說明]
-- `param2` (Type): [參數說明]
+- `param1` (Type): [Parameter description]
+- `param2` (Type): [Parameter description]
 
-**Returns:** (Type) [回傳值說明]
+**Returns:** (Type) [Return value description]
 
 **Example:**
 ```{{tech_stack.language}}
-// 使用範例
+// Usage example
 const result = functionName(value1, value2);
 ```
 
@@ -97,15 +97,15 @@ const result = functionName(value1, value2);
 
 ### Class: ClassName
 
-**Description:** [類別描述]
+**Description:** [Class description]
 
 **Methods:**
-- `method1(param)`: [方法說明]
-- `method2(param)`: [方法說明]
+- `method1(param)`: [Method description]
+- `method2(param)`: [Method description]
 
 **Example:**
 ```{{tech_stack.language}}
-// 使用範例
+// Usage example
 const instance = new ClassName();
 instance.method1(value);
 ```
@@ -116,31 +116,31 @@ instance.method1(value);
 
 ### Design Decisions
 
-- [設計決策 1]
-- [設計決策 2]
+- [Design decision 1]
+- [Design decision 2]
 
 ### Known Issues
 
-- [已知問題 1]
-- [已知問題 2]
+- [Known issue 1]
+- [Known issue 2]
 
 ### Future Improvements
 
-- [未來改進方向 1]
-- [未來改進方向 2]
+- [Future improvement 1]
+- [Future improvement 2]
 ```
 
 ---
 
-## 3. Content Markers（內容標記）
+## 3. Content Markers
 
-AI Knowledge 使用特殊標記區分自動生成和手動維護的內容：
+AI Knowledge uses special markers to distinguish auto-generated and manually maintained content:
 
 ### Auto-Generated Content
 
 ```markdown
 <!-- prospec:auto-start -->
-[自動生成的內容，會被工具覆寫]
+[Auto-generated content, will be overwritten by tools]
 <!-- prospec:auto-end -->
 ```
 
@@ -148,59 +148,59 @@ AI Knowledge 使用特殊標記區分自動生成和手動維護的內容：
 
 ```markdown
 <!-- prospec:user-start -->
-[使用者手動維護的內容，工具不會覆寫]
+[User manually maintained content, will not be overwritten by tools]
 <!-- prospec:user-end -->
 ```
 
 ---
 
-## 4. Progressive Disclosure 使用方式
+## 4. Progressive Disclosure Usage
 
-**漸進式載入 AI Knowledge，避免一次載入所有文件：**
+**Load AI Knowledge progressively — avoid loading all files at once:**
 
-### Step 1: 讀取 _index.md
+### Step 1: Read _index.md
 
-在開始任何 Story 或任務前，先讀取 `{{knowledge_base_path}}/_index.md`：
+Before starting any Story or task, read `{{knowledge_base_path}}/_index.md`:
 
-- 了解專案的整體架構
-- 根據關鍵字快速定位相關模組
-- 確認模組的依賴關係
+- Understand the project's overall architecture
+- Quickly locate relevant modules via keyword matching
+- Confirm module dependency relationships
 
-### Step 2: 按需載入模組 README
+### Step 2: Load Module READMEs On Demand
 
-只載入當前任務相關的模組 README：
+Only load the README for the module relevant to the current task:
 
-- 執行與 `error-handler` 相關的任務時，讀取 `{{knowledge_base_path}}/modules/error-handler/README.md`
-- 執行與 `api-middleware` 相關的任務時，讀取 `{{knowledge_base_path}}/modules/api-middleware/README.md`
+- When working on `error-handler` tasks, read `{{knowledge_base_path}}/modules/error-handler/README.md`
+- When working on `api-middleware` tasks, read `{{knowledge_base_path}}/modules/api-middleware/README.md`
 
-### Step 3: 避免過度載入
+### Step 3: Avoid Over-Loading
 
-**不要一次讀取所有模組的 README**，這會造成：
-- 上下文過載（Token 浪費）
-- 干擾判斷（不相關的資訊）
-
----
-
-## 範例使用流程
-
-### 場景：實作 "Unified Error Handling" Story
-
-1. **讀取 _index.md：**
-   - 發現相關模組：`error-handler`, `api-middleware`, `logger`
-
-2. **執行 Tasks：**
-   - Task 1: 實作 `BaseError` → 讀取 `{{knowledge_base_path}}/modules/error-handler/README.md`
-   - Task 2: 整合 API Middleware → 讀取 `{{knowledge_base_path}}/modules/api-middleware/README.md`
-   - Task 3: 更新 Logger → 讀取 `{{knowledge_base_path}}/modules/logger/README.md`
-
-3. **避免：**
-   - 一次讀取所有模組的 README（造成上下文過載）
+**Do not read all module READMEs at once**, as this causes:
+- Context overload (token waste)
+- Judgment interference (irrelevant information)
 
 ---
 
-## 參考資訊
+## Example Usage Flow
 
-- 專案名稱: `{{project_name}}`
-- 技術棧: `{{tech_stack.language}}` + `{{tech_stack.framework}}`
-- AI Knowledge 路徑: `{{knowledge_base_path}}`
-- Constitution 檔案: `{{constitution_path}}`
+### Scenario: Implementing a "Unified Error Handling" Story
+
+1. **Read _index.md:**
+   - Discover relevant modules: `error-handler`, `api-middleware`, `logger`
+
+2. **Execute Tasks:**
+   - Task 1: Implement `BaseError` → Read `{{knowledge_base_path}}/modules/error-handler/README.md`
+   - Task 2: Integrate API Middleware → Read `{{knowledge_base_path}}/modules/api-middleware/README.md`
+   - Task 3: Update Logger → Read `{{knowledge_base_path}}/modules/logger/README.md`
+
+3. **Avoid:**
+   - Reading all module READMEs at once (causes context overload)
+
+---
+
+## Reference Information
+
+- Project name: `{{project_name}}`
+- Tech stack: `{{tech_stack.language}}` + `{{tech_stack.framework}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Constitution file: `{{constitution_path}}`

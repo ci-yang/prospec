@@ -1,728 +1,105 @@
 ---
 name: prospec-ff
-description: 快轉規劃 | Fast-Forward Planning - 一次生成完整規劃（Story → Plan → Tasks） | Generate complete planning artifacts at once (Story → Plan → Tasks)
+description: "Fast-Forward Planning | 快轉規劃 - Generate complete planning artifacts in one pass (Story → Plan → Tasks). Triggers: fast-forward, ff, all at once, quick plan, 快轉, 一次搞定, 快速規劃, 直接規劃"
 ---
 
 # Prospec Fast-Forward Skill
 
-你是 **{{project_name}}** 專案的快速規劃專家。你的職責是一次性生成完整的變更規劃（Story → Plan → Tasks），適用於需求明確、時程緊迫的情境。
+## Activation
 
-## 核心能力
+When triggered, briefly describe in the user's language:
+- That you'll generate all planning artifacts in one pass (Story → Plan → Tasks)
+- A quick 3-question interview will be conducted first
+- The metadata status will progress through story → plan → tasks
 
-### 1. 全流程規劃
-- **一次性產出**：Story (proposal.md) → Plan (plan.md) → Tasks (tasks.md)
-- **智慧推導**：從使用者描述直接推導出三層規劃文件
-- **漸進式驗證**：每個階段完成後進行憲法檢查
-- **錯誤恢復**：任何階段失敗，保留已完成的部分
+## Startup Loading
 
-### 2. Skill 自主完成全流程
-- **自主建檔**：Skill 自動建立所有目錄和檔案，不需要先跑 CLI
-- **AI 快速填充**：在每個階段快速產出高品質內容
-- **無縫銜接**：前一階段的輸出自動成為下一階段的輸入
-- **metadata 狀態推進**：自動維護 story → plan → tasks 的狀態生命週期
-- **向下相容**：若使用者已先跑 CLI 建骨架，Skill 偵測到後直接填充
+1. Read `{{knowledge_base_path}}/_index.md` — identify related modules
+2. Read `{{constitution_path}}` — prepare Constitution check
+3. **MANDATORY** — Load these three format references:
+   - `prospec-new-story/references/proposal-format.md`
+   - `prospec-plan/references/plan-format.md` + `delta-spec-format.md`
+   - `prospec-tasks/references/tasks-format.md`
 
-### 3. 適用場景
-- 需求非常明確，不需要深度探索
-- 時程緊迫，需要快速推進
-- 使用者對專案架構已經很熟悉
-- 變更範圍相對獨立，風險較低
+## What Makes FF Unique
 
-## 工作流程
+FF is not just "run three Skills sequentially." Its expert knowledge lies in:
 
-### 啟動階段
+1. **Chained derivation**: Output of each phase automatically feeds the next — no manual handoff needed
+2. **Status lifecycle management**: metadata.yaml status progresses `story → plan → tasks` in sequence
+3. **Error recovery**: When any phase fails, preserve completed parts and offer recovery options
+4. **Quick interview**: Only 3 core questions (goal, role, acceptance criteria) — no deep exploration
 
-```
-> 你好！我是 {{project_name}} 的快速規劃專家 ⚡
+## Core Workflow
 
-Fast-Forward 模式會一次性生成完整規劃：
+### Phase 0: Quick Interview (3 questions to converge)
 
-  Step 1: Story (User Story + 驗收標準)
-          ↓
-  Step 2: Plan (實作計畫 + Delta Spec)
-          ↓
-  Step 3: Tasks (可執行任務清單)
+Collect: Core goal (one sentence), primary user, key acceptance criteria (3-5 points).
+Derive kebab-case change name, confirm before proceeding.
 
-⚠️ 注意事項：
-- 適合需求明確的場景
-- 過程中會進行憲法檢查
-- 任何階段失敗會保留已完成的部分
-- 整個流程約需 5-10 分鐘
+### Phase 1: Story Generation
 
-準備好了嗎？請先告訴我：你想建立什麼功能或改動？
-```
+| Step | Action |
+|------|--------|
+| Scaffold | Create `.prospec/changes/[name]/` + `metadata.yaml`(status: story) + `proposal.md` |
+| Populate | Write User Story and ACs per proposal-format.md |
+| Check | Constitution check (3 most relevant principles) → PASS continue / FAIL pause |
 
-### 前置階段：載入專案知識
+### Phase 2: Plan Generation
 
-```typescript
-// 載入專案核心知識
-const indexPath = '{{knowledge_base_path}}/_index.md';
-const constitutionPath = '{{constitution_path}}';
+| Step | Action |
+|------|--------|
+| Knowledge | Layer 1 (_index.md) → Layer 2 (related module READMEs) |
+| Scaffold | Create `plan.md` + `delta-spec.md`, update status → `plan` |
+| Populate | Write per plan-format.md and delta-spec-format.md |
+| Check | Constitution check → PASS continue / FAIL pause |
 
-const indexContent = readFile(indexPath);
-const constitutionContent = readFile(constitutionPath);
+### Phase 3: Tasks Generation
 
-console.log('✓ 已載入專案索引和憲法');
-```
+| Step | Action |
+|------|--------|
+| Scaffold | Create `tasks.md`, update status → `tasks` |
+| Populate | Decompose by architecture layer per tasks-format.md |
+| Check | Test coverage check → PASS complete / WARN supplement |
 
-```
-🔍 前置準備
+### Completion: Summary Report
 
-正在載入專案知識...
-✓ {{knowledge_base_path}}/_index.md
-✓ {{constitution_path}}
+List all produced files, task statistics, suggest `/prospec-implement` as next step.
 
-現有模組：[數量] 個
-專案原則：[數量] 個
+## Error Recovery
 
-準備開始快速規劃。
-```
+| Failed Phase | Preserved | Recovery Options |
+|-------------|-----------|-----------------|
+| Story fails | Change directory | Retry / switch to `/prospec-new-story` |
+| Plan fails | proposal.md | Retry / switch to `/prospec-plan` |
+| Tasks fails | proposal.md + plan.md + delta-spec.md | Retry / switch to `/prospec-tasks` |
+| Severe Constitution violation | All parts completed before failure | Pause FF, switch to single-phase Skill |
 
-### Step 1: Story 生成
+## When to Use vs. Not to Use
 
-#### 1.1 需求快速訪談
+| Suitable for FF | Not suitable for FF |
+|----------------|-------------------|
+| Requirements clear, well-explored | Requirements vague, need discussion |
+| Similar feature done before | Major architectural changes |
+| Independent scope, low risk | Uncertain tech choices |
+| Tight schedule | First time with project |
 
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Step 1: Story 生成
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## NEVER
 
-讓我快速了解需求：
+- **NEVER** use FF when requirements are vague — guide user to `/prospec-explore` first
+- **NEVER** skip Constitution check at any phase — every phase must be checked
+- **NEVER** ask more than 3 questions in Phase 0 — FF prioritizes speed, use `/prospec-explore` for depth
+- **NEVER** duplicate format details already defined in other Skills — load corresponding references/ directly
+- **NEVER** skip metadata.yaml status progression — must follow story → plan → tasks sequence
+- **NEVER** discard completed phases on failure — error recovery is FF's core capability
+- **NEVER** skip Layer 2 knowledge loading — Plan phase must load related module AI Knowledge
 
-Q1: 這個功能的核心目標是什麼？（一句話說明）
-Q2: 主要使用者是誰？
-Q3: 關鍵驗收條件有哪些？（3-5 個重點）
+## Error Handling
 
-[等待使用者回答]
-```
+| Scenario | Action |
+|----------|--------|
+| Constitution severe violation at any phase | Pause FF, preserve completed parts, switch to single-phase Skill |
+| User changes requirements mid-flow | Restart from Phase 0 with new requirements |
+| Module Knowledge insufficient | Proceed with available info, note gaps in plan.md Risk Assessment |
 
-#### 1.2 衍生變更名稱
-
-```
-基於你的描述，我建議變更名稱：
-
-  📦 [衍生的-kebab-case-名稱]
-
-[如果使用者同意] → 繼續
-[如果使用者調整] → 使用新名稱
-```
-
-#### 1.3 確認或建立骨架並快速填充
-
-檢查 `.prospec/changes/[變更名稱]/` 是否已存在：
-- **若不存在**：建立目錄，建立 `metadata.yaml`（status: story），建立空 `proposal.md`
-- **若已存在**：直接讀取現有檔案
-
-metadata.yaml 內容：
-```yaml
-name: "[變更名稱]"
-created_at: "[當前 ISO 8601 時間戳]"
-status: story
-```
-
-```
-✓ 已確認/建立骨架：.prospec/changes/[變更名稱]/
-✓ metadata.yaml (status: story)
-
-正在快速填充 User Story...
-
-┌─────────────────────────────────────────┐
-│ As a [從訪談推導的角色]                  │
-│ I want [從訪談推導的功能]                │
-│ So that [從訪談推導的價值]               │
-└─────────────────────────────────────────┘
-
-驗收標準：
-1. [從訪談推導的 AC 1]
-2. [從訪談推導的 AC 2]
-3. [從訪談推導的 AC 3]
-4. [補充的 UI/UX AC]
-5. [補充的性能/安全 AC]
-
-✓ Story 生成完成
-```
-
-#### 1.4 Story 憲法檢查
-
-```
-📋 Step 1 憲法檢查
-
-檢查最相關的 3 個原則：
-
-✓ [原則 1]：PASS - [簡短說明]
-✓ [原則 2]：PASS - [簡短說明]
-⚠ [原則 3]：WARN - [簡短說明 + 調整建議]
-
-總體評估：[PASS / WARN / FAIL]
-
-[如果 PASS 或 WARN]
-✓ Story 階段通過，繼續進入 Plan 階段...
-
-[如果 FAIL]
-✗ Story 階段未通過憲法檢查
-  選項：
-  1. 調整 Story 內容
-  2. 中止 Fast-Forward，保留當前 Story
-```
-
-### Step 2: Plan 生成
-
-#### 2.1 載入相關模組（Layer 1 + Layer 2）
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Step 2: Plan 生成
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-讀取 proposal.md...
-✓ User Story 已載入
-
-🔍 Layer 1: 識別相關模組
-從 _index.md 分析...
-✓ 識別到 [數量] 個相關模組
-
-🔍 Layer 2: 載入模組知識
-載入 [模組 A] AI Knowledge...
-載入 [模組 B] AI Knowledge...
-✓ 模組知識載入完成
-```
-
-#### 2.2 確認或建立骨架並快速設計
-
-檢查 `plan.md` 和 `delta-spec.md` 是否已存在：
-- **若不存在**：建立空 `plan.md` 和 `delta-spec.md`，更新 `metadata.yaml` 狀態為 `plan`
-- **若已存在**：直接讀取現有檔案
-
-```
-✓ 已確認/建立 plan.md 和 delta-spec.md
-✓ metadata.yaml 狀態更新為 plan
-
-正在快速設計架構...
-
-🏗️ 技術架構：
-[ASCII 架構圖 - 簡化版]
-
-📋 實作步驟：
-階段 1: [層級] - [數量] 個步驟
-階段 2: [層級] - [數量] 個步驟
-階段 3: [層級] - [數量] 個步驟
-階段 4: [層級] - [數量] 個步驟
-階段 5: Tests - [數量] 個步驟
-
-📐 Delta Spec：
-- 新增檔案：[數量] 個
-- 修改檔案：[數量] 個
-- API 規格：[數量] 個
-- 測試規格：[數量] 個
-
-✓ Plan 生成完成
-```
-
-#### 2.3 Plan 憲法檢查
-
-```
-📋 Step 2 憲法檢查
-
-檢查最相關的 3 個原則：
-
-✓ [架構原則]：PASS - [簡短說明]
-✓ [測試原則]：PASS - [簡短說明]
-✓ [性能原則]：PASS - [簡短說明]
-
-總體評估：[PASS / WARN / FAIL]
-
-[如果 PASS 或 WARN]
-✓ Plan 階段通過，繼續進入 Tasks 階段...
-
-[如果 FAIL]
-✗ Plan 階段未通過憲法檢查
-  已完成：Story ✓, Plan ✗
-  選項：
-  1. 調整 Plan 內容
-  2. 中止 Fast-Forward，使用 /prospec-plan 手動調整
-```
-
-### Step 3: Tasks 生成
-
-#### 3.1 解析 Plan 並拆解任務
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Step 3: Tasks 生成
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-讀取 plan.md 和 delta-spec.md...
-✓ 實作計畫已載入
-
-拆解任務中...
-✓ Models 層：[數量] 個任務
-✓ Services 層：[數量] 個任務
-✓ Routes 層：[數量] 個任務
-✓ UI 層：[數量] 個任務
-✓ Tests：[數量] 個任務
-```
-
-#### 3.2 確認或建立骨架並快速填充
-
-檢查 `tasks.md` 是否已存在：
-- **若不存在**：建立空 `tasks.md`，更新 `metadata.yaml` 狀態為 `tasks`
-- **若已存在**：直接讀取現有檔案
-
-```
-✓ 已確認/建立 tasks.md
-✓ metadata.yaml 狀態更新為 tasks
-
-填充任務清單...
-
-總任務數：[數量]
-複雜度分布：S: [數量], M: [數量], L: [數量]
-預估總時間：~[時間] 小時
-平行化任務：[數量] 個
-
-✓ Tasks 生成完成
-```
-
-#### 3.3 Tasks 測試檢查
-
-```
-📋 Step 3 測試檢查
-
-驗證測試覆蓋度...
-
-✓ 單元測試：[數量] 個，涵蓋所有新模組
-✓ 整合測試：[數量] 個，涵蓋所有 API
-✓ E2E 測試：[數量] 個，涵蓋關鍵流程
-
-測試覆蓋評估：[PASS / WARN / FAIL]
-
-[如果 PASS 或 WARN]
-✓ Tasks 階段通過
-
-[如果 FAIL]
-⚠ 測試覆蓋不足
-  建議補充：[具體測試項目]
-  選項：
-  1. 自動補充測試任務
-  2. 中止 Fast-Forward，手動調整
-```
-
-### 完成階段：總結報告
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Fast-Forward 完成！
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ 所有階段完成
-
-變更名稱：[變更名稱]
-變更路徑：.prospec/changes/[變更名稱]/
-
-已產生檔案：
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📄 proposal.md
-   - User Story: [一行摘要]
-   - 驗收標準: [數量] 個
-   - 憲法評估: [PASS/WARN/FAIL]
-
-📄 plan.md
-   - 實作階段: [數量] 個
-   - 技術決策: [數量] 個
-   - 憲法評估: [PASS/WARN/FAIL]
-
-📄 delta-spec.md
-   - 檔案變更: [新增數量] + [修改數量]
-   - API 規格: [數量] 個
-   - 測試規格: [數量] 個
-
-📄 tasks.md
-   - 總任務數: [數量]
-   - 預估時間: ~[時間] 小時
-   - 測試評估: [PASS/WARN/FAIL]
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-整體品質評估：
-
-✓ Story 品質: [評分 1-5] ⭐
-✓ Plan 完整度: [評分 1-5] ⭐
-✓ Tasks 可執行性: [評分 1-5] ⭐
-✓ 憲法符合度: [PASS/WARN/FAIL]
-
-[如果有 WARN 項目]
-⚠️ 注意事項：
-- [注意事項 1]
-- [注意事項 2]
-
-下一步建議：
-
-1. /prospec-implement [強烈建議]
-   開始執行任務清單
-
-2. 手動審查
-   檢視所有產生的文件，確認品質
-
-3. 調整規劃
-   如果需要，可以手動編輯任何檔案
-
-總耗時：[實際耗時] 分鐘
-
-你想選擇哪一個？
-```
-
-## 錯誤處理與恢復
-
-### 情況 1：Story 階段失敗
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ Step 1 失敗
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-失敗原因：[錯誤訊息]
-
-已完成：
-✓ 變更目錄已建立
-
-未完成：
-✗ proposal.md 內容不完整或不符合憲法
-
-恢復選項：
-
-1. 重試 Story 生成
-   使用不同的描述重新生成
-
-2. 切換到 /prospec-new-story
-   使用標準流程手動建立 Story
-
-3. 取消此變更
-   刪除變更目錄
-
-建議選擇選項 2，可以有更多互動和調整空間。
-
-你想選擇哪一個？
-```
-
-### 情況 2：Plan 階段失敗
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ Step 2 失敗
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-失敗原因：[錯誤訊息]
-
-已完成：
-✓ Step 1: Story ✓ (proposal.md 已建立且通過檢查)
-
-未完成：
-✗ Step 2: Plan (plan.md 或 delta-spec.md 有問題)
-
-恢復選項：
-
-1. 重試 Plan 生成
-   基於現有 Story 重新生成 Plan
-
-2. 切換到 /prospec-plan
-   保留 Story，使用標準流程手動規劃
-
-3. 手動編輯
-   直接編輯 plan.md 和 delta-spec.md
-
-建議選擇選項 2，Story 已經完成且品質良好，
-可以專注在 Plan 的細節調整。
-
-你想選擇哪一個？
-```
-
-### 情況 3：Tasks 階段失敗
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-❌ Step 3 失敗
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-失敗原因：[錯誤訊息]
-
-已完成：
-✓ Step 1: Story ✓
-✓ Step 2: Plan ✓
-
-未完成：
-✗ Step 3: Tasks (tasks.md 測試覆蓋不足或任務拆解有問題)
-
-恢復選項：
-
-1. 重試 Tasks 生成
-   基於現有 Plan 重新生成 Tasks
-
-2. 切換到 /prospec-tasks
-   保留 Story 和 Plan，使用標準流程手動拆解任務
-
-3. 手動補充
-   直接編輯 tasks.md，補充缺失的任務
-
-建議選擇選項 1，因為 Story 和 Plan 都已完成，
-Tasks 通常可以快速修正。
-
-你想選擇哪一個？
-```
-
-### 情況 4：憲法嚴重違反
-
-```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️ 憲法嚴重違反警示
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-在 [階段名稱] 發現嚴重違反專案原則：
-
-✗ [原則名稱]
-  違反原因：[具體描述]
-  影響程度：HIGH
-  必須調整：[具體要求]
-
-Fast-Forward 已暫停。
-
-已完成的階段：
-[列出已完成的階段]
-
-建議：
-1. 停止 Fast-Forward，切換到對應的單階段 Skill
-2. 重新思考實作方案，確保符合憲法
-3. 如果有充分理由，記錄例外並繼續（需要團隊審查）
-
-這個原則是專案的核心價值，強烈建議選擇選項 1 或 2。
-
-你想怎麼處理？
-```
-
-## 進階功能
-
-### 1. 快速預覽模式
-
-```
-⚡ 快速預覽
-
-在正式生成前，我可以先做一個快速預覽：
-
-預計變更範圍：
-- 影響模組：[模組 A], [模組 B], [模組 C]
-- 架構層級：Models, Services, Routes, UI
-- 新增檔案：約 [數量] 個
-- 預估任務：約 [數量] 個
-- 預估時間：約 [時間] 小時
-
-潛在風險：
-- [風險 1]：[簡短描述]
-- [風險 2]：[簡短描述]
-
-這個預估基於類似的歷史變更和專案複雜度。
-
-確認要繼續 Fast-Forward 嗎？
-```
-
-### 2. 調整生成速度
-
-```
-⚡ 生成模式選擇
-
-Fast-Forward 有兩種模式：
-
-1. 極速模式 (Turbo)
-   - 速度：最快（2-3 分鐘）
-   - 品質：良好
-   - 細節：較少
-   - 適合：簡單變更、緊急情況
-
-2. 標準模式 (Standard)
-   - 速度：正常（5-10 分鐘）
-   - 品質：優秀
-   - 細節：完整
-   - 適合：中等複雜度變更、常規情況
-
-建議選擇標準模式以確保品質。
-
-你想使用哪個模式？
-```
-
-### 3. 團隊協作提示
-
-```
-👥 團隊協作建議
-
-基於生成的任務清單，我建議的團隊分工：
-
-如果有 2 個開發者：
-- 開發者 A：後端 ([數量] 個任務，~[時間]h)
-- 開發者 B：前端 ([數量] 個任務，~[時間]h)
-
-如果有 3 個開發者：
-- 開發者 A：Models + Services ([數量] 個任務)
-- 開發者 B：Routes + API ([數量] 個任務)
-- 開發者 C：UI + Tests ([數量] 個任務)
-
-同步點：
-1. [時間點]：Models 完成，服務層可開始
-2. [時間點]：API 完成，前端可整合
-3. [時間點]：功能完成，E2E 測試可執行
-
-這只是建議，實際分工可依團隊情況調整。
-```
-
-## 品質保證
-
-### 生成品質檢查清單
-
-```
-✅ Fast-Forward 品質檢查
-
-在完成後，我會自動檢查以下項目：
-
-Story (proposal.md)
-  ✓ User Story 三段式完整
-  ✓ 至少 3 個驗收標準
-  ✓ 憲法檢查通過
-  ✓ 相關模組已識別
-
-Plan (plan.md + delta-spec.md)
-  ✓ 技術架構圖清晰
-  ✓ 實作步驟具體
-  ✓ 技術決策有理由
-  ✓ Delta Spec 涵蓋所有變更
-  ✓ 憲法檢查通過
-
-Tasks (tasks.md)
-  ✓ 任務按架構層級組織
-  ✓ 每個任務有複雜度估算
-  ✓ 平行化機會已標記
-  ✓ 測試覆蓋充足
-  ✓ 測試檢查通過
-
-如果任何檢查項未通過，會標記為 ⚠️ 或 ✗，
-並提供改進建議。
-```
-
-## 範例：完整 Fast-Forward 流程
-
-```
-使用者：我想加一個匯出報表為 PDF 的功能
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AI：收到！讓我快速了解需求 ⚡
-
-Q1: 核心目標？
-使用者：讓專案經理能匯出專案報表給客戶
-
-Q2: 主要使用者？
-使用者：專案經理
-
-Q3: 關鍵驗收條件？
-使用者：能匯出 PDF、包含圖表、有公司 Logo、10 秒內完成
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AI：好的！建議變更名稱：add-report-pdf-export
-
-使用者：好
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AI：⚡ Step 1: Story 生成
-
-✓ 已自主建立骨架
-✓ User Story 已生成
-
-As a 專案經理
-I want 將專案進度報表匯出為 PDF 檔案
-So that 我可以提供正式格式的報告給客戶
-
-驗收標準：5 個
-憲法檢查：PASS
-
-✓ Story 完成，進入 Plan 階段...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AI：⚡ Step 2: Plan 生成
-
-✓ 載入相關模組：3 個
-✓ 設計技術架構
-✓ 產生 Delta Spec
-
-實作階段：5 個
-新增檔案：4 個
-API 規格：1 個
-憲法檢查：PASS
-
-✓ Plan 完成，進入 Tasks 階段...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-AI：⚡ Step 3: Tasks 生成
-
-✓ 任務拆解完成
-
-總任務數：18 個
-預估時間：~26 小時
-測試覆蓋：PASS
-
-✓ Tasks 完成！
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚡ Fast-Forward 完成！
-
-所有檔案已產生：
-✓ proposal.md
-✓ plan.md
-✓ delta-spec.md
-✓ tasks.md
-
-整體品質：5/5 ⭐
-總耗時：7 分鐘
-
-下一步：/prospec-implement
-```
-
-## 使用建議
-
-### 適合使用 Fast-Forward 的情境
-
-✅ **適合**
-- 需求非常明確，已經充分探索
-- 類似的功能之前做過
-- 變更範圍獨立，影響面小
-- 時程緊迫，需要快速推進
-
-❌ **不適合**
-- 需求模糊，需要探索和討論
-- 涉及重大架構變更
-- 技術選型不確定
-- 首次接觸專案
-
-### 與其他 Skill 的比較
-
-```
-Fast-Forward vs 分階段 Skills
-
-/prospec-ff (Fast-Forward)
-  優點：速度快、一次到位
-  缺點：互動少、調整空間小
-  適合：明確需求、緊急情況
-
-/prospec-new-story + /prospec-plan + /prospec-tasks
-  優點：互動多、可深度調整
-  缺點：耗時較長
-  適合：複雜需求、首次規劃
-
-建議：
-- 如果不確定，先用 /prospec-explore
-- 如果時間充裕，用分階段 Skills
-- 如果需求明確且緊急，用 /prospec-ff
-```
-
-## 注意事項
-
-1. **品質 vs 速度權衡**：Fast-Forward 追求速度，可能犧牲一些細節
-2. **憲法檢查嚴格**：任何階段違反憲法都會暫停，必須處理
-3. **錯誤恢復機制**：失敗不會丟失已完成的工作
-4. **適時切換**：如果發現不適合，及時切換到標準流程
-5. **CLI 仍可用**：`prospec change story/plan/tasks` 指令仍可作為 non-AI fallback，適用於 CI/CD 自動化或腳本整合
-6. **metadata 狀態推進**：完整流程中 metadata.yaml 的 status 必須依序推進：story → plan → tasks，不可跳步
-
-讓我們快速推進你的專案！⚡
+All generated files must be written in English.

@@ -1,30 +1,30 @@
-# Proposal 格式參考
+# Proposal Format Reference
 
-本文件說明 `proposal.md` 的預期格式，供 **prospec-new-story** Skill 參考。
-
----
-
-## 檔案用途
-
-`proposal.md` 是 Story 的起點，描述使用者需求、驗收條件和相關模組。
+This document defines the expected format for `proposal.md`, used by the **prospec-new-story** Skill.
 
 ---
 
-## 標準格式
+## Purpose
+
+`proposal.md` is the starting point of a Story, describing user needs, acceptance criteria, and related modules.
+
+---
+
+## Standard Format
 
 ### 1. User Story
 
-使用標準 User Story 格式：
+Use the standard User Story format:
 
 ```markdown
 ## User Story
 
-As a [角色/使用者類型],
-I want [功能/需求],
-So that [目的/價值].
+As a [role/user type],
+I want [feature/requirement],
+So that [purpose/value].
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## User Story
@@ -38,18 +38,18 @@ So that I can manage errors consistently across the application.
 
 ### 2. Acceptance Criteria
 
-使用編號列表清楚列出驗收條件：
+Use a numbered list of specific, verifiable conditions:
 
 ```markdown
 ## Acceptance Criteria
 
-1. [具體可驗證的條件 1]
-2. [具體可驗證的條件 2]
-3. [具體可驗證的條件 3]
+1. [Specific verifiable condition 1]
+2. [Specific verifiable condition 2]
+3. [Specific verifiable condition 3]
 ...
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Acceptance Criteria
@@ -64,16 +64,16 @@ So that I can manage errors consistently across the application.
 
 ### 3. Related Modules
 
-根據 `{{knowledge_base_path}}/_index.md` 的關鍵字比對，列出相關模組：
+List related modules based on keyword matching from `{{knowledge_base_path}}/_index.md`:
 
 ```markdown
 ## Related Modules
 
-- **module-name-1**: [為什麼相關的簡短說明]
-- **module-name-2**: [為什麼相關的簡短說明]
+- **module-name-1**: [Brief explanation of relevance]
+- **module-name-2**: [Brief explanation of relevance]
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Related Modules
@@ -85,28 +85,28 @@ So that I can manage errors consistently across the application.
 
 ---
 
-### 4. Notes (選用)
+### 4. Notes (Optional)
 
-額外的上下文、技術考量或限制：
+Additional context, technical considerations, or constraints:
 
 ```markdown
 ## Notes
 
-- [額外的上下文或技術考量]
-- [已知的限制或風險]
+- [Additional context or technical considerations]
+- [Known limitations or risks]
 ```
 
 ---
 
-## 檔案長度建議
+## File Length Guidelines
 
-- 保持在 **100 行以內**
-- 如果 Acceptance Criteria 過多（>10 條），考慮拆分成多個 Story
+- Keep under **100 lines**
+- If Acceptance Criteria exceeds 10 items, consider splitting into multiple Stories
 
 ---
 
-## 參考資訊
+## Reference Information
 
-- 專案名稱: `{{project_name}}`
-- AI Knowledge 路徑: `{{knowledge_base_path}}`
-- Constitution 檔案: `{{constitution_path}}`
+- Project name: `{{project_name}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Constitution file: `{{constitution_path}}`

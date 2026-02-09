@@ -1,158 +1,158 @@
-# Knowledge Generate 格式參考
+# Knowledge Generate Format Reference
 
-本文件定義 `/prospec-knowledge-generate` Skill 產出的檔案格式規範。
+This document defines the output file format specifications for the `/prospec-knowledge-generate` Skill.
 
 ---
 
-## 1. modules/{module}/README.md 格式
+## 1. modules/{module}/README.md Format
 
-### 必要區段
+### Required Sections
 
-每個模組 README 必須包含以下區段，且使用 `prospec:auto-start/end` 和 `prospec:user-start/end` 標記：
+Each module README must include the following sections, using `prospec:auto-start/end` and `prospec:user-start/end` markers:
 
 ```markdown
-# [模組名稱]
+# [Module Name]
 
-> [一句話描述模組職責]
+> [One-sentence description of module responsibility]
 
 <!-- prospec:auto-start -->
-## 概述
+## Overview
 
-[2-3 段落描述：]
-- 模組在系統中的角色和定位
-- 核心設計理念
-- 主要使用場景
+[2-3 paragraphs describing:]
+- The module's role and position in the system
+- Core design principles
+- Primary use cases
 
-## 職責
+## Responsibilities
 
-- [職責 1：具體描述此模組負責什麼]
-- [職責 2]
-- [職責 3]
+- [Responsibility 1: Specific description of what this module handles]
+- [Responsibility 2]
+- [Responsibility 3]
 
-## 關鍵檔案
+## Key Files
 
-| 檔案 | 用途 |
-|------|------|
-| `[相對路徑]` | [檔案的具體用途] |
-| `[相對路徑]` | [檔案的具體用途] |
+| File | Purpose |
+|------|---------|
+| `[relative path]` | [Specific purpose of this file] |
+| `[relative path]` | [Specific purpose of this file] |
 
-## 公開介面
+## Public Interface
 
-### [函式/類別名稱]
+### [Function/Class Name]
 
-- **簽名**: `functionName(param: Type): ReturnType`
-- **用途**: [簡述]
+- **Signature**: `functionName(param: Type): ReturnType`
+- **Purpose**: [Brief description]
 
-### [函式/類別名稱]
+### [Function/Class Name]
 
-- **簽名**: `className.method(param: Type): ReturnType`
-- **用途**: [簡述]
+- **Signature**: `className.method(param: Type): ReturnType`
+- **Purpose**: [Brief description]
 
-## 依賴關係
+## Dependencies
 
-- **依賴**: [列出此模組 import 的其他模組]
-- **被依賴**: [列出 import 此模組的其他模組]
+- **Depends on**: [List modules this module imports from]
+- **Depended by**: [List modules that import from this module]
 
-## 設計決策
+## Design Decisions
 
-- **[決策標題]**: [選擇了什麼] — [為什麼這樣選擇]
+- **[Decision title]**: [What was chosen] — [Why this choice was made]
 <!-- prospec:auto-end -->
 
 <!-- prospec:user-start -->
-<!-- 在此添加手動筆記、備忘、待辦事項等。此區段不會被覆蓋。 -->
+<!-- Add manual notes, memos, TODOs here. This section will not be overwritten. -->
 <!-- prospec:user-end -->
 ```
 
-### 格式規則
+### Format Rules
 
-1. **模組名稱**：使用目錄名稱，如 `cli`、`services`、`lib`
-2. **職責**：3-7 項，每項用動詞開頭（如「處理」、「管理」、「提供」）
-3. **關鍵檔案**：只列主要檔案（5-15 個），不需要列出所有檔案
-4. **公開介面**：只列 export 的函式/類別，內部實作不列
-5. **依賴關係**：使用模組名稱而非檔案路徑
+1. **Module name**: Use directory name, e.g., `cli`, `services`, `lib`
+2. **Responsibilities**: 3-7 items, each starting with a verb (e.g., "Handle", "Manage", "Provide")
+3. **Key files**: List only main files (5-15), no need to list everything
+4. **Public interface**: Only list exported functions/classes, not internal implementations
+5. **Dependencies**: Use module names, not file paths
 
 ---
 
-## 2. _index.md 模組表格格式
+## 2. _index.md Module Table Format
 
-### 表格結構
+### Table Structure
 
 ```markdown
 ## Modules
 
 | Module | Keywords | Status | Description | Depends On |
 |--------|----------|--------|-------------|------------|
-| [名稱] | [關鍵字] | active | [描述] | [依賴] |
+| [name] | [keywords] | active | [description] | [dependencies] |
 ```
 
-### 欄位規範
+### Field Specifications
 
-- **Module**: 模組名稱，與 `modules/` 下的目錄名稱一致
-- **Keywords**: 3-5 個關鍵字，逗號分隔，用於搜尋定位
-- **Status**: `active`（使用中）、`deprecated`（已棄用）、`planned`（計劃中）
-- **Description**: 一句話描述，不超過 50 字
-- **Depends On**: 依賴的其他模組名稱，無依賴填 `—`
+- **Module**: Module name, matching the directory name under `modules/`
+- **Keywords**: 3-5 keywords, comma-separated, used for search and matching
+- **Status**: `active` (in use), `deprecated` (phased out), `planned` (upcoming)
+- **Description**: One-sentence description, max 50 words
+- **Depends On**: Names of other depended-upon modules, use `—` if none
 
-### 排序規則
+### Sorting Rules
 
-模組按架構層次排序（由底到頂）：
-1. types / 型別定義
-2. lib / 共用工具
-3. services / 業務邏輯
-4. cli / 命令介面
-5. templates / 模板
+Modules are sorted by architecture layer (bottom to top):
+1. types / type definitions
+2. lib / shared utilities
+3. services / business logic
+4. cli / command interface
+5. templates / templates
 
 ---
 
-## 3. _conventions.md 格式
+## 3. _conventions.md Format
 
 ```markdown
 # Coding Conventions
 
-> {{project_name}} 的程式碼規範與最佳實踐
+> {{project_name}} coding conventions and best practices
 
 <!-- prospec:auto-start -->
-## 命名規範
+## Naming Conventions
 
-- **檔案**: [規範，如 kebab-case]
-- **變數/函式**: [規範，如 camelCase]
-- **類別/介面**: [規範，如 PascalCase]
-- **常數**: [規範，如 UPPER_SNAKE_CASE]
+- **Files**: [Convention, e.g., kebab-case]
+- **Variables/Functions**: [Convention, e.g., camelCase]
+- **Classes/Interfaces**: [Convention, e.g., PascalCase]
+- **Constants**: [Convention, e.g., UPPER_SNAKE_CASE]
 
-## 專案模式
+## Project Patterns
 
-### [模式名稱，如錯誤處理]
-[描述此專案如何處理此模式]
+### [Pattern name, e.g., Error Handling]
+[Describe how this project handles this pattern]
 
-### [模式名稱，如日誌]
-[描述]
+### [Pattern name, e.g., Logging]
+[Description]
 
-## Import 排序
+## Import Ordering
 
-1. Node.js 內建模組
-2. 第三方套件
-3. 專案內部模組（絕對路徑）
-4. 相對路徑模組
+1. Node.js built-in modules
+2. Third-party packages
+3. Project internal modules (absolute paths)
+4. Relative path modules
 
-## 測試慣例
+## Testing Conventions
 
-- 測試檔案位置：[如 tests/unit/]
-- 命名格式：[如 *.test.ts]
-- 測試框架：[如 vitest]
+- Test file location: [e.g., tests/unit/]
+- Naming format: [e.g., *.test.ts]
+- Testing framework: [e.g., vitest]
 <!-- prospec:auto-end -->
 
 <!-- prospec:user-start -->
-<!-- 在此添加團隊特有的規範、例外規則等 -->
+<!-- Add team-specific conventions, exceptions, etc. here -->
 <!-- prospec:user-end -->
 ```
 
 ---
 
-## 4. 重跑安全規則
+## 4. Re-run Safety Rules
 
-| 操作 | prospec:auto-start/end | prospec:user-start/end |
-|------|----------------------|----------------------|
-| 首次生成 | 填入內容 | 留空（含註解提示） |
-| 重跑生成 | 覆蓋更新 | 保留不動 |
+| Operation | prospec:auto-start/end | prospec:user-start/end |
+|-----------|----------------------|----------------------|
+| First generation | Populate content | Leave empty (with comment prompt) |
+| Re-run generation | Overwrite and update | Preserve as-is |
 
-**實作方式**：讀取現有檔案 → 提取 `prospec:user-start/end` 內容 → 重新生成 `prospec:auto-start/end` → 合併寫入。
+**Implementation**: Read existing file → Extract `prospec:user-start/end` content → Regenerate `prospec:auto-start/end` → Merge and write back.

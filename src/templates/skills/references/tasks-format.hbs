@@ -1,55 +1,55 @@
-# Tasks 格式參考
+# Tasks Format Reference
 
-本文件說明 `tasks.md` 的預期格式，供 **prospec-tasks** Skill 參考。
-
----
-
-## 檔案用途
-
-`tasks.md` 將 `plan.md` 的實作步驟分解為具體的開發任務，並提供複雜度估計和依賴關係標記。
+This document defines the expected format for `tasks.md`, used by the **prospec-tasks** Skill.
 
 ---
 
-## 標準格式
+## Purpose
 
-### 1. Checkbox 格式
+`tasks.md` breaks down `plan.md` implementation steps into concrete development tasks with complexity estimates and dependency markers.
 
-使用 Markdown checkbox 語法：
+---
+
+## Standard Format
+
+### 1. Checkbox Format
+
+Use Markdown checkbox syntax:
 
 ```markdown
-- [ ] 待完成的任務
-- [x] 已完成的任務
+- [ ] Pending task
+- [x] Completed task
 ```
 
 ---
 
-### 2. Architecture-Layer 分組
+### 2. Architecture-Layer Grouping
 
-依照架構層次分組任務，建議順序：
+Group tasks by architecture layer in recommended order:
 
 ```markdown
 ## Types
 
-- [ ] [任務描述] ~{lines} lines
+- [ ] [Task description] ~{lines} lines
 
 ## Lib
 
-- [ ] [任務描述] ~{lines} lines
+- [ ] [Task description] ~{lines} lines
 
 ## Services
 
-- [ ] [任務描述] ~{lines} lines
+- [ ] [Task description] ~{lines} lines
 
 ## CLI
 
-- [ ] [任務描述] ~{lines} lines
+- [ ] [Task description] ~{lines} lines
 
 ## Tests
 
-- [ ] [任務描述] ~{lines} lines
+- [ ] [Task description] ~{lines} lines
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Types
@@ -82,42 +82,42 @@
 
 ---
 
-### 3. Parallelizable Tasks 標記
+### 3. Parallelizable Task Markers
 
-使用 `[P]` 標記可平行執行的任務（無依賴關係）：
+Use `[P]` to mark tasks that can be executed in parallel (no dependencies):
 
 ```markdown
-- [ ] [P] 可以平行執行的任務 1 ~50 lines
-- [ ] [P] 可以平行執行的任務 2 ~50 lines
+- [ ] [P] Parallelizable task 1 ~50 lines
+- [ ] [P] Parallelizable task 2 ~50 lines
 ```
 
 ---
 
-### 4. Complexity Estimate 格式
+### 4. Complexity Estimate Format
 
-使用 `~{lines} lines` 格式估計複雜度：
+Use `~{lines} lines` to estimate complexity:
 
 ```markdown
-- [ ] 簡單任務 ~20 lines
-- [ ] 中等任務 ~50 lines
-- [ ] 複雜任務 ~100 lines
+- [ ] Simple task ~20 lines
+- [ ] Medium task ~50 lines
+- [ ] Complex task ~100 lines
 ```
 
 ---
 
 ### 5. Summary Section
 
-在檔案末尾加上摘要：
+Add a summary at the end of the file:
 
 ```markdown
 ## Summary
 
-- **Total Tasks:** {總任務數}
-- **Parallelizable Tasks:** {可平行執行的任務數}
-- **Total Estimated Lines:** ~{總預估行數} lines
+- **Total Tasks:** {total task count}
+- **Parallelizable Tasks:** {parallelizable task count}
+- **Total Estimated Lines:** ~{total estimated lines} lines
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Summary
@@ -129,29 +129,29 @@
 
 ---
 
-## Task Granularity 指引
+## Task Granularity Guidelines
 
-- **理想數量：15-25 個任務**
-- **太多（>25）：** 考慮合併相似任務
-- **太少（<10）：** 考慮拆分複雜任務
+- **Ideal count: 15-25 tasks**
+- **Too many (>25):** Consider merging similar tasks
+- **Too few (<10):** Consider splitting complex tasks
 
 ---
 
-## 任務粒度範例
+## Task Granularity Examples
 
-### 良好的粒度：
+### Good granularity:
 
 ```markdown
 - [ ] Implement BaseError class with error code mapping ~50 lines
 ```
 
-### 粒度太大（需拆分）：
+### Too coarse (needs splitting):
 
 ```markdown
 - [ ] Implement entire error handling system ~500 lines
 ```
 
-**拆分為：**
+**Split into:**
 
 ```markdown
 - [ ] Implement BaseError class ~50 lines
@@ -160,7 +160,7 @@
 - [ ] Integrate with API middleware ~80 lines
 ```
 
-### 粒度太小（需合併）：
+### Too fine (needs merging):
 
 ```markdown
 - [ ] Import BaseError class ~1 line
@@ -168,7 +168,7 @@
 - [ ] Define error message constant ~1 line
 ```
 
-**合併為：**
+**Merge into:**
 
 ```markdown
 - [ ] Define error codes and messages ~30 lines
@@ -176,15 +176,15 @@
 
 ---
 
-## 檔案長度建議
+## File Length Guidelines
 
-- 保持在 **100 行以內**
-- 如果任務過多（>30），考慮 Story 範圍是否過大
+- Keep under **100 lines**
+- If tasks exceed 30, consider whether the Story scope is too large
 
 ---
 
-## 參考資訊
+## Reference Information
 
-- 專案名稱: `{{project_name}}`
-- AI Knowledge 路徑: `{{knowledge_base_path}}`
-- Constitution 檔案: `{{constitution_path}}`
+- Project name: `{{project_name}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Constitution file: `{{constitution_path}}`

@@ -1,30 +1,30 @@
-# Plan 格式參考
+# Plan Format Reference
 
-本文件說明 `plan.md` 的預期格式，供 **prospec-plan** Skill 參考。
-
----
-
-## 檔案用途
-
-`plan.md` 是 Story 的執行計劃，描述實作概覽、受影響模組、實作步驟和風險評估。
+This document defines the expected format for `plan.md`, used by the **prospec-plan** Skill.
 
 ---
 
-## 標準格式
+## Purpose
+
+`plan.md` is the execution plan for a Story, describing the implementation overview, affected modules, implementation steps, and risk assessment.
+
+---
+
+## Standard Format
 
 ### 1. Overview
 
-1-2 段落的摘要，說明整體實作策略：
+A 1-2 paragraph summary describing the overall implementation strategy:
 
 ```markdown
 ## Overview
 
-[第一段：這個 Story 要解決什麼問題]
+[Paragraph 1: What problem this Story solves]
 
-[第二段：採用的實作策略和關鍵設計決策]
+[Paragraph 2: The implementation strategy and key design decisions]
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Overview
@@ -38,18 +38,17 @@ We will create a centralized error handler module that defines standard error ty
 
 ### 2. Affected Modules
 
-使用表格列出受影響的模組：
+Use a table to list affected modules:
 
 ```markdown
 ## Affected Modules
 
 | Module | Impact | Changes |
 |--------|--------|---------|
-| [模組名稱] | [High/Medium/Low] | [簡短描述變更內容] |
-| [模組名稱] | [High/Medium/Low] | [簡短描述變更內容] |
+| [module name] | [High/Medium/Low] | [Brief description of changes] |
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Affected Modules
@@ -65,25 +64,21 @@ We will create a centralized error handler module that defines standard error ty
 
 ### 3. Implementation Steps
 
-使用有序編號列表，每個步驟包含細節：
+Use an ordered numbered list with details for each step:
 
 ```markdown
 ## Implementation Steps
 
-1. **[步驟標題]**
-   - [細節 1]
-   - [細節 2]
+1. **[Step title]**
+   - [Detail 1]
+   - [Detail 2]
 
-2. **[步驟標題]**
-   - [細節 1]
-   - [細節 2]
-
-3. **[步驟標題]**
-   - [細節 1]
-   - [細節 2]
+2. **[Step title]**
+   - [Detail 1]
+   - [Detail 2]
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Implementation Steps
@@ -113,18 +108,17 @@ We will create a centralized error handler module that defines standard error ty
 
 ### 4. Risk Assessment
 
-使用表格列出風險、影響和緩解策略：
+Use a table to list risks, impacts, and mitigation strategies:
 
 ```markdown
 ## Risk Assessment
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| [風險描述] | [High/Medium/Low] | [如何緩解] |
-| [風險描述] | [High/Medium/Low] | [如何緩解] |
+| [Risk description] | [High/Medium/Low] | [Mitigation strategy] |
 ```
 
-**範例：**
+**Example:**
 
 ```markdown
 ## Risk Assessment
@@ -138,16 +132,16 @@ We will create a centralized error handler module that defines standard error ty
 
 ---
 
-## 檔案長度建議
+## File Length Guidelines
 
-- 保持在 **120 行以內**
-- Implementation Steps 理想數量：4-8 步驟
-- 如果步驟過多（>10），考慮拆分成多個 Story
+- Keep under **120 lines**
+- Ideal number of Implementation Steps: 4-8
+- If steps exceed 10, consider splitting into multiple Stories
 
 ---
 
-## 參考資訊
+## Reference Information
 
-- 專案名稱: `{{project_name}}`
-- AI Knowledge 路徑: `{{knowledge_base_path}}`
-- Constitution 檔案: `{{constitution_path}}`
+- Project name: `{{project_name}}`
+- AI Knowledge path: `{{knowledge_base_path}}`
+- Constitution file: `{{constitution_path}}`
