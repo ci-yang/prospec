@@ -32,7 +32,7 @@ beforeEach(() => {
 });
 
 describe('Skill Generation Integration', () => {
-  it('should generate 7 skills for Claude agent', async () => {
+  it('should generate all skills for Claude agent', async () => {
     vol.fromJSON({
       '/project/.prospec.yaml': `project:
   name: test-project
@@ -46,7 +46,7 @@ knowledge:
     const result = await execute({ cwd: '/project' });
     const claudeResult = result.agents.find((a) => a.agent === 'claude');
     expect(claudeResult).toBeTruthy();
-    expect(claudeResult!.skillFiles).toHaveLength(8);
+    expect(claudeResult!.skillFiles).toHaveLength(SKILL_DEFINITIONS.length);
 
     // Verify SKILL.md files exist in the correct directory structure
     for (const skill of SKILL_DEFINITIONS) {
