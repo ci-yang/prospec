@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { readConfig } from '../lib/config.js';
+import { readConfig, resolveBasePaths } from '../lib/config.js';
 import { renderTemplate } from '../lib/template.js';
 import { atomicWrite, ensureDir } from '../lib/fs-utils.js';
 import { PrerequisiteError } from '../types/errors.js';
@@ -46,8 +46,9 @@ export async function execute(
   // 1. Read config
   const config = await readConfig(cwd);
   const configuredAgents = config.agents ?? [];
-  const knowledgeBasePath = config.knowledge?.base_path ?? 'docs/ai-knowledge';
-  const constitutionPath = 'docs/CONSTITUTION.md';
+  const basePaths = resolveBasePaths(config, cwd);
+  const knowledgeBasePath = path.relative(cwd, basePaths.knowledgePath);
+  const constitutionPath = path.relative(cwd, basePaths.constitutionPath);
 
   if (configuredAgents.length === 0) {
     throw new PrerequisiteError(

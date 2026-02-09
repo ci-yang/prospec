@@ -23,6 +23,7 @@ vi.mock('node:os', () => ({
 
 vi.mock('@inquirer/prompts', () => ({
   checkbox: vi.fn().mockResolvedValue(['claude']),
+  input: vi.fn().mockResolvedValue('prospec'),
   Separator: class Separator {
     constructor(public text?: string) {}
   },
@@ -64,10 +65,10 @@ describe('Init Flow Integration', () => {
     const config = validateConfig(configContent);
     expect(config.project.name).toBe('my-project');
 
-    // Verify directory structure
-    expect(fs.existsSync('/project/docs/ai-knowledge')).toBe(true);
-    expect(fs.existsSync('/project/docs/specs')).toBe(true);
-    expect(fs.existsSync('/project/docs/CONSTITUTION.md')).toBe(true);
+    // Verify directory structure (under prospec/ default base_dir)
+    expect(fs.existsSync('/project/prospec/ai-knowledge')).toBe(true);
+    expect(fs.existsSync('/project/prospec/specs')).toBe(true);
+    expect(fs.existsSync('/project/prospec/CONSTITUTION.md')).toBe(true);
     expect(fs.existsSync('/project/AGENTS.md')).toBe(true);
   });
 

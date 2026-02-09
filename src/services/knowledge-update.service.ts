@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { readConfig } from '../lib/config.js';
+import { readConfig, resolveBasePaths } from '../lib/config.js';
 import { scanDir } from '../lib/scanner.js';
 import { renderTemplate } from '../lib/template.js';
 import { mergeContent } from '../lib/content-merger.js';
@@ -376,10 +376,11 @@ export async function execute(
 
   // Read config
   const config = await readConfig(cwd);
-  const knowledgeBasePath = config.knowledge?.base_path ?? 'docs/ai-knowledge';
+  const { knowledgePath } = resolveBasePaths(config, cwd);
+  const knowledgeBasePath = path.relative(cwd, knowledgePath);
   const excludePatterns = config.exclude ?? [];
   const projectName = config.project.name;
-  const moduleMapPath = path.join(cwd, knowledgeBasePath, 'module-map.yaml');
+  const moduleMapPath = path.join(knowledgePath, 'module-map.yaml');
 
   const result: KnowledgeUpdateResult = {
     created: [],

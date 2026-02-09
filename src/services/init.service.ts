@@ -1,7 +1,8 @@
 import * as path from 'node:path';
-import { checkbox, Separator } from '@inquirer/prompts';
+import { checkbox, input, Separator } from '@inquirer/prompts';
 import { AlreadyExistsError } from '../types/errors.js';
 import type { ProspecConfig } from '../types/config.js';
+import { DEFAULT_BASE_DIR } from '../types/config.js';
 import { writeConfig } from '../lib/config.js';
 import { fileExists, ensureDir, atomicWrite } from '../lib/fs-utils.js';
 import { detectTechStack } from '../lib/detector.js';
@@ -64,7 +65,19 @@ export async function execute(options: InitOptions): Promise<InitResult> {
     selectedAgents = await promptAgentSelection(agentInfos);
   }
 
-  // 6. Build config
+  // 6. Prompt for base directory
+  let baseDir: string;
+  if (options.agents) {
+    // CI/CD mode: use default
+    baseDir = DEFAULT_BASE_DIR;
+  } else {
+    baseDir = await input({
+      message: 'Prospec artifacts directory:',
+      default: DEFAULT_BASE_DIR,
+    });
+  }
+
+  // 7. Build config
   const config: ProspecConfig = {
     version: '1.0',
     project: {
@@ -73,39 +86,40 @@ export async function execute(options: InitOptions): Promise<InitResult> {
     ...(hasTechStack(techStack)
       ? { tech_stack: techStack }
       : {}),
-    paths: {},
+    paths: { base_dir: baseDir },
     exclude: ['*.env*', '*credential*', '*secret*', 'node_modules', '.git'],
     agents: selectedAgents.length > 0 ? selectedAgents as ProspecConfig['agents'] : undefined,
     knowledge: {
-      base_path: 'docs/ai-knowledge',
+      base_path: `${baseDir}/ai-knowledge`,
     },
   };
 
-  // 7. Create directories
-  const knowledgePath = path.join(cwd, 'docs', 'ai-knowledge');
+  // 8. Create directories
+  const knowledgePath = path.join(cwd, baseDir, 'ai-knowledge');
   const modulesPath = path.join(knowledgePath, 'modules');
-  const specsPath = path.join(cwd, 'docs', 'specs');
+  const specsPath = path.join(cwd, baseDir, 'specs');
 
   await ensureDir(modulesPath);
   await ensureDir(specsPath);
 
-  // 8. Write config
+  // 9. Write config
   await writeConfig(config, cwd);
 
-  // 9. Render templates
+  // 10. Render templates
   const templateContext = {
     project_name: projectName,
     tech_stack: hasTechStack(techStack) ? techStack : undefined,
     agents: selectedAgents,
+    base_dir: baseDir,
   };
 
   const createdFiles = ['.prospec.yaml'];
 
   // Constitution
-  const constitutionPath = path.join(cwd, 'docs', 'CONSTITUTION.md');
+  const constitutionPath = path.join(cwd, baseDir, 'CONSTITUTION.md');
   const constitutionContent = renderTemplate('init/constitution.md.hbs', templateContext);
   await atomicWrite(constitutionPath, constitutionContent);
-  createdFiles.push('docs/CONSTITUTION.md');
+  createdFiles.push(`${baseDir}/CONSTITUTION.md`);
 
   // AGENTS.md
   const agentsPath = path.join(cwd, 'AGENTS.md');
@@ -117,18 +131,18 @@ export async function execute(options: InitOptions): Promise<InitResult> {
   const conventionsPath = path.join(knowledgePath, '_conventions.md');
   const conventionsContent = renderTemplate('init/conventions.md.hbs', templateContext);
   await atomicWrite(conventionsPath, conventionsContent);
-  createdFiles.push('docs/ai-knowledge/_conventions.md');
+  createdFiles.push(`${baseDir}/ai-knowledge/_conventions.md`);
 
   // Index
   const indexPath = path.join(knowledgePath, '_index.md');
   const indexContent = renderTemplate('init/index.md.hbs', templateContext);
   await atomicWrite(indexPath, indexContent);
-  createdFiles.push('docs/ai-knowledge/_index.md');
+  createdFiles.push(`${baseDir}/ai-knowledge/_index.md`);
 
   // .gitkeep for specs/
   const gitkeepPath = path.join(specsPath, '.gitkeep');
   await atomicWrite(gitkeepPath, '');
-  createdFiles.push('docs/specs/.gitkeep');
+  createdFiles.push(`${baseDir}/specs/.gitkeep`);
 
   return {
     projectName,

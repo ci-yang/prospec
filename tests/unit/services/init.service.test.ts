@@ -23,6 +23,7 @@ vi.mock('node:os', () => ({
 
 vi.mock('@inquirer/prompts', () => ({
   checkbox: vi.fn().mockResolvedValue(['claude']),
+  input: vi.fn().mockResolvedValue('prospec'),
   Separator: class Separator {
     constructor(public text?: string) {}
   },
@@ -48,16 +49,16 @@ describe('init.service', () => {
     expect(result.projectName).toBe('test-project');
     expect(result.selectedAgents).toEqual(['claude']);
     expect(result.createdFiles).toContain('.prospec.yaml');
-    expect(result.createdFiles).toContain('docs/CONSTITUTION.md');
+    expect(result.createdFiles).toContain('prospec/CONSTITUTION.md');
     expect(result.createdFiles).toContain('AGENTS.md');
 
-    // Verify files exist
+    // Verify files exist under prospec/ (DEFAULT_BASE_DIR)
     expect(fs.existsSync('/project/.prospec.yaml')).toBe(true);
-    expect(fs.existsSync('/project/docs/CONSTITUTION.md')).toBe(true);
+    expect(fs.existsSync('/project/prospec/CONSTITUTION.md')).toBe(true);
     expect(fs.existsSync('/project/AGENTS.md')).toBe(true);
-    expect(fs.existsSync('/project/docs/ai-knowledge/_index.md')).toBe(true);
-    expect(fs.existsSync('/project/docs/ai-knowledge/_conventions.md')).toBe(true);
-    expect(fs.existsSync('/project/docs/specs/.gitkeep')).toBe(true);
+    expect(fs.existsSync('/project/prospec/ai-knowledge/_index.md')).toBe(true);
+    expect(fs.existsSync('/project/prospec/ai-knowledge/_conventions.md')).toBe(true);
+    expect(fs.existsSync('/project/prospec/specs/.gitkeep')).toBe(true);
   });
 
   it('should throw AlreadyExistsError when config exists', async () => {
@@ -122,5 +123,20 @@ describe('init.service', () => {
 
     const configContent = fs.readFileSync('/project/.prospec.yaml', 'utf-8');
     expect(configContent).toContain('my-app');
+  });
+
+  it('should write paths.base_dir to generated config', async () => {
+    vol.fromJSON({}, '/');
+    vol.mkdirSync('/project', { recursive: true });
+
+    await execute({
+      name: 'test',
+      agents: ['claude'],
+      cwd: '/project',
+    });
+
+    const configContent = fs.readFileSync('/project/.prospec.yaml', 'utf-8');
+    expect(configContent).toContain('base_dir');
+    expect(configContent).toContain('prospec');
   });
 });

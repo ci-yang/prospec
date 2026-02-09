@@ -27,6 +27,8 @@ const KnowledgeSchema = z.object({
   files: z.array(z.string()).optional(),
 }).optional();
 
+export const DEFAULT_BASE_DIR = 'prospec';
+
 export const VALID_AGENTS = ['claude', 'gemini', 'copilot', 'codex'] as const;
 
 export const ProspecConfigSchema = z
@@ -37,7 +39,9 @@ export const ProspecConfigSchema = z
       version: z.string().optional(),
     }),
     tech_stack: TechStackSchema,
-    paths: z.record(z.string(), z.string()).optional(),
+    paths: z.object({
+      base_dir: z.string().optional(),
+    }).catchall(z.string()).optional(),
     exclude: z.array(z.string()).optional(),
     agents: z.array(z.enum(VALID_AGENTS)).optional(),
     knowledge: KnowledgeSchema,

@@ -21,6 +21,12 @@ vi.mock('../../../src/lib/config.js', () => ({
     knowledge: { base_path: 'docs/ai-knowledge' },
     exclude: [],
   }),
+  resolveBasePaths: vi.fn().mockReturnValue({
+    baseDir: '/test/docs',
+    knowledgePath: '/test/docs/ai-knowledge',
+    constitutionPath: '/test/docs/CONSTITUTION.md',
+    specsPath: '/test/docs/specs',
+  }),
 }));
 
 vi.mock('../../../src/lib/scanner.js', () => ({

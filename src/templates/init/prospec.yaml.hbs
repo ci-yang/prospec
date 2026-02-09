@@ -16,7 +16,8 @@ tech_stack:
 {{/if}}
 {{/if}}
 
-paths: {}
+paths:
+  base_dir: {{base_dir}}
 
 exclude:
   - "*.env*"
@@ -33,4 +34,4 @@ agents:
 {{/if}}
 
 knowledge:
-  base_path: docs/ai-knowledge
+  base_path: {{base_dir}}/ai-knowledge

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as fs from 'node:fs';
 import { vol } from 'memfs';
-import { resolveConfigPath, readConfig, validateConfig, writeConfig } from '../../../src/lib/config.js';
+import { resolveConfigPath, readConfig, validateConfig, writeConfig, resolveBasePaths } from '../../../src/lib/config.js';
 import { ConfigNotFound, ConfigInvalid } from '../../../src/types/errors.js';
 
 vi.mock('node:fs', async () => {
@@ -108,6 +108,38 @@ describe('readConfig', () => {
       '/project/.prospec.yaml': 'invalid: true\n',
     });
     await expect(readConfig('/project')).rejects.toThrow(ConfigInvalid);
+  });
+});
+
+describe('resolveBasePaths', () => {
+  it('should fall back to docs when base_dir is absent', () => {
+    const config = { project: { name: 'test' } };
+    const result = resolveBasePaths(config, '/project');
+    expect(result.baseDir).toBe('/project/docs');
+    expect(result.knowledgePath).toBe('/project/docs/ai-knowledge');
+    expect(result.constitutionPath).toBe('/project/docs/CONSTITUTION.md');
+    expect(result.specsPath).toBe('/project/docs/specs');
+  });
+
+  it('should use configured base_dir', () => {
+    const config = { project: { name: 'test' }, paths: { base_dir: 'prospec' } };
+    const result = resolveBasePaths(config, '/project');
+    expect(result.baseDir).toBe('/project/prospec');
+    expect(result.knowledgePath).toBe('/project/prospec/ai-knowledge');
+    expect(result.constitutionPath).toBe('/project/prospec/CONSTITUTION.md');
+    expect(result.specsPath).toBe('/project/prospec/specs');
+  });
+
+  it('should respect knowledge.base_path override', () => {
+    const config = {
+      project: { name: 'test' },
+      paths: { base_dir: 'prospec' },
+      knowledge: { base_path: 'custom/knowledge' },
+    };
+    const result = resolveBasePaths(config, '/project');
+    expect(result.baseDir).toBe('/project/prospec');
+    expect(result.knowledgePath).toBe('/project/custom/knowledge');
+    expect(result.constitutionPath).toBe('/project/prospec/CONSTITUTION.md');
   });
 });
 

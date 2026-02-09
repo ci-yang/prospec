@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { readConfig, writeConfig } from '../lib/config.js';
+import { readConfig, writeConfig, resolveBasePaths } from '../lib/config.js';
 import { scanDir } from '../lib/scanner.js';
 import { detectModules } from '../lib/module-detector.js';
 import type { DetectionResult } from '../lib/module-detector.js';
@@ -85,7 +85,8 @@ export async function execute(
   };
 
   // 6. Build architecture template context
-  const knowledgeBasePath = config.knowledge?.base_path ?? 'docs/ai-knowledge';
+  const { knowledgePath } = resolveBasePaths(config, cwd);
+  const knowledgeBasePath = path.relative(cwd, knowledgePath);
   const architectureContext = {
     project_name: config.project.name,
     tech_stack: {

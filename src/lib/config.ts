@@ -9,6 +9,33 @@ import { parseYaml, parseYamlDocument, stringifyYamlDocument } from './yaml-util
 
 const CONFIG_FILENAME = '.prospec.yaml';
 
+export interface BasePaths {
+  baseDir: string;
+  knowledgePath: string;
+  constitutionPath: string;
+  specsPath: string;
+}
+
+/**
+ * Derive all standard Prospec paths from config.
+ *
+ * Resolution: paths.base_dir → knowledge.base_path fallback → 'docs' legacy default.
+ * Returns absolute paths when cwd is provided.
+ */
+export function resolveBasePaths(config: ProspecConfig, cwd: string): BasePaths {
+  const baseDir = config.paths?.base_dir ?? 'docs';
+  const knowledgePath = config.knowledge?.base_path ?? path.join(baseDir, 'ai-knowledge');
+  const constitutionPath = path.join(baseDir, 'CONSTITUTION.md');
+  const specsPath = path.join(baseDir, 'specs');
+
+  return {
+    baseDir: path.resolve(cwd, baseDir),
+    knowledgePath: path.resolve(cwd, knowledgePath),
+    constitutionPath: path.resolve(cwd, constitutionPath),
+    specsPath: path.resolve(cwd, specsPath),
+  };
+}
+
 /**
  * Resolve the config file path from a given directory (default: cwd).
  */
