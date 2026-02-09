@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { readConfig } from '../lib/config.js';
 import { ensureDir, atomicWrite } from '../lib/fs-utils.js';
 import { parseYaml, stringifyYaml } from '../lib/yaml-utils.js';
 import type { ChangeStatus } from '../types/change.js';

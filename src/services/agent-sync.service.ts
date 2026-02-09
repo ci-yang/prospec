@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { readConfig, resolveBasePaths } from '../lib/config.js';
 import { renderTemplate } from '../lib/template.js';
@@ -7,7 +6,6 @@ import { PrerequisiteError } from '../types/errors.js';
 import {
   SKILL_DEFINITIONS,
   AGENT_CONFIGS,
-  type SkillConfig,
   type AgentConfig,
   type AgentSyncResult,
 } from '../types/skill.js';
@@ -127,7 +125,6 @@ async function syncAgent(
       templateContext,
       cwd,
       skillFiles,
-      referenceFiles,
     );
   } else {
     // Claude, Gemini, Codex: SKILL.md in skill directories
@@ -227,7 +224,6 @@ async function syncCopilotSkills(
   templateContext: Record<string, unknown>,
   cwd: string,
   skillFiles: string[],
-  referenceFiles: string[],
 ): Promise<void> {
   const instructionsDir = path.join(cwd, agentConfig.skillPath);
   await ensureDir(instructionsDir);

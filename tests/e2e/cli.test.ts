@@ -89,7 +89,7 @@ describe('CLI E2E', () => {
         JSON.stringify({ name: 'e2e-test-project' }),
       );
 
-      const { stdout, exitCode } = await runCli([
+      const { exitCode } = await runCli([
         'init',
         '--name',
         'e2e-test-project',

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { scanDir, scanDirSync } from '../../../src/lib/scanner.js';
 
 // scanner uses fast-glob directly, so we test with real filesystem using temp dirs

@@ -6,7 +6,7 @@ import { renderTemplate } from '../lib/template.js';
 import { mergeContent } from '../lib/content-merger.js';
 import { atomicWrite, ensureDir } from '../lib/fs-utils.js';
 import { parseYaml, stringifyYaml } from '../lib/yaml-utils.js';
-import type { ModuleMap, ModuleEntry } from '../types/module-map.js';
+import type { ModuleMap } from '../types/module-map.js';
 
 // --- Interfaces (Task 5: REQ-SERVICES-023) ---
 
@@ -121,7 +121,6 @@ export function identifyAffectedModules(
   }
 
   // Map raw names to actual module-map entries (case-insensitive match)
-  const knownNames = new Set(moduleMap.modules.map((m) => m.name.toLowerCase()));
   return rawModules.map((name) => {
     // Find exact or case-insensitive match
     const match = moduleMap!.modules.find(

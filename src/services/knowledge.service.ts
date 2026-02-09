@@ -7,7 +7,7 @@ import { mergeContent } from '../lib/content-merger.js';
 import { atomicWrite, ensureDir } from '../lib/fs-utils.js';
 import { parseYaml } from '../lib/yaml-utils.js';
 import { PrerequisiteError } from '../types/errors.js';
-import type { ModuleMap, ModuleEntry } from '../types/module-map.js';
+import type { ModuleMap } from '../types/module-map.js';
 
 export interface KnowledgeOptions {
   dryRun?: boolean;

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderTemplate, registerPartial, registerHelper } from '../../../src/lib/template.js';
 import { TemplateError } from '../../../src/types/errors.js';
 

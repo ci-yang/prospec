@@ -5,7 +5,6 @@ import {
   identifyAffectedModules,
   updateModuleReadme,
   markModuleDeprecated,
-  updateIndex,
   updateModuleMap,
   execute,
 } from '../../../src/services/knowledge-update.service.js';

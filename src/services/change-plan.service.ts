@@ -81,7 +81,7 @@ export async function execute(options: ChangePlanOptions): Promise<ChangePlanRes
   createdFiles.push(`.prospec/changes/${changeName}/delta-spec.md`);
 
   // 8. Update metadata.yaml status to 'plan'
-  await updateMetadataStatus(metadataPath, changeName);
+  await updateMetadataStatus(metadataPath);
 
   return {
     changeName,
@@ -165,7 +165,6 @@ async function resolveChange(
  */
 async function updateMetadataStatus(
   metadataPath: string,
-  changeName: string,
 ): Promise<void> {
   if (!fs.existsSync(metadataPath)) return;
 

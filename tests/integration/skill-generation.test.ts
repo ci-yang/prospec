@@ -8,7 +8,7 @@ import * as fs from 'node:fs';
 import { vol } from 'memfs';
 import { execute } from '../../src/services/agent-sync.service.js';
 import { PrerequisiteError } from '../../src/types/errors.js';
-import { SKILL_DEFINITIONS, AGENT_CONFIGS } from '../../src/types/skill.js';
+import { SKILL_DEFINITIONS } from '../../src/types/skill.js';
 
 vi.mock('node:fs', async () => {
   const memfs = await import('memfs');

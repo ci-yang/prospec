@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import * as fs from 'node:fs';
 import { vol } from 'memfs';
 import { detectTechStack } from '../../../src/lib/detector.js';
 

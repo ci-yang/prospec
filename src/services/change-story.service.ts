@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { AlreadyExistsError, PrerequisiteError } from '../types/errors.js';
+import { AlreadyExistsError } from '../types/errors.js';
 import { readConfig, resolveBasePaths } from '../lib/config.js';
 import { ensureDir, atomicWrite } from '../lib/fs-utils.js';
 import { renderTemplate } from '../lib/template.js';
