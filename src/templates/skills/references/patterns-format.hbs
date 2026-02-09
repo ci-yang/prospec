@@ -1,0 +1,93 @@
+# Patterns Format Reference
+
+This document defines the output format for `modules/{module}/patterns.md` files.
+
+---
+
+## modules/{module}/patterns.md Format
+
+### Purpose
+
+Documents recurring code patterns, conventions, and idioms specific to a module. This file enables AI agents to **write code consistent with existing patterns** rather than introducing new conventions.
+
+### Standard Format
+
+```markdown
+# [Module Name] — Patterns
+
+> Code patterns, conventions, and idioms for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Error Handling Pattern
+
+[Describe how errors are handled in this module]
+
+```[language]
+// Example from actual code
+try {
+  const result = await riskyOperation();
+} catch (error) {
+  throw new SpecificError('message', 'hint');
+}
+```
+
+## Naming Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Files | [pattern] | `user-service.ts` |
+| Functions | [pattern] | `getUserById()` |
+| Constants | [pattern] | `MAX_RETRY_COUNT` |
+
+## Common Idioms
+
+### [Idiom Name, e.g., "Options Pattern"]
+
+[Description of the pattern and when it's used]
+
+```[language]
+// Example from actual code
+```
+
+### [Idiom Name, e.g., "Guard Clause"]
+
+[Description]
+
+```[language]
+// Example from actual code
+```
+
+## File Organization
+
+[How files are typically structured within this module]
+
+```
+module/
+├── index.ts          # Public exports
+├── core.ts           # Main logic
+├── types.ts          # Module-local types
+└── helpers/          # Internal utilities
+```
+
+## Testing Patterns
+
+[How tests are written for this module]
+
+- Test file naming: `*.test.ts`
+- Test structure: [describe/it pattern, fixture usage, etc.]
+- Mocking approach: [what's mocked and how]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add team preferences, anti-patterns to avoid, or style notes here. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Use real code examples** — extract from actual source, don't invent
+2. **Focus on module-specific patterns** — skip project-wide patterns (those go in `_conventions.md`)
+3. **Include anti-patterns** if there are common mistakes to avoid
+4. **Keep examples concise** — 5-15 lines max per example
+5. **Omit empty sections** — if no special error handling pattern, skip it
+6. **Prefer descriptive names** for patterns — "Options Pattern" not "Pattern 1"

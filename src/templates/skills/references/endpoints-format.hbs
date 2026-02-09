@@ -1,0 +1,95 @@
+# Endpoints Format Reference
+
+This document defines the output format for `modules/{module}/endpoints.md` files.
+
+**Applicable project types**: Backend API, BFF (Backend-for-Frontend), Microservice
+
+---
+
+## modules/{module}/endpoints.md Format
+
+### Purpose
+
+Documents HTTP/gRPC/GraphQL endpoints exposed by the module. Enables AI agents to understand **what the API serves** — routes, methods, request/response schemas, and authentication requirements.
+
+### Standard Format
+
+```markdown
+# [Module Name] — Endpoints
+
+> API endpoints and request/response contracts for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## REST Endpoints
+
+### `GET /api/v1/resources`
+
+- **Purpose**: [One-line description]
+- **Auth**: [Required / Public / Role-based]
+- **Query params**:
+  - `page` (number, optional) — Pagination offset
+  - `limit` (number, optional) — Items per page
+- **Response** `200`:
+  ```json
+  { "data": [...], "total": 100 }
+  ```
+- **Errors**: `401 Unauthorized`, `403 Forbidden`
+
+### `POST /api/v1/resources`
+
+- **Purpose**: [One-line description]
+- **Auth**: [Required]
+- **Request body**:
+  ```json
+  { "name": "string", "type": "enum(a|b|c)" }
+  ```
+- **Response** `201`:
+  ```json
+  { "id": "uuid", "name": "string" }
+  ```
+- **Validation**: [Key validation rules]
+- **Errors**: `400 Bad Request`, `409 Conflict`
+
+## GraphQL Operations
+
+### Query: `resources(filter: ResourceFilter): [Resource!]!`
+
+- **Purpose**: [Description]
+- **Auth**: [Required / Public]
+- **Arguments**: [Description of filter type]
+
+### Mutation: `createResource(input: CreateResourceInput!): Resource!`
+
+- **Purpose**: [Description]
+- **Auth**: [Required]
+
+## Middleware / Guards
+
+| Middleware | Applied To | Purpose |
+|-----------|-----------|---------|
+| `authGuard` | All `/api/*` | JWT token validation |
+| `rateLimiter` | `POST /api/*` | Rate limiting (100 req/min) |
+
+## WebSocket / SSE Channels
+
+### `ws://host/events`
+
+- **Purpose**: [Description]
+- **Events emitted**: `resource.created`, `resource.updated`
+- **Auth**: [Token in query param / header]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add API versioning notes, deprecation timeline, etc. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Group by HTTP method or operation type** — REST, GraphQL, WebSocket
+2. **Include auth requirements** for every endpoint
+3. **Show request/response schemas** as JSON examples (not full JSON Schema)
+4. **List error codes** with meaning
+5. **Document middleware** that affects the module's endpoints
+6. **Omit empty sections** — if no WebSocket channels, skip that section
+7. **Use actual route paths** from the source code

@@ -73,16 +73,390 @@ Each module README must include the following sections, using `prospec:auto-star
 
 ---
 
-## 2. _index.md Module Table Format
+## 2. modules/{module}/api-surface.md Format
+
+### Purpose
+
+Documents all public exports (functions, classes, types, constants) with exact type signatures.
+
+### Required Sections
+
+```markdown
+# [Module Name] — API Surface
+
+> Public exports and type signatures for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Exported Functions
+
+### `functionName(param1: Type, param2: Type): ReturnType`
+
+- **Purpose**: [One-line description]
+- **Parameters**:
+  - `param1` — [Description]
+  - `param2` — [Description]
+- **Returns**: [Description]
+- **Throws**: [Error conditions, if any]
+
+## Exported Classes
+
+### `ClassName`
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `method1` | `(param: Type): ReturnType` | [Description] |
+
+## Exported Types
+
+| Type | Definition | Description |
+|------|-----------|-------------|
+| `TypeName` | `{ field: string; ... }` | [Purpose] |
+
+## Exported Constants
+
+| Constant | Type | Value/Description |
+|----------|------|-------------------|
+| `CONST_NAME` | `Type` | [Description] |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Only list **exported** items — skip internal/private
+2. Use **exact type signatures** from source code
+3. Group by kind, sort alphabetically within each group
+4. Omit empty sections
+
+---
+
+## 3. modules/{module}/dependencies.md Format
+
+### Purpose
+
+Documents import graph (internal modules and external packages) for impact analysis.
+
+### Required Sections
+
+```markdown
+# [Module Name] — Dependencies
+
+> Import graph and external package usage for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Internal Dependencies (imports from other modules)
+
+| Module | Files Imported | Purpose |
+|--------|---------------|---------|
+| `types` | `config.ts`, `errors.ts` | Schema types and error classes |
+
+## Internal Dependents (modules that import from this one)
+
+| Module | What They Import | Purpose |
+|--------|-----------------|---------|
+| `cli` | `execute()` | Command handler entry point |
+
+## External Packages
+
+| Package | Version | Usage | Files |
+|---------|---------|-------|-------|
+| `zod` | `^3.x` | Schema validation | `config.ts` |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Internal deps: group by module, list specific imported files
+2. Include **reverse dependencies** (who depends on this module)
+3. External packages: include version range from package.json
+4. Omit empty sections
+
+---
+
+## 4. modules/{module}/patterns.md Format
+
+### Purpose
+
+Documents recurring code patterns, conventions, and idioms specific to a module.
+
+### Required Sections
+
+```markdown
+# [Module Name] — Patterns
+
+> Code patterns, conventions, and idioms for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Error Handling Pattern
+
+[Description + code example from actual source]
+
+## Naming Conventions
+
+| Element | Convention | Example |
+|---------|-----------|---------|
+| Files | [pattern] | `user-service.ts` |
+
+## Common Idioms
+
+### [Idiom Name]
+
+[Description + code example]
+
+## File Organization
+
+[Directory structure description]
+
+## Testing Patterns
+
+[How this module is tested]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Use **real code examples** from actual source — don't invent
+2. Focus on **module-specific** patterns (project-wide goes in `_conventions.md`)
+3. Keep examples concise (5-15 lines)
+4. Omit empty sections
+
+---
+
+## 5. modules/{module}/endpoints.md Format (Backend API)
+
+### Purpose
+
+Documents HTTP/GraphQL/gRPC endpoints exposed by the module. Auto-selected for Backend API projects.
+
+### Required Sections
+
+```markdown
+# [Module Name] — Endpoints
+
+> API endpoints and request/response contracts for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## REST Endpoints
+
+### `GET /api/v1/resources`
+
+- **Purpose**: [Description]
+- **Auth**: [Required / Public]
+- **Query params**: [Parameters]
+- **Response** `200`: [Schema example]
+- **Errors**: [Error codes]
+
+### `POST /api/v1/resources`
+
+- **Purpose**: [Description]
+- **Auth**: [Required]
+- **Request body**: [Schema example]
+- **Response** `201`: [Schema example]
+
+## Middleware / Guards
+
+| Middleware | Applied To | Purpose |
+|-----------|-----------|---------|
+| `authGuard` | All `/api/*` | JWT validation |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Group by HTTP method or operation type (REST, GraphQL, WebSocket)
+2. Include **auth requirements** for every endpoint
+3. Show request/response as JSON examples
+4. List error codes with meaning
+
+---
+
+## 6. modules/{module}/components.md Format (Frontend)
+
+### Purpose
+
+Documents UI components, props, events, slots, and hooks. Auto-selected for Frontend SPA/SSR projects.
+
+### Required Sections
+
+```markdown
+# [Module Name] — Components
+
+> UI components, props, events, and composition patterns for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Components
+
+### `ComponentName`
+
+- **Purpose**: [Description]
+- **File**: `src/components/ComponentName.tsx`
+
+**Props**:
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `title` | `string` | Yes | — | Page title |
+
+**Events / Emits**:
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `change` | `{ value: string }` | Input changed |
+
+## Hooks / Composables
+
+### `useFeatureName(options): Result`
+
+- **Purpose**: [Description]
+- **Returns**: [Reactive state / methods]
+
+## State Management
+
+### Store: `featureStore`
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `fetchItems` | `() => Promise<void>` | Load items |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Document all **public** components — skip internal helpers
+2. Props table is **required** for every component
+3. Use the **framework's actual syntax** (React/Vue/Angular/Svelte)
+4. Include hooks/composables in the module's public API
+
+---
+
+## 7. modules/{module}/screens.md Format (Mobile App)
+
+### Purpose
+
+Documents screens, navigation flow, native bridge interfaces. Auto-selected for Mobile App projects.
+
+### Required Sections
+
+```markdown
+# [Module Name] — Screens
+
+> Screen definitions, navigation flow, and platform behavior for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Screens
+
+### `ScreenName`
+
+- **Purpose**: [Description]
+- **Platform**: [Both / iOS only / Android only]
+
+**Navigation Params** (received):
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| `itemId` | `string` | Yes | Item to display |
+
+**Navigation Actions** (can navigate to):
+
+| Target | Trigger | Params Passed |
+|--------|---------|--------------|
+| `DetailScreen` | Tap item | `{ itemId }` |
+
+## Navigation Graph
+
+```
+HomeScreen
+  ├── ListScreen → DetailScreen
+  └── ProfileScreen → SettingsScreen
+```
+
+## Native Bridge / Platform Channels
+
+| Method | Signature | Platform | Description |
+|--------|-----------|----------|-------------|
+| `takePhoto` | `(options) → Promise<Photo>` | Both | Open camera |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. Document all **user-facing screens** — skip internal fragments
+2. Navigation params are required for every screen
+3. Include **navigation graph** showing full flow
+4. Document **platform differences** where behavior differs
+
+---
+
+## 8. Project Type → File Type Auto-Detection
+
+When `knowledge.files` is not configured, the system auto-detects project type and selects file types:
+
+| Project Type | Base Files (always) | Extra Files |
+|-------------|-------------------|------------|
+| CLI Tool / Library | readme, api-surface, dependencies, patterns | — |
+| Backend API | readme, api-surface, dependencies, patterns | endpoints |
+| Frontend SPA / SSR | readme, api-surface, dependencies, patterns | components |
+| Mobile App | readme, api-surface, dependencies, patterns | screens |
+| Monorepo | readme, api-surface, dependencies, patterns | per-package |
+| Hybrid (fullstack) | readme, api-surface, dependencies, patterns | endpoints + components |
+
+---
+
+## 9. Custom File Types
+
+Users can add custom file type names in `.prospec.yaml`:
+
+```yaml
+knowledge:
+  files:
+    - readme
+    - api-surface
+    - dependencies
+    - patterns
+    - endpoints         # Built-in: Backend API
+    - components        # Built-in: Frontend
+    - screens           # Built-in: Mobile App
+    - security          # Custom type — AI infers content
+```
+
+Built-in types: `readme`, `api-surface`, `dependencies`, `patterns`, `endpoints`, `components`, `screens`
+
+For custom types not in the built-in list:
+
+1. **Infer content** from the type name (e.g., `security` → security analysis, threat models)
+2. **Use the same marker pattern** (`prospec:auto-start/end` + `prospec:user-start/end`)
+3. **File name**: `{type-name}.md` (e.g., `security.md`)
+4. **Follow the general structure**: title, purpose description, auto section, user section
+
+---
+
+## 10. _index.md Module Table Format
 
 ### Table Structure
 
 ```markdown
 ## Modules
 
-| Module | Keywords | Status | Description | Depends On |
-|--------|----------|--------|-------------|------------|
-| [name] | [keywords] | active | [description] | [dependencies] |
+| Module | Keywords | Status | Description | Files | Depends On |
+|--------|----------|--------|-------------|-------|------------|
+| [name] | [keywords] | active | [description] | readme, api-surface, ... | [dependencies] |
 ```
 
 ### Field Specifications
@@ -91,6 +465,7 @@ Each module README must include the following sections, using `prospec:auto-star
 - **Keywords**: 3-5 keywords, comma-separated, used for search and matching
 - **Status**: `active` (in use), `deprecated` (phased out), `planned` (upcoming)
 - **Description**: One-sentence description, max 50 words
+- **Files**: Comma-separated list of available knowledge files for this module (e.g., `readme, api-surface, dependencies`)
 - **Depends On**: Names of other depended-upon modules, use `—` if none
 
 ### Sorting Rules
@@ -104,7 +479,7 @@ Modules are sorted by architecture layer (bottom to top):
 
 ---
 
-## 3. _conventions.md Format
+## 11. _conventions.md Format
 
 ```markdown
 # Coding Conventions
@@ -148,7 +523,7 @@ Modules are sorted by architecture layer (bottom to top):
 
 ---
 
-## 4. Re-run Safety Rules
+## 12. Re-run Safety Rules
 
 | Operation | prospec:auto-start/end | prospec:user-start/end |
 |-----------|----------------------|----------------------|

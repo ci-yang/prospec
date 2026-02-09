@@ -17,8 +17,14 @@ const TechStackSchema = z.object({
   package_manager: z.string().optional(),
 }).optional();
 
+export const KNOWLEDGE_FILE_TYPES = [
+  'readme', 'api-surface', 'dependencies', 'patterns',
+  'endpoints', 'components', 'screens',
+] as const;
+
 const KnowledgeSchema = z.object({
   base_path: z.string().optional(),
+  files: z.array(z.string()).optional(),
 }).optional();
 
 export const VALID_AGENTS = ['claude', 'gemini', 'copilot', 'codex'] as const;

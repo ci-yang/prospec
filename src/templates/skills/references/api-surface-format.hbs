@@ -1,0 +1,93 @@
+# API Surface Format Reference
+
+This document defines the output format for `modules/{module}/api-surface.md` files.
+
+---
+
+## modules/{module}/api-surface.md Format
+
+### Purpose
+
+Documents the module's public API surface — all public functions, classes, types, and constants. This file enables AI agents to understand **what a module offers** without reading implementation details.
+
+### Language Adaptation
+
+Adapt section names and signature syntax to the project's language:
+
+| Concept | TypeScript | Python | Go | Swift/Kotlin | Dart |
+|---------|-----------|--------|-----|-------------|------|
+| Public function | `export function` | `def` in `__all__` | Capitalized name | `public func` | top-level / `export` |
+| Public class | `export class` | `class` in `__all__` | Exported struct | `public class` | `class` |
+| Public type | `export type/interface` | `TypeAlias`, `Protocol` | Exported type | `protocol` | `typedef` |
+| Constant | `export const` | Module-level UPPER | Exported `const` | `static let` | `const` |
+
+### Standard Format
+
+```markdown
+# [Module Name] — API Surface
+
+> Public API and type signatures for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Public Functions
+
+### `functionName(param1: Type, param2: Type): ReturnType`
+
+- **Purpose**: [One-line description]
+- **Parameters**:
+  - `param1` — [Description]
+  - `param2` — [Description]
+- **Returns**: [Description of return value]
+- **Throws/Raises**: [Error conditions, if any]
+
+### `anotherFunction(options: OptionsType): Promise<Result>`
+
+- **Purpose**: [One-line description]
+- **Parameters**:
+  - `options` — [Description]
+- **Returns**: [Description]
+
+## Public Classes
+
+### `ClassName`
+
+**Constructor**: `new ClassName(config: ConfigType)` / `ClassName(config)` / `ClassName.init(config:)`
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `method1` | `(param: Type): ReturnType` | [Description] |
+| `method2` | `(param: Type): Promise<Result>` | [Description] |
+
+## Public Types / Interfaces
+
+| Type | Definition | Description |
+|------|-----------|-------------|
+| `TypeName` | `{ field: string; ... }` | [Purpose] |
+| `EnumName` | `'a' \| 'b' \| 'c'` | [Purpose] |
+
+## Public Constants
+
+| Constant | Type | Value/Description |
+|----------|------|-------------------|
+| `CONST_NAME` | `Type` | [Description] |
+
+## Re-exports / Public Submodules
+
+- `export { X } from './submodule'` — [Why re-exported]
+- `from .submodule import X` — [Why exposed]
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add usage notes, gotchas, or deprecation notices here. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Only list public items** — skip internal/private functions (language-specific visibility rules apply)
+2. **Use the project's actual signature syntax** — TypeScript types, Python type hints, Go signatures, etc.
+3. **Group by kind** — functions, classes, types, constants
+4. **Sort alphabetically** within each group
+5. **Include docstring/JSDoc summary** if available as the Purpose field
+6. **Omit empty sections** — if a module has no public classes, skip that section
+7. **For dynamically-typed languages** — document parameter and return types in description if no type annotations exist

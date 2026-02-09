@@ -7,6 +7,8 @@
 
 _由 `/prospec-knowledge-generate` 填充。執行 `prospec knowledge init` 產生 raw-scan.md 後，再透過 AI Skill 分析並填充此區塊。_
 
+_Table format: Module | Keywords | Status | Description | Files | Depends On_
+
 ## Project Info
 
 - **Project**: {{project_name}}
@@ -20,8 +22,12 @@ _由 `/prospec-knowledge-generate` 填充。執行 `prospec knowledge init` 產�
 
 ## How to Use
 
-1. Read this `_index.md` to understand available modules
+1. Read this `_index.md` to understand available modules and their knowledge files
 2. Identify the modules relevant to your current task
-3. Load `modules/{module}/README.md` for specific module knowledge
-4. Check `_conventions.md` for project-specific coding patterns
-5. Refer to `architecture.md` for overall system structure
+3. Check the **Files** column to see what knowledge is available per module
+4. Load the most relevant file for your task type:
+   - Understanding a module → `modules/{module}/README.md`
+   - Calling or extending APIs → `modules/{module}/api-surface.md`
+   - Assessing change impact → `modules/{module}/dependencies.md`
+   - Writing consistent code → `modules/{module}/patterns.md`
+5. Check `_conventions.md` for project-wide coding patterns

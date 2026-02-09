@@ -1,0 +1,81 @@
+# Dependencies Format Reference
+
+This document defines the output format for `modules/{module}/dependencies.md` files.
+
+---
+
+## modules/{module}/dependencies.md Format
+
+### Purpose
+
+Documents a module's dependency relationships — both internal (other project modules) and external (third-party packages). This file enables AI agents to understand **impact analysis** and **change propagation** without tracing imports manually.
+
+### Language Adaptation
+
+Adapt terminology to the project's ecosystem:
+
+| Concept | Node.js | Python | Go | Swift | Dart/Flutter |
+|---------|---------|--------|-----|-------|-------------|
+| Package manager | npm/pnpm/yarn | pip/poetry/uv | go modules | SPM/CocoaPods | pub |
+| Import syntax | `import/require` | `import/from` | `import` | `import` | `import` |
+| Standard library | `node:*` | stdlib | stdlib | Foundation | `dart:*` |
+| Version file | `package.json` | `pyproject.toml` | `go.mod` | `Package.swift` | `pubspec.yaml` |
+
+### Standard Format
+
+```markdown
+# [Module Name] — Dependencies
+
+> Import graph and package usage for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Internal Dependencies (imports from other modules)
+
+| Module | Files Imported | Purpose |
+|--------|---------------|---------|
+| `types` | `config.ts`, `errors.ts` | Schema types and error classes |
+| `lib` | `template.ts`, `fs-utils.ts` | Template rendering and file operations |
+
+## Internal Dependents (modules that import from this one)
+
+| Module | What They Import | Purpose |
+|--------|-----------------|---------|
+| `cli` | `execute()` | Command handler entry point |
+| `services` | `renderTemplate()` | Template generation |
+
+## Third-Party Packages
+
+| Package | Version | Usage | Files |
+|---------|---------|-------|-------|
+| `zod` | `^3.x` | Schema validation | `config.ts` |
+| `commander` | `^12.x` | CLI framework | `cli/index.ts` |
+
+## Import Graph Summary
+
+```
+[module] → types (schema definitions)
+[module] → lib (utility functions)
+cli → [module] (command handling)
+```
+
+## Standard Library Usage
+
+| Module | Usage |
+|--------|-------|
+| `node:fs` / `os` / `fmt` | [Usage description] |
+| `node:path` / `pathlib` / `path/filepath` | [Usage description] |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add notes about dependency decisions, planned migrations, etc. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Internal dependencies**: Group by module, list specific files imported
+2. **Internal dependents**: Show reverse dependencies — who depends on this module
+3. **Third-party packages**: Include version range from the project's version/lock file
+4. **Import graph summary**: ASCII art showing directional flow
+5. **Omit empty sections** — if no third-party packages, skip that section
+6. **Use module names** (not file paths) for internal dependencies

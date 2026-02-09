@@ -1,6 +1,6 @@
 ---
 name: prospec-knowledge-generate
-description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, analyze project structure, autonomously decide module boundaries, and produce module READMEs and index. Triggers: knowledge, generate knowledge, analyze project, module split, 生成知識, 分析專案, 模組切割"
+description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, analyze project structure, autonomously decide module boundaries, and produce structured module knowledge files and index. Triggers: knowledge, generate knowledge, analyze project, module split, 生成知識, 分析專案, 模組切割"
 ---
 
 # Prospec Knowledge Generate Skill
@@ -10,7 +10,8 @@ description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, an
 When triggered, briefly describe in the user's language:
 - That you'll read raw-scan.md to understand the project structure
 - You'll autonomously decide module boundaries based on project type
-- You'll generate module READMEs, _index.md, and _conventions.md
+- You'll generate structured knowledge files per module, _index.md, and _conventions.md
+- Which file types will be generated (auto-detected from project type, or from config)
 
 ## Startup Loading
 
@@ -18,6 +19,7 @@ When triggered, briefly describe in the user's language:
 2. Read `{{knowledge_base_path}}/_index.md` — if exists
 3. Read `{{knowledge_base_path}}/_conventions.md` — if exists
 4. Read `{{constitution_path}}` — if exists
+5. Read `.prospec.yaml` → check `knowledge.files` if present (optional override)
 
 ## Prerequisite
 
@@ -29,40 +31,96 @@ Run `prospec knowledge init` first to generate `raw-scan.md` and empty scaffoldi
 
 Identify project type from raw-scan.md:
 
-| Indicator | CLI Tool | Backend API | SPA Frontend | Monorepo |
-|-----------|----------|-------------|--------------|----------|
-| Entry | bin/, CLI entry | server.ts, app.ts | main.ts, App.tsx | packages/ |
-| Dirs | commands/, cli/ | routes/, controllers/ | components/, pages/ | packages/, apps/ |
-| Framework | commander, yargs | express, fastify | react, vue | turborepo, nx |
+| Indicator | CLI Tool | Backend API | SPA Frontend | Mobile App | Monorepo |
+|-----------|----------|-------------|--------------|------------|----------|
+| Entry | bin/, CLI entry | server.ts, app.ts | main.ts, App.tsx | App.tsx, main.dart | packages/ |
+| Dirs | commands/, cli/ | routes/, controllers/ | components/, pages/ | screens/, navigation/ | packages/, apps/ |
+| Framework | commander, yargs | express, fastify, django | react, vue, angular | react-native, flutter | turborepo, nx |
+| Config | — | — | vite.config, next.config | app.json, pubspec.yaml | workspace config |
 
-The table is a reference only — actual splitting should follow the project's real structure.
+The table is a reference only — actual splitting should follow the project's real structure. A project may be a **hybrid** (e.g., full-stack with both backend API and frontend).
 
-### Step 2: Decide Module Boundaries
+### Step 2: Determine Knowledge File Types
+
+Based on the detected project type, select which file types to generate:
+
+| Project Type | Base Files | Type-Specific Files |
+|-------------|-----------|-------------------|
+| CLI Tool / Library | readme, api-surface, dependencies, patterns | — |
+| Backend API | readme, api-surface, dependencies, patterns | **endpoints** |
+| Frontend SPA / SSR | readme, api-surface, dependencies, patterns | **components** |
+| Mobile App | readme, api-surface, dependencies, patterns | **screens** |
+| Monorepo | readme, api-surface, dependencies, patterns | _(per-package type)_ |
+| Hybrid (e.g., fullstack) | readme, api-surface, dependencies, patterns | **endpoints** + **components** |
+
+**Resolution priority:**
+1. If `.prospec.yaml` has `knowledge.files` → use that list exactly (explicit override)
+2. If no config → auto-detect from Step 1 analysis, using the table above
+3. `readme` is **always** included regardless of config or detection
+
+After determining file types, **tell the user** what you detected and what files will be generated. Example:
+> "Detected: Backend API (Express + TypeScript). Will generate: readme, api-surface, dependencies, patterns, endpoints."
+
+### Step 3: Decide Module Boundaries
 
 Based on project type and actual directory structure. Merge small directories or split large ones as needed.
 
-### Step 3: Create modules/*/README.md
+### Step 4: Create Module Knowledge Files
 
-Each README.md contains: overview, responsibilities, key files table, public interfaces, dependencies, design decisions.
+For each module, generate the determined file types:
 
-**Re-run safety:**
+#### Step 4a: README.md (always)
+
+Overview, responsibilities, key files table, public interfaces, dependencies, design decisions.
+
+#### Step 4b: api-surface.md (if selected)
+
+All public functions, classes, types, and constants with exact type signatures. Adapt to the project's language — see reference for language-specific guidance.
+
+#### Step 4c: dependencies.md (if selected)
+
+Internal import graph (what this module imports), reverse dependencies (who imports this module), third-party packages. Adapt to the project's package manager.
+
+#### Step 4d: patterns.md (if selected)
+
+Module-specific code patterns, error handling idioms, naming conventions, file organization. Use real code examples from source.
+
+#### Step 4e: endpoints.md (Backend API only)
+
+HTTP/GraphQL/gRPC endpoints, request/response schemas, auth requirements, middleware. See reference for format.
+
+#### Step 4f: components.md (Frontend only)
+
+Component props, events/emits, slots, hooks/composables, state stores, route definitions. Adapt to the framework (React/Vue/Angular/Svelte). See reference for format.
+
+#### Step 4g: screens.md (Mobile App only)
+
+Screen definitions, navigation params, navigation graph, deep links, native bridge interfaces, platform differences. See reference for format.
+
+**Re-run safety (applies to ALL file types):**
 - `prospec:auto-start/end` — overwritten on each run
 - `prospec:user-start/end` — always preserved, never overwritten
 
-### Step 4: Populate _index.md
+### Step 5: Populate _index.md
 
-Fill module table within `prospec:auto-start/end` markers (Module, Keywords, Status, Description, Depends On).
+Fill module table within `prospec:auto-start/end` markers. Include the **Files** column listing which knowledge files were generated per module:
 
-### Step 5: Populate _conventions.md
+```
+| Module | Keywords | Status | Description | Files | Depends On |
+```
+
+### Step 6: Populate _conventions.md
 
 Naming conventions, project-specific patterns, directory conventions, import ordering rules.
 
-### Step 6: Quality Check
+### Step 7: Quality Check
 
 - Each module has clear responsibility boundaries
 - No circular dependencies between modules
-- _index.md lists all modules
-- All `prospec:user-start/end` content preserved
+- _index.md lists all modules with correct Files column
+- All `prospec:user-start/end` content preserved across all files
+- Generated file types match detected project type (or config override)
+- Language-specific syntax used correctly in api-surface.md
 
 ## NEVER
 
@@ -70,8 +128,10 @@ Naming conventions, project-specific patterns, directory conventions, import ord
 - **NEVER** start without raw-scan.md — prompt user to run `prospec knowledge init` first
 - **NEVER** create circular module dependencies — module dependency graph must be a DAG
 - **NEVER** put all files in a single module — even small projects need 2-3 responsibility modules minimum
-- **NEVER** ignore Tech Stack info from raw-scan.md — it affects module splitting strategy
+- **NEVER** ignore Tech Stack info from raw-scan.md — it affects module splitting strategy and file type selection
 - **NEVER** write outdated file paths in READMEs — all paths must come from raw-scan.md real data
+- **NEVER** generate file types not in the configured list (when config exists)
+- **NEVER** use TypeScript/JavaScript syntax in api-surface.md for non-JS projects
 
 ## Error Handling
 
@@ -79,6 +139,8 @@ Naming conventions, project-specific patterns, directory conventions, import ord
 |----------|--------|
 | raw-scan.md missing | Stop, prompt `prospec knowledge init` |
 | raw-scan.md incomplete | List missing sections, suggest re-running init or manual completion |
-| Module README already exists | Only overwrite auto sections, preserve user sections |
+| Module file already exists | Only overwrite auto sections, preserve user sections |
+| Unknown custom file type | Infer content from type name, follow standard marker pattern |
+| Ambiguous project type | Ask user to clarify, or treat as hybrid |
 
 All generated files must be written in English.

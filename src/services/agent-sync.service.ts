@@ -322,6 +322,48 @@ function getSkillReferences(skillName: string): SkillReference[] {
         title: 'Implementation Guide',
       },
     ],
+    'prospec-knowledge-generate': [
+      {
+        templateName: 'knowledge-format.hbs',
+        outputName: 'knowledge-format.md',
+        title: 'Knowledge Format',
+      },
+      {
+        templateName: 'knowledge-generate-format.hbs',
+        outputName: 'knowledge-generate-format.md',
+        title: 'Knowledge Generate Format',
+      },
+      {
+        templateName: 'api-surface-format.hbs',
+        outputName: 'api-surface-format.md',
+        title: 'API Surface Format',
+      },
+      {
+        templateName: 'dependencies-format.hbs',
+        outputName: 'dependencies-format.md',
+        title: 'Dependencies Format',
+      },
+      {
+        templateName: 'patterns-format.hbs',
+        outputName: 'patterns-format.md',
+        title: 'Patterns Format',
+      },
+      {
+        templateName: 'endpoints-format.hbs',
+        outputName: 'endpoints-format.md',
+        title: 'Endpoints Format',
+      },
+      {
+        templateName: 'components-format.hbs',
+        outputName: 'components-format.md',
+        title: 'Components Format',
+      },
+      {
+        templateName: 'screens-format.hbs',
+        outputName: 'screens-format.md',
+        title: 'Screens Format',
+      },
+    ],
   };
 
   return referenceMap[skillName] ?? [];

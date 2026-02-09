@@ -1,0 +1,119 @@
+# Components Format Reference
+
+This document defines the output format for `modules/{module}/components.md` files.
+
+**Applicable project types**: Frontend SPA, SSR Web App, Component Library
+
+---
+
+## modules/{module}/components.md Format
+
+### Purpose
+
+Documents UI components, their props/inputs, events/outputs, slots, and composition patterns. Enables AI agents to understand **how to use and compose components** correctly.
+
+### Language Adaptation
+
+| Concept | React | Vue | Angular | Svelte |
+|---------|-------|-----|---------|--------|
+| Props | `props: { name: Type }` | `defineProps<{}>()` | `@Input()` | `export let name` |
+| Events | `onEvent` callback | `defineEmits()` | `@Output()` | `dispatch('event')` |
+| Slots | `children` / render props | `<slot>` | `<ng-content>` | `<slot>` |
+| State | `useState` / store | `ref()` / Pinia | Service / Signal | `$state` / store |
+| Lifecycle | `useEffect` | `onMounted` | `ngOnInit` | `onMount` |
+
+### Standard Format
+
+```markdown
+# [Module Name] — Components
+
+> UI components, props, events, and composition patterns for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Components
+
+### `ComponentName`
+
+- **Purpose**: [One-line description]
+- **File**: `src/components/ComponentName.tsx`
+
+**Props**:
+
+| Prop | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `title` | `string` | Yes | — | Page title |
+| `variant` | `'primary' \| 'secondary'` | No | `'primary'` | Visual variant |
+| `onSubmit` | `(data: FormData) => void` | No | — | Submit callback |
+
+**Events / Emits**:
+
+| Event | Payload | Description |
+|-------|---------|-------------|
+| `change` | `{ value: string }` | Emitted when input changes |
+| `close` | — | Emitted when modal closes |
+
+**Slots / Children**:
+
+| Slot | Description |
+|------|-------------|
+| `default` | Main content area |
+| `header` | Optional header override |
+
+**Usage Example**:
+
+```[language]
+<ComponentName title="Hello" variant="primary" @change="handleChange">
+  <template #header>Custom Header</template>
+  Content here
+</ComponentName>
+```
+
+## Hooks / Composables
+
+### `useFeatureName(options: Options): Result`
+
+- **Purpose**: [Description]
+- **Parameters**: [Description]
+- **Returns**: [Description of reactive state / methods returned]
+- **Usage**:
+  ```[language]
+  const { data, loading } = useFeatureName({ key: 'value' });
+  ```
+
+## State Management
+
+### Store: `featureStore`
+
+| State | Type | Description |
+|-------|------|-------------|
+| `items` | `Item[]` | List of items |
+| `loading` | `boolean` | Loading state |
+
+| Action | Signature | Description |
+|--------|-----------|-------------|
+| `fetchItems` | `() => Promise<void>` | Load items from API |
+| `addItem` | `(item: NewItem) => void` | Add item to store |
+
+## Route Definitions
+
+| Route | Component | Auth | Description |
+|-------|-----------|------|-------------|
+| `/dashboard` | `DashboardPage` | Required | Main dashboard |
+| `/settings` | `SettingsPage` | Required | User settings |
+| `/login` | `LoginPage` | Public | Authentication |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add component design system notes, theme variables, accessibility requirements, etc. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Document all public components** — skip internal/helper components
+2. **Props table is required** for every component
+3. **Use the framework's actual syntax** for examples
+4. **Include hooks/composables** that are part of the module's public API
+5. **Document state management** stores if the module owns them
+6. **Route definitions** — only for the routes this module manages
+7. **Omit empty sections** — if no slots, skip that section

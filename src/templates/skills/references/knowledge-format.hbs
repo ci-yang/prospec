@@ -8,15 +8,24 @@ This document describes the AI Knowledge format and usage patterns, referenced b
 
 ```
 {{knowledge_base_path}}/
-├── _index.md                    # Overview: module list and keyword index
+├── _index.md                    # Overview: module list, keyword index, available files
+├── _conventions.md              # Project-wide coding conventions
+├── raw-scan.md                  # CLI scan data (input for knowledge generation)
 └── modules/
     ├── {module-1}/
-    │   └── README.md            # Module detailed documentation
+    │   ├── README.md            # Overview: responsibilities, design decisions
+    │   ├── api-surface.md       # Public API: export signatures, types
+    │   ├── dependencies.md      # Dependency analysis: import graph, packages
+    │   └── patterns.md          # Code patterns: error handling, naming
     ├── {module-2}/
-    │   └── README.md
+    │   ├── README.md
+    │   ├── api-surface.md
+    │   └── dependencies.md
     └── {module-3}/
         └── README.md
 ```
+
+**Note:** Not all modules need all file types. Check `_index.md` Files column for available files per module.
 
 ---
 
@@ -33,11 +42,11 @@ Provides a module overview and keyword index for the project, enabling quick ide
 
 ## Modules
 
-| Module | Keywords | Status | Description | Depends On |
-|--------|----------|--------|-------------|------------|
-| [module-1] | keyword1, keyword2 | Active | [Brief description] | - |
-| [module-2] | keyword3, keyword4 | Active | [Brief description] | module-1 |
-| [module-3] | keyword5, keyword6 | Deprecated | [Brief description] | module-1, module-2 |
+| Module | Keywords | Status | Description | Files | Depends On |
+|--------|----------|--------|-------------|-------|------------|
+| [module-1] | keyword1, keyword2 | Active | [Brief description] | readme, api-surface, dependencies, patterns | - |
+| [module-2] | keyword3, keyword4 | Active | [Brief description] | readme, api-surface | module-1 |
+| [module-3] | keyword5, keyword6 | Deprecated | [Brief description] | readme | module-1, module-2 |
 ```
 
 ### Field Descriptions
@@ -46,13 +55,35 @@ Provides a module overview and keyword index for the project, enabling quick ide
 - **Keywords:** Tags for keyword matching (comma-separated)
 - **Status:** Module status (Active, Deprecated, Planned)
 - **Description:** Brief description of module functionality
+- **Files:** Available knowledge files for this module (comma-separated: readme, api-surface, dependencies, patterns)
 - **Depends On:** Other modules this depends on (comma-separated)
 
 ---
 
-## 2. `modules/{module}/README.md` Format
+## 2. Module Knowledge Files
 
-### Purpose
+Each module can have multiple knowledge files. The `README.md` is always present; others are generated based on project type detection or `.prospec.yaml` `knowledge.files` config.
+
+### Base Files (all project types)
+
+| File | Purpose | When to Load |
+|------|---------|-------------|
+| `README.md` | Overview, responsibilities, design decisions | Always — start here |
+| `api-surface.md` | Public functions, classes, types with signatures | When calling or extending module APIs |
+| `dependencies.md` | Import graph, third-party packages, reverse deps | When assessing change impact |
+| `patterns.md` | Error handling, naming, idioms specific to module | When writing new code in the module |
+
+### Project-Type-Specific Files (auto-detected)
+
+| File | Project Type | Purpose | When to Load |
+|------|-------------|---------|-------------|
+| `endpoints.md` | Backend API | HTTP/GraphQL routes, request/response schemas | When working with API endpoints |
+| `components.md` | Frontend SPA | Component props, events, hooks, state stores | When composing or extending UI |
+| `screens.md` | Mobile App | Screen navigation, native bridges, platform diffs | When building screen flows |
+
+### 2a. `modules/{module}/README.md` Format
+
+#### Purpose
 
 Provides detailed documentation for a single module, including overview, file listing, API, and internal notes.
 
@@ -164,20 +195,37 @@ Before starting any Story or task, read `{{knowledge_base_path}}/_index.md`:
 
 - Understand the project's overall architecture
 - Quickly locate relevant modules via keyword matching
+- Check the **Files** column to know what knowledge is available per module
 - Confirm module dependency relationships
 
-### Step 2: Load Module READMEs On Demand
+### Step 2: Load Module Knowledge On Demand
 
-Only load the README for the module relevant to the current task:
+Based on your task type, choose the right knowledge file:
 
-- When working on `error-handler` tasks, read `{{knowledge_base_path}}/modules/error-handler/README.md`
-- When working on `api-middleware` tasks, read `{{knowledge_base_path}}/modules/api-middleware/README.md`
+| Task Type | Load First | Then If Needed |
+|-----------|-----------|----------------|
+| Understanding a module | `README.md` | — |
+| Calling module APIs | `api-surface.md` | `README.md` for context |
+| Assessing change impact | `dependencies.md` | `README.md` for overview |
+| Writing new code | `patterns.md` | `api-surface.md` for interfaces |
+| Working with API routes | `endpoints.md` | `api-surface.md` for service interfaces |
+| Building UI components | `components.md` | `patterns.md` for conventions |
+| Implementing screen flow | `screens.md` | `components.md` for shared widgets |
+| Full module deep-dive | `README.md` | all available files |
+
+Examples:
+- Working on `error-handler` API integration → read `{{knowledge_base_path}}/modules/error-handler/api-surface.md`
+- Adding new REST endpoint → read `{{knowledge_base_path}}/modules/api/endpoints.md`
+- Building new page component → read `{{knowledge_base_path}}/modules/pages/components.md`
+- Refactoring `api-middleware` → read `{{knowledge_base_path}}/modules/api-middleware/dependencies.md` first
 
 ### Step 3: Avoid Over-Loading
 
-**Do not read all module READMEs at once**, as this causes:
+**Do not read all module files at once**, as this causes:
 - Context overload (token waste)
 - Judgment interference (irrelevant information)
+
+Start with the most specific file for your task. Load additional files only when the first doesn't answer your question.
 
 ---
 
@@ -187,14 +235,16 @@ Only load the README for the module relevant to the current task:
 
 1. **Read _index.md:**
    - Discover relevant modules: `error-handler`, `api-middleware`, `logger`
+   - Check Files column: `error-handler` has `readme, api-surface, patterns`
 
 2. **Execute Tasks:**
-   - Task 1: Implement `BaseError` → Read `{{knowledge_base_path}}/modules/error-handler/README.md`
-   - Task 2: Integrate API Middleware → Read `{{knowledge_base_path}}/modules/api-middleware/README.md`
-   - Task 3: Update Logger → Read `{{knowledge_base_path}}/modules/logger/README.md`
+   - Task 1: Implement `BaseError` → Read `{{knowledge_base_path}}/modules/error-handler/patterns.md` (error patterns) + `api-surface.md` (existing exports)
+   - Task 2: Integrate API Middleware → Read `{{knowledge_base_path}}/modules/api-middleware/dependencies.md` (impact analysis)
+   - Task 3: Update Logger → Read `{{knowledge_base_path}}/modules/logger/api-surface.md` (current interface)
 
 3. **Avoid:**
-   - Reading all module READMEs at once (causes context overload)
+   - Reading all module files at once (causes context overload)
+   - Loading `dependencies.md` when you only need API signatures
 
 ---
 

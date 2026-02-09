@@ -1,0 +1,119 @@
+# Screens Format Reference
+
+This document defines the output format for `modules/{module}/screens.md` files.
+
+**Applicable project types**: Mobile App (iOS, Android, React Native, Flutter, etc.)
+
+---
+
+## modules/{module}/screens.md Format
+
+### Purpose
+
+Documents screens/pages, navigation flow, platform-specific behavior, and native bridge interfaces. Enables AI agents to understand **app navigation structure** and **platform-specific constraints**.
+
+### Language Adaptation
+
+| Concept | React Native | Flutter | SwiftUI | Jetpack Compose |
+|---------|-------------|---------|---------|-----------------|
+| Screen | Screen component | Widget (Page) | View | Composable (Screen) |
+| Navigation | React Navigation | Navigator/GoRouter | NavigationStack | NavHost |
+| State | useState/Redux | Provider/Riverpod | @State/@Observable | ViewModel |
+| Native module | NativeModules | MethodChannel | native | Platform Channel |
+| Platform check | `Platform.OS` | `Platform.isIOS` | `#if os(iOS)` | build variant |
+
+### Standard Format
+
+```markdown
+# [Module Name] — Screens
+
+> Screen definitions, navigation flow, and platform behavior for the [module-name] module.
+
+<!-- prospec:auto-start -->
+## Screens
+
+### `ScreenName`
+
+- **Purpose**: [One-line description]
+- **File**: `src/screens/ScreenName.tsx`
+- **Platform**: [Both / iOS only / Android only]
+
+**Navigation Params** (received):
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| `itemId` | `string` | Yes | ID of the item to display |
+| `mode` | `'view' \| 'edit'` | No | Display mode (default: 'view') |
+
+**Navigation Actions** (can navigate to):
+
+| Target | Trigger | Params Passed |
+|--------|---------|--------------|
+| `DetailScreen` | Tap item | `{ itemId }` |
+| `SettingsScreen` | Menu button | — |
+| ← Back | Swipe / button | — |
+
+**Platform Differences**:
+
+| Behavior | iOS | Android |
+|----------|-----|---------|
+| Back gesture | Swipe from left edge | System back button |
+| Status bar | Light content | Transparent |
+
+## Navigation Graph
+
+```
+SplashScreen → (auth check)
+  ├── LoginScreen → HomeScreen
+  └── HomeScreen
+       ├── ListScreen → DetailScreen → EditScreen
+       ├── ProfileScreen → SettingsScreen
+       └── SearchScreen → DetailScreen
+```
+
+## Deep Links
+
+| Link Pattern | Target Screen | Params |
+|-------------|--------------|--------|
+| `app://items/:id` | DetailScreen | `{ itemId: id }` |
+| `app://settings` | SettingsScreen | — |
+
+## Native Bridge / Platform Channels
+
+### `CameraModule`
+
+| Method | Signature | Platform | Description |
+|--------|-----------|----------|-------------|
+| `takePhoto` | `(options: PhotoOptions) → Promise<Photo>` | Both | Open camera |
+| `requestPermission` | `() → Promise<boolean>` | Both | Request camera access |
+
+### Platform-Specific APIs
+
+| API | Platform | Usage |
+|-----|----------|-------|
+| HealthKit | iOS | Step counter data |
+| Google Fit | Android | Step counter data |
+
+## Gestures & Animations
+
+| Gesture/Animation | Screen | Description |
+|-------------------|--------|-------------|
+| Pull to refresh | ListScreen | Reload item list |
+| Swipe to delete | ListScreen | Delete item with undo |
+| Hero transition | List → Detail | Shared element animation |
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- Add accessibility requirements, animation specs, design tokens, etc. -->
+<!-- prospec:user-end -->
+```
+
+### Format Rules
+
+1. **Document all user-facing screens** — skip internal fragments/widgets
+2. **Navigation params are required** for every screen
+3. **Navigation graph** — show the full flow, including conditional branches (auth, onboarding)
+4. **Platform differences** — document only where behavior actually differs
+5. **Native bridge** — document all methods exposed to the JS/Dart layer
+6. **Deep links** — document all registered URL patterns
+7. **Omit empty sections** — if no native bridge, skip that section
