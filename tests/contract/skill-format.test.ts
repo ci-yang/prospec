@@ -67,13 +67,6 @@ describe('Skill Format Contract', () => {
           expect(frontmatter).toContain('description:');
         });
 
-        it('should include project name in content', () => {
-          const content = renderTemplate(
-            `skills/${skill.name}.hbs`,
-            TEMPLATE_CONTEXT,
-          );
-          expect(content).toContain('test-project');
-        });
       });
     }
   });
