@@ -1,0 +1,76 @@
+---
+name: prospec-archive
+description: "Archive Changes | 歸檔變更 - Archive completed changes, generate summary, and suggest Knowledge updates. Triggers: archive, clean up, wrap up, 歸檔, 收尾, 整理完成"
+---
+
+# Prospec Archive Skill
+
+## Activation
+
+When triggered, briefly describe in the user's language:
+- That you'll scan `.prospec/changes/` for completed changes
+- Each archived change will get a summary.md and be moved to `.prospec/archive/`
+- Affected modules will be identified and Knowledge update will be suggested
+
+## Startup Loading
+
+1. Read `.prospec/changes/` — scan all change directories and their `metadata.yaml`
+2. Read `{{constitution_path}}` — prepare Constitution spot check
+3. **MANDATORY** — Read [`references/archive-format.md`](references/archive-format.md) for summary.md format specification
+
+## Core Workflow
+
+### Phase 1: Scan and Confirm Targets
+
+Scan `.prospec/changes/` for changes with `status: verified` (default).
+Display a table of archivable changes:
+
+| Change Name | Status | Created | Modules |
+|-------------|--------|---------|---------|
+
+If no verified changes found, offer to archive changes with other statuses (with warning).
+Confirm with user before proceeding.
+
+### Phase 2: Generate Summary
+
+For each change to archive:
+1. Read `proposal.md` — extract User Story and acceptance criteria
+2. Read `delta-spec.md` — extract REQ IDs and affected modules
+3. Read `tasks.md` — calculate completion rate
+4. Generate `summary.md` following `references/archive-format.md` specification
+
+### Phase 3: Execute Archive
+
+For each confirmed change:
+1. Create `.prospec/archive/{YYYY-MM-DD}-{change-name}/`
+2. Move all artifacts (proposal.md, plan.md, delta-spec.md, tasks.md, metadata.yaml)
+3. Place generated summary.md in archive directory
+4. Update `metadata.yaml` to `status: archived`
+
+### Phase 4: Knowledge Update Hint
+
+After archiving, analyze affected modules and suggest:
+- Which module README.md files may need updating
+- Display: "Consider running `/prospec-knowledge-generate` to refresh affected modules"
+
+## NEVER
+
+- **NEVER** archive without user confirmation — always display targets and wait for approval
+- **NEVER** archive changes with `status: story` or `status: plan` — these are incomplete planning phases
+- **NEVER** skip summary.md generation — every archived change must have a summary
+- **NEVER** delete original files instead of moving — archive is a move operation, not delete
+- **NEVER** modify the content of artifacts during archive — only move files and generate summary
+- **NEVER** auto-run Knowledge update — only suggest, let user decide
+- **NEVER** archive without reading delta-spec.md — affected modules must be identified
+
+## Error Handling
+
+| Scenario | Action |
+|----------|--------|
+| No changes found in changes/ | Inform user that there are no changes to archive |
+| Change missing metadata.yaml | Skip that change, warn user about incomplete change directory |
+| Change missing delta-spec.md | Archive with partial summary, note missing spec in summary.md |
+| Archive directory already exists | Warn user, ask whether to overwrite or skip |
+| File move fails | Roll back that specific change's archive, report error, continue with others |
+
+All generated files must be written in English.

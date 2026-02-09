@@ -87,6 +87,7 @@ describe('Skill Format Contract', () => {
       'implementation-guide.hbs',
       'knowledge-format.hbs',
       'knowledge-generate-format.hbs',
+      'archive-format.hbs',
     ];
 
     for (const ref of REFERENCE_TEMPLATES) {
@@ -102,8 +103,8 @@ describe('Skill Format Contract', () => {
   });
 
   describe('Skill definitions', () => {
-    it('should have 8 skill definitions', () => {
-      expect(SKILL_DEFINITIONS).toHaveLength(8);
+    it('should have 9 skill definitions', () => {
+      expect(SKILL_DEFINITIONS).toHaveLength(9);
     });
 
     it('should include all expected skill names', () => {
@@ -116,6 +117,7 @@ describe('Skill Format Contract', () => {
       expect(names).toContain('prospec-implement');
       expect(names).toContain('prospec-verify');
       expect(names).toContain('prospec-knowledge-generate');
+      expect(names).toContain('prospec-archive');
     });
 
     it('should have valid skill types', () => {
@@ -129,13 +131,14 @@ describe('Skill Format Contract', () => {
       const skillsWithRefs = SKILL_DEFINITIONS.filter((s) => s.hasReferences);
       expect(skillsWithRefs.length).toBeGreaterThan(0);
 
-      // prospec-new-story, prospec-plan, prospec-tasks, prospec-implement should have references
+      // Skills with references directories
       const refSkillNames = skillsWithRefs.map((s) => s.name);
       expect(refSkillNames).toContain('prospec-new-story');
       expect(refSkillNames).toContain('prospec-plan');
       expect(refSkillNames).toContain('prospec-tasks');
       expect(refSkillNames).toContain('prospec-implement');
       expect(refSkillNames).toContain('prospec-knowledge-generate');
+      expect(refSkillNames).toContain('prospec-archive');
     });
   });
 
