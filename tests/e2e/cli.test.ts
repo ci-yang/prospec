@@ -108,8 +108,8 @@ describe('CLI E2E', () => {
       expect(configContent).toContain('claude');
 
       // Verify directory structure
-      expect(fs.existsSync(path.join(tmpDir, 'docs', 'ai-knowledge'))).toBe(true);
-      expect(fs.existsSync(path.join(tmpDir, 'docs', 'specs'))).toBe(true);
+      expect(fs.existsSync(path.join(tmpDir, 'prospec', 'ai-knowledge'))).toBe(true);
+      expect(fs.existsSync(path.join(tmpDir, 'prospec', 'specs'))).toBe(true);
     });
 
     it('should prevent double initialization', async () => {
@@ -238,7 +238,7 @@ describe('CLI E2E', () => {
       expect(stdout).toContain('raw-scan.md');
 
       // Verify raw-scan.md was created
-      const rawScanPath = path.join(tmpDir, 'docs', 'ai-knowledge', 'raw-scan.md');
+      const rawScanPath = path.join(tmpDir, 'prospec', 'ai-knowledge', 'raw-scan.md');
       expect(fs.existsSync(rawScanPath)).toBe(true);
 
       const rawScan = await fs.promises.readFile(rawScanPath, 'utf-8');
@@ -257,7 +257,7 @@ describe('CLI E2E', () => {
       expect(stdout).toContain('Dry-run');
 
       // raw-scan.md should NOT exist
-      const rawScanPath = path.join(tmpDir, 'docs', 'ai-knowledge', 'raw-scan.md');
+      const rawScanPath = path.join(tmpDir, 'prospec', 'ai-knowledge', 'raw-scan.md');
       expect(fs.existsSync(rawScanPath)).toBe(false);
     });
   });
