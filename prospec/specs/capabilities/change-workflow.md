@@ -5,7 +5,7 @@
 Change Workflow 能力管理完整的 SDD 生命週期：建立 proposals（story）、生成實作計劃（plan）、拆解任務（tasks）、實作、驗證，以及歸檔已完成的變更。也涵蓋 proposal 格式定義、capability spec 格式、規格同步和規格-知識一致性驗證。
 
 **狀態**: Active
-**最後更新**: 2026-02-15
+**最後更新**: 2026-02-16
 **相關模組**: services (archive, change-story, change-plan, change-tasks), templates (skills, references), types (change)
 
 ## 需求規格
@@ -221,9 +221,12 @@ Archive Skill 模板定義 5 個執行階段。
 - WHEN archive skill 觸發，THEN 依循 Scan → Summary → Archive → Spec Sync → Knowledge Update 五階段
 - WHEN Spec Sync 階段執行，THEN 讀取 delta-spec ADDED/MODIFIED/REMOVED 合併到 specs/capabilities/
 - WHEN Spec Sync 失敗，THEN 歸檔仍然成功（非致命性）
+- WHEN Knowledge Update 階段，THEN 從 delta-spec REQ ID 前綴提取具體受影響模組名稱
+- WHEN 模組列出完成，THEN 互動式詢問「是否立即更新這些模組的 Knowledge？」
 
 **新增來源**: add-archive-system (2026-02-09)
 **修改來源**: redesign-spec-system (2026-02-15) — 新增 Phase 3.5 Spec Sync，摘要輸出到 specs/history/
+**修改來源**: enhance-knowledge-sdd-pipeline (2026-02-16) — Phase 4 互動式 Knowledge Update
 
 ### 格式定義與規格管理
 
@@ -259,8 +262,11 @@ Archive Skill 模板定義 5 個執行階段。
 - WHEN 收集每個 Story，THEN 收集 Priority（P0/P1/P2）和 WHEN/THEN 驗收場景
 - WHEN 訪談完成，THEN 引導填寫邊界案例、功能需求和成功指標
 - WHEN 產出 proposal.md，THEN 符合新版 proposal-format.hbs 格式
+- WHEN Startup Loading 讀取 _index.md，THEN 比對 proposal 關鍵字與模組 keywords 欄位自動推導 Related Modules
+- WHEN Phase 結尾，THEN 執行 Knowledge Quality Gate 驗證 Related Modules 識別結果
 
 **新增來源**: redesign-spec-system (2026-02-15)
+**修改來源**: enhance-knowledge-sdd-pipeline (2026-02-16) — 新增關鍵字比對 + Quality Gate
 
 ### REQ-TEMPLATES-033: Plan Skill Capability 載入
 
@@ -269,8 +275,13 @@ Archive Skill 模板定義 5 個執行階段。
 **場景：**
 - WHEN Plan Skill Startup Loading，THEN 讀取 `specs/capabilities/` 下對應的 capability specs
 - WHEN delta-spec 有 MODIFIED 項目，THEN 引用 capability spec 現有行為作為 Before 欄位
+- WHEN ai-knowledge/modules/ 有 >= 2 模組且 README.md 存在，THEN 偵測為 Brownfield Mode
+- WHEN Brownfield Mode，THEN 自動合成 Technical Summary（受影響模組概覽 + 既有 Patterns + 架構約束）
+- WHEN Greenfield Mode，THEN 引導補償性 Technical Context 收集 + 建議建立 Knowledge
+- WHEN Phase 結尾，THEN 執行 Knowledge Quality Gate 驗證 context 載入完整性
 
 **新增來源**: redesign-spec-system (2026-02-15)
+**修改來源**: enhance-knowledge-sdd-pipeline (2026-02-16) — 新增 Brownfield/Greenfield 偵測 + Quality Gate
 
 ### REQ-TEMPLATES-034: Verify Skill Spec-Knowledge 一致性
 
@@ -283,6 +294,70 @@ Archive Skill 模板定義 5 個執行階段。
 - WHEN ai-knowledge 描述的功能在 capability spec 中沒有 requirement，THEN 報告 WARN
 
 **新增來源**: redesign-spec-system (2026-02-15)
+
+### ADDED in enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-040: Knowledge Quality Gate 表格
+
+5 個 Planning Skill template 在 Core Workflow 結尾新增 Knowledge Quality Gate 區段，使用 PASS/WARN/FAIL 三級狀態表格。
+
+**場景：**
+- WHEN 任何 Planning Skill 執行完畢，THEN 顯示 Knowledge Quality Gate 表格
+- WHEN 閘門檢查發現問題，THEN 以 WARN 格式輸出（不阻擋流程）
+- WHEN 每個 Skill 的閘門，THEN 檢查項目因階段而異（Story: Related Modules、Plan: Context Mode、Tasks: Architecture Layers）
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-041: Plan Brownfield/Greenfield 偵測
+
+`prospec-plan.hbs` 新增 Context Mode Detection，在載入 Knowledge 前判斷 Brownfield 或 Greenfield。
+
+**場景：**
+- WHEN ai-knowledge/modules/ 有 >= 2 模組且 README.md 存在，THEN 偵測為 Brownfield Mode
+- WHEN 模組不存在或 < 2，THEN 偵測為 Greenfield Mode
+- WHEN Greenfield Mode，THEN 建議執行 `prospec knowledge init` + `/prospec-knowledge-generate`
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-042: Plan Technical Summary（Brownfield）
+
+Brownfield Mode 下，引導 AI 從 module READMEs、_conventions.md 和 Constitution 合成 Technical Summary。
+
+**場景：**
+- WHEN Brownfield Mode，THEN plan.md 包含 Technical Summary（受影響模組概覽表 + 既有 Patterns + 架構約束）
+- WHEN _conventions.md 存在，THEN Patterns 區段列出 Service Pattern、Atomic Write、ContentMerger 等
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-043: Plan Technical Context（Greenfield）
+
+Greenfield Mode 下，引導 AI 執行補償性上下文收集。
+
+**場景：**
+- WHEN Greenfield Mode，THEN plan.md 包含 Technical Context（技術棧偵測 + 結構掃描 + 外部依賴 + [待補充]標記）
+- WHEN 專案有 package.json，THEN 從中推斷語言、框架和測試框架
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-044: plan-format.hbs Technical Summary 區段
+
+`plan-format.hbs` 新增 Section 2: Technical Summary（Context-Dependent），位於 Overview 和 Affected Modules 之間。
+
+**場景：**
+- WHEN plan-format 被引用，THEN 包含 Brownfield 和 Greenfield 兩種互斥格式
+- WHEN plan.md 產出，THEN 只包含其中一種格式
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
+
+### REQ-TEMPLATES-045: Verify Spec ↔ Knowledge 一致性強化
+
+`prospec-verify.hbs` 加入 Knowledge 過期偵測指引。
+
+**場景：**
+- WHEN ai-knowledge 描述的功能在 capability spec 中沒有 requirement，THEN WARN（undocumented feature）
+- WHEN 實作變更（delta-spec MODIFIED）但 module README 未更新，THEN WARN + 建議 `/prospec-knowledge-update`
+
+**新增來源**: enhance-knowledge-sdd-pipeline (2026-02-16)
 
 ### REQ-SPECS-001: specs/ 目錄雙層結構
 
@@ -322,3 +397,4 @@ Archive Skill 模板定義 5 個執行階段。
 | 2026-02-09 | add-archive-system | 新增歸檔生命週期階段 | REQ-TYPES-010, REQ-SERVICES-010, REQ-TEMPLATES-010 |
 | 2026-02-09 | add-knowledge-update | Archive 自動觸發 knowledge-update | REQ-SERVICES-010 |
 | 2026-02-15 | redesign-spec-system | INVEST proposal 格式、capability spec 格式、Spec Sync、specs/ 雙層結構、一致性驗證 | REQ-TEMPLATES-030~034, REQ-SPECS-001, REQ-TEMPLATES-010, REQ-CHNG-002, REQ-CHNG-006, REQ-CHNG-009 |
+| 2026-02-16 | enhance-knowledge-sdd-pipeline | Knowledge Quality Gate、Brownfield/Greenfield 偵測、Technical Summary、互動式 Knowledge Update | REQ-TEMPLATES-040~045, REQ-TEMPLATES-032, REQ-TEMPLATES-033, REQ-TEMPLATES-010 |
