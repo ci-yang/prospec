@@ -6,6 +6,7 @@ import {
   filterByStatus,
   moveToArchive,
   generateSummary,
+  archiveToSpecs,
   execute,
 } from '../../../src/services/archive.service.js';
 
@@ -291,5 +292,62 @@ Details.
 
     const result = await execute({ cwd: '/project', status: 'tasks' });
     expect(result.archived).toHaveLength(1);
+  });
+
+  it('should copy summary to specs directory when config exists', async () => {
+    vol.fromJSON({
+      '/project/.prospec.yaml': 'project:\n  name: test-project\npaths:\n  base_dir: prospec\n',
+      '/project/.prospec/changes/feat-a/metadata.yaml': 'name: feat-a\nstatus: verified\ncreated: "2026-01-01"\n',
+      '/project/.prospec/changes/feat-a/proposal.md': '# Proposal\n\n## User Story\n\nAs a dev, I want X.\n',
+    });
+
+    const result = await execute({ cwd: '/project' });
+
+    expect(result.specFiles).toHaveLength(1);
+    expect(result.specFiles[0]).toContain('/prospec/specs/feat-a.md');
+    expect(fs.existsSync(result.specFiles[0]!)).toBe(true);
+
+    const specContent = fs.readFileSync(result.specFiles[0]!, 'utf-8');
+    expect(specContent).toContain('feat-a');
+  });
+
+  it('should not fail archive when config is missing (no spec files)', async () => {
+    vol.fromJSON({
+      '/project/.prospec/changes/feat-a/metadata.yaml': 'name: feat-a\nstatus: verified\ncreated: "2026-01-01"\n',
+    });
+
+    const result = await execute({ cwd: '/project' });
+
+    expect(result.archived).toHaveLength(1);
+    expect(result.specFiles).toHaveLength(0);
+  });
+});
+
+// --- archiveToSpecs ---
+
+describe('archiveToSpecs', () => {
+  it('should write summary to specs directory', async () => {
+    vol.fromJSON({});
+    vol.mkdirSync('/project', { recursive: true });
+
+    const specFile = await archiveToSpecs(
+      '# feat-a Summary\n\nSome content.',
+      'feat-a',
+      '/project/prospec/specs',
+    );
+
+    expect(specFile).toBe('/project/prospec/specs/feat-a.md');
+    expect(fs.existsSync(specFile)).toBe(true);
+    const content = fs.readFileSync(specFile, 'utf-8');
+    expect(content).toContain('feat-a Summary');
+  });
+
+  it('should create specs directory if it does not exist', async () => {
+    vol.fromJSON({});
+    vol.mkdirSync('/project', { recursive: true });
+
+    await archiveToSpecs('content', 'feat-b', '/project/prospec/specs');
+
+    expect(fs.existsSync('/project/prospec/specs')).toBe(true);
   });
 });

@@ -99,8 +99,17 @@ The following module documentation may need updating:
 
 ---
 
+## Spec Archiving
+
+When a change is archived, its `summary.md` is also copied to `{{base_dir}}/specs/{change-name}.md`. This provides a **version-controlled** spec history that can be committed to the repository, unlike `.prospec/archive/` which is typically excluded via `.gitignore`.
+
+The spec file is identical to the archive summary — no additional formatting is applied.
+
+---
+
 ## Reference Information
 
 - Project name: `{{project_name}}`
 - AI Knowledge path: `{{knowledge_base_path}}`
 - Archive path: `.prospec/archive/`
+- Spec history path: `{{base_dir}}/specs/`

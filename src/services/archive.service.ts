@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { ensureDir, atomicWrite } from '../lib/fs-utils.js';
+import { readConfig, resolveBasePaths } from '../lib/config.js';
 import { parseYaml, stringifyYaml } from '../lib/yaml-utils.js';
 import type { ChangeStatus } from '../types/change.js';
 import { ScanError, WriteError } from '../types/errors.js';
@@ -29,6 +30,7 @@ export interface ArchiveResult {
   skipped: string[];
   affectedModules: string[];
   knowledgeUpdated: boolean;
+  specFiles: string[];
 }
 
 export interface ArchivedChange {
@@ -216,6 +218,20 @@ ${reqTable}
 }
 
 /**
+ * Write summary content to {specsPath}/{changeName}.md for version-controlled spec history.
+ */
+export async function archiveToSpecs(
+  summaryContent: string,
+  changeName: string,
+  specsPath: string,
+): Promise<string> {
+  await ensureDir(specsPath);
+  const specFile = path.join(specsPath, `${changeName}.md`);
+  await atomicWrite(specFile, summaryContent);
+  return specFile;
+}
+
+/**
  * Main archive execution flow.
  */
 export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
@@ -236,6 +252,17 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
   const archived: ArchivedChange[] = [];
   const skipped: string[] = [];
   const allAffectedModules = new Set<string>();
+  const specFiles: string[] = [];
+
+  // Resolve specsPath from config (non-fatal if config is missing)
+  let specsPath: string | null = null;
+  try {
+    const config = await readConfig(cwd);
+    const basePaths = resolveBasePaths(config, cwd);
+    specsPath = basePaths.specsPath;
+  } catch {
+    // Config not available — skip spec archiving
+  }
 
   for (const change of candidates) {
     try {
@@ -246,6 +273,7 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
 
       // Generate summary
       let summaryGenerated = false;
+      let summaryContent: string | null = null;
       try {
         const { content, affectedModules } = await generateSummary(
           archiveDir,
@@ -255,9 +283,20 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
         const summaryPath = path.join(archiveDir, 'summary.md');
         await atomicWrite(summaryPath, content);
         summaryGenerated = true;
+        summaryContent = content;
         affectedModules.forEach((m) => allAffectedModules.add(m));
       } catch {
         // Summary generation failure is non-fatal
+      }
+
+      // Copy summary to specs directory for version-controlled history (non-fatal)
+      if (summaryContent && specsPath) {
+        try {
+          const specFile = await archiveToSpecs(summaryContent, change.name, specsPath);
+          specFiles.push(specFile);
+        } catch {
+          // Spec archiving failure is non-fatal
+        }
       }
 
       // Update metadata to archived
@@ -302,6 +341,7 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
     skipped,
     affectedModules: [...allAffectedModules],
     knowledgeUpdated,
+    specFiles,
   };
 }
 
