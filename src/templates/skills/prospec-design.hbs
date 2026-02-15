@@ -26,6 +26,7 @@ When triggered, briefly describe in the user's language:
    - penpot → [`references/adapter-penpot.md`](references/adapter-penpot.md)
    - html → [`references/adapter-html.md`](references/adapter-html.md)
    - If not set → default to `html` adapter (zero-dependency fallback)
+   - **Do NOT load** adapters for platforms not in use — only load the one matching `design.platform`
 
 ## Core Workflow
 
@@ -47,7 +48,7 @@ When triggered, briefly describe in the user's language:
 
 Produce design specs from proposal.md:
 
-1. **Visual Identity** — Define color palette, typography, spacing scale, visual style based on proposal requirements and project conventions
+1. **Visual Identity** — First check if the project has an existing design system, brand guidelines, or design tokens (in `_conventions.md`, `design-spec.md` from prior changes, or project CSS variables). Extend existing patterns rather than creating from scratch. Then define color palette, typography, spacing scale, visual style based on proposal requirements and project conventions
 2. **Components** — For each UI element in the proposal:
    - Define layout structure (flex/grid, dimensions)
    - Define all visual states (default, hover, active, disabled, loading, error)
@@ -112,13 +113,13 @@ Suggest: `/prospec-plan` (if plan.md doesn't exist) or `/prospec-tasks` (if plan
 
 ## NEVER
 
-- **NEVER** include platform-specific references in design-spec.md — spec must be platform-agnostic
-- **NEVER** skip user confirmation on detected mode — always confirm Generate vs Extract
-- **NEVER** hardcode color values without defining tokens — use design token names
-- **NEVER** skip interaction states — every interactive component needs states defined
-- **NEVER** proceed with `ui_scope: none` — inform user and exit gracefully
-- **NEVER** generate design specs without reading the adapter reference — adapter guides platform execution
-- **NEVER** leave `[NEEDS CLARIFICATION]` unresolved — user must confirm or remove before Phase 4
+- **NEVER** include platform-specific references in design-spec.md — downstream Implement/Verify Skills read spec not tools; platform refs break portability
+- **NEVER** skip user confirmation on detected mode — wrong mode wastes entire phase; Generate overwrites existing design, Extract on empty tool produces garbage
+- **NEVER** hardcode color values without defining tokens — tokens enable consistent theming and design system reuse across components
+- **NEVER** skip interaction states — incomplete states cause runtime visual bugs (missing loading/error/empty states are the #1 UI implementation gap)
+- **NEVER** proceed with `ui_scope: none` — Design Phase has no value for backend-only changes; wasted tokens and user confusion
+- **NEVER** generate design specs without reading the adapter reference — each platform has unique MCP tools and capabilities; blind generation produces unusable specs
+- **NEVER** leave `[NEEDS CLARIFICATION]` unresolved — unresolved items propagate ambiguity to Tasks and Implement, causing inconsistent UI implementation
 
 ## Error Handling
 
@@ -128,6 +129,6 @@ Suggest: `/prospec-plan` (if plan.md doesn't exist) or `/prospec-tasks` (if plan
 | No `UI Scope` in proposal | Assume `full` and confirm with user |
 | `design.platform` not in .prospec.yaml | Default to `html` adapter, inform user |
 | MCP tool unavailable for platform | Fall back to `html` adapter, warn user |
-| Extract Mode yields mostly `[NEEDS CLARIFICATION]` | Suggest switching to Generate Mode |
+| Extract Mode yields >50% `[NEEDS CLARIFICATION]` items | Suggest switching to Generate Mode — extraction source lacks sufficient design detail |
 
 All generated files must be written in English.

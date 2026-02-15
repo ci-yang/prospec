@@ -38,13 +38,14 @@ For each change to archive:
 1. Read `proposal.md` — extract User Story and acceptance criteria
 2. Read `delta-spec.md` — extract REQ IDs and affected modules
 3. Read `tasks.md` — calculate completion rate
-4. Generate `summary.md` following `references/archive-format.md` specification
+4. Check for `design-spec.md` and `interaction-spec.md` — if present, note design artifacts in summary
+5. Generate `summary.md` following `references/archive-format.md` specification
 
 ### Phase 3: Execute Archive
 
 For each confirmed change:
 1. Create `.prospec/archive/{YYYY-MM-DD}-{change-name}/`
-2. Move all artifacts (proposal.md, plan.md, delta-spec.md, tasks.md, metadata.yaml)
+2. Move all artifacts (proposal.md, plan.md, delta-spec.md, tasks.md, metadata.yaml, and design-spec.md + interaction-spec.md if present)
 3. Place generated summary.md in archive directory
 4. Update `metadata.yaml` to `status: archived`
 5. Copy summary.md to `{base_dir}/specs/history/{change-name}.md` for version-controlled history
@@ -83,13 +84,13 @@ After archiving, identify and prompt for Knowledge update:
 
 ## NEVER
 
-- **NEVER** archive without user confirmation — always display targets and wait for approval
-- **NEVER** archive changes with `status: story` or `status: plan` — these are incomplete planning phases
-- **NEVER** skip summary.md generation — every archived change must have a summary
-- **NEVER** delete original files instead of moving — archive is a move operation, not delete
-- **NEVER** modify the content of artifacts during archive — only move files and generate summary
-- **NEVER** let Knowledge update failure block archiving — update is non-fatal
-- **NEVER** archive without reading delta-spec.md — affected modules must be identified
+- **NEVER** archive without user confirmation — accidental archiving moves active work out of changes/; recovery requires manual file moves
+- **NEVER** archive changes with `status: story` or `status: plan` — incomplete planning phases lack delta-spec and tasks, producing meaningless summaries and broken Spec Sync
+- **NEVER** skip summary.md generation — summary is the permanent record in specs/history/; without it, the change has no version-controlled audit trail
+- **NEVER** delete original files instead of moving — deletion is irreversible; archive preserves all artifacts for future reference and debugging
+- **NEVER** modify the content of artifacts during archive — artifacts are the historical record; any modification falsifies the development history
+- **NEVER** let Knowledge update failure block archiving — Knowledge can always be updated later via `/prospec-knowledge-update`; blocking archiving risks losing verified state
+- **NEVER** archive without reading delta-spec.md — affected modules drive both Spec Sync and Knowledge Update; skipping produces orphaned requirements
 
 ## Error Handling
 

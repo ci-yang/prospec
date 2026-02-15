@@ -86,7 +86,7 @@ When applicable, verify implementation matches design specifications:
 
 **Visual Spec Compliance:**
 - Read `design-spec.md` component definitions
-- Use platform adapter's Verify Phase guidelines to compare design tool values with implementation
+- Use platform adapter's Verify Phase guidelines to read precise values from design tool via MCP — MCP measurements are more accurate than markdown spec descriptions for visual properties
 - Check: color tokens, spacing, typography, component structure
 
 **Interaction Spec Compliance:**
@@ -133,13 +133,13 @@ WARN items are deployment risks — recommend resolving before `/prospec-archive
 
 ## NEVER
 
-- **NEVER** only spot-check the Constitution — Verify must check every principle (this is its core distinction)
-- **NEVER** give PASS without supporting evidence — every assessment must cite specific code or documents
-- **NEVER** give FAIL without remediation steps — failures must include actionable fix steps
-- **NEVER** skip any verification dimension — all 5 core verifications are required; dimension 6 (design) is required when ui_scope != none
-- **NEVER** continue verification when planning documents are missing — confirm document completeness first
-- **NEVER** make subjective assessments — all judgments must be based on verifiable evidence
-- **NEVER** ignore FAIL items and give "ready to deploy" — FAIL items are deployment blockers
+- **NEVER** only spot-check the Constitution — Verify's core distinction from other Skills is full audit; spot-checking defeats the purpose of a dedicated verification phase
+- **NEVER** give PASS without supporting evidence — unsubstantiated PASS creates false confidence; evidence ensures the assessment is reproducible
+- **NEVER** give FAIL without remediation steps — a FAIL without fix guidance blocks the user; they need actionable next steps to resolve
+- **NEVER** skip any verification dimension — each dimension catches different defect classes; skipping one leaves a blind spot in quality assurance
+- **NEVER** continue verification when planning documents are missing — verifying against incomplete specs produces meaningless results and wastes tokens
+- **NEVER** make subjective assessments — subjective grades vary between sessions; evidence-based scoring ensures consistency across verifications
+- **NEVER** ignore FAIL items and give "ready to deploy" — FAIL items represent unmet specifications that will surface as production bugs
 
 ## Error Handling
 

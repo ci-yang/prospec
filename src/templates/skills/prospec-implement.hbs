@@ -94,13 +94,13 @@ WARN items do not block — document reasoning in task completion notes.
 
 ## NEVER
 
-- **NEVER** skip tasks to work on later ones — unless earlier tasks have a clear blocker
-- **NEVER** start implementation without tasks.md — guide user to run `/prospec-tasks` first
-- **NEVER** load all module AI Knowledge at once — only load modules relevant to current task
-- **NEVER** forget to mark task completion — update `[x]` immediately after each task
-- **NEVER** deviate from delta-spec.md specifications without documenting — explain the reason first if adjustment needed
-- **NEVER** skip quality check before marking complete — at minimum confirm type safety and spec compliance
-- **NEVER** forget to suggest `/prospec-verify` when all tasks are complete
+- **NEVER** skip tasks to work on later ones — architecture layers have dependency direction; skipping causes missing imports, undefined types, or broken contracts
+- **NEVER** start implementation without tasks.md — coding without task structure produces scattered changes that fail Verify's spec compliance check
+- **NEVER** load all module AI Knowledge at once — wastes context window tokens; a 6-module project loads ~3000 tokens unnecessarily when only 1 module is relevant
+- **NEVER** forget to mark task completion — unchecked tasks cause Verify to report false incomplete status; also breaks progress tracking for user
+- **NEVER** deviate from delta-spec.md specifications without documenting — undocumented deviations cause Verify FAIL and capability spec inconsistency
+- **NEVER** skip quality check before marking complete — unmarked type errors and spec mismatches compound across tasks, making late fixes exponentially harder
+- **NEVER** forget to suggest `/prospec-verify` when all tasks are complete — users may skip verification and proceed to archive, missing quality issues
 
 ## Error Handling
 

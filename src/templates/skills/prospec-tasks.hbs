@@ -85,14 +85,14 @@ Suggest: `/prospec-implement` or manual review.
 
 ## NEVER
 
-- **NEVER** produce more than 30 tasks — too many means Story scope is too large, suggest splitting
-- **NEVER** create overly fine-grained tasks (<10 lines) — merge similar micro-tasks
-- **NEVER** create overly coarse tasks (>200 lines) — split into verifiable steps
-- **NEVER** forget to update metadata.yaml status to `tasks`
-- **NEVER** start decomposition without plan.md — guide user to run `/prospec-plan` first
-- **NEVER** skip test tasks — every new module must have corresponding tests
-- **NEVER** forget to mark `[P]` — parallelization info is critical for implementation efficiency
-- **NEVER** use S/M/L complexity markers — use `~{lines} lines` format (per tasks-format.md)
+- **NEVER** produce more than 30 tasks — indicates Story scope creep; large task lists overwhelm AI context and lose coherence
+- **NEVER** create overly fine-grained tasks (<10 lines) — micro-tasks inflate task count and add checkbox overhead without meaningful progress tracking
+- **NEVER** create overly coarse tasks (>200 lines) — unverifiable; if a 200-line task fails, the entire block must be debugged and reworked
+- **NEVER** forget to update metadata.yaml status to `tasks` — downstream Skills check status to determine workflow stage
+- **NEVER** start decomposition without plan.md — tasks without architecture context produce random file edits instead of layered implementation
+- **NEVER** skip test tasks — Constitution requires test coverage; untested modules are deployment blockers in Verify phase
+- **NEVER** forget to mark `[P]` — Implement Skill uses this to suggest parallel developer assignment; missing markers force sequential execution
+- **NEVER** use S/M/L complexity markers — `~{lines} lines` provides actionable estimates for progress tracking and commit sizing
 
 ## Error Handling
 
