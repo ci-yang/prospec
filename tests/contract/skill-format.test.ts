@@ -84,6 +84,12 @@ describe('Skill Format Contract', () => {
       'archive-format.hbs',
       'knowledge-update-format.hbs',
       'capability-spec-format.hbs',
+      'design-spec-format.hbs',
+      'interaction-spec-format.hbs',
+      'adapter-pencil.hbs',
+      'adapter-figma.hbs',
+      'adapter-penpot.hbs',
+      'adapter-html.hbs',
     ];
 
     for (const ref of REFERENCE_TEMPLATES) {
@@ -99,8 +105,8 @@ describe('Skill Format Contract', () => {
   });
 
   describe('Skill definitions', () => {
-    it('should have 10 skill definitions', () => {
-      expect(SKILL_DEFINITIONS).toHaveLength(10);
+    it('should have 11 skill definitions', () => {
+      expect(SKILL_DEFINITIONS).toHaveLength(11);
     });
 
     it('should include all expected skill names', () => {
@@ -108,6 +114,7 @@ describe('Skill Format Contract', () => {
       expect(names).toContain('prospec-explore');
       expect(names).toContain('prospec-new-story');
       expect(names).toContain('prospec-plan');
+      expect(names).toContain('prospec-design');
       expect(names).toContain('prospec-tasks');
       expect(names).toContain('prospec-ff');
       expect(names).toContain('prospec-implement');
@@ -132,6 +139,7 @@ describe('Skill Format Contract', () => {
       const refSkillNames = skillsWithRefs.map((s) => s.name);
       expect(refSkillNames).toContain('prospec-new-story');
       expect(refSkillNames).toContain('prospec-plan');
+      expect(refSkillNames).toContain('prospec-design');
       expect(refSkillNames).toContain('prospec-tasks');
       expect(refSkillNames).toContain('prospec-implement');
       expect(refSkillNames).toContain('prospec-knowledge-generate');
@@ -277,6 +285,154 @@ describe('Skill Format Contract', () => {
       );
       expect(content).toContain('>= 2 modules');
       expect(content).toContain('README.md');
+    });
+  });
+
+  describe('prospec-design Skill structure', () => {
+    it('should contain Generate Mode and Extract Mode', () => {
+      const content = renderTemplate(
+        'skills/prospec-design.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Generate Mode');
+      expect(content).toContain('Extract Mode');
+    });
+
+    it('should contain NEVER list', () => {
+      const content = renderTemplate(
+        'skills/prospec-design.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('## NEVER');
+      expect(content).toContain('NEVER');
+    });
+
+    it('should contain YAML frontmatter with design triggers', () => {
+      const content = renderTemplate(
+        'skills/prospec-design.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      const frontmatter = extractFrontmatter(content);
+      expect(frontmatter).toContain('name: prospec-design');
+      expect(frontmatter).toContain('設計');
+      expect(frontmatter).toContain('Design Phase');
+    });
+
+    it('should reference platform adapters', () => {
+      const content = renderTemplate(
+        'skills/prospec-design.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('adapter-pencil');
+      expect(content).toContain('adapter-figma');
+      expect(content).toContain('adapter-penpot');
+      expect(content).toContain('adapter-html');
+    });
+  });
+
+  describe('Design spec format structure', () => {
+    it('should contain Visual Identity, Components, and Responsive Strategy', () => {
+      const content = renderTemplate(
+        'skills/references/design-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Visual Identity');
+      expect(content).toContain('Components');
+      expect(content).toContain('Responsive Strategy');
+    });
+
+    it('should contain design token examples', () => {
+      const content = renderTemplate(
+        'skills/references/design-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Token');
+      expect(content).toContain('States');
+    });
+  });
+
+  describe('Interaction spec format structure', () => {
+    it('should contain States, Transitions, and Flows', () => {
+      const content = renderTemplate(
+        'skills/references/interaction-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('States');
+      expect(content).toContain('Transitions');
+      expect(content).toContain('Flows');
+    });
+
+    it('should mark DSL as draft', () => {
+      const content = renderTemplate(
+        'skills/references/interaction-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('draft');
+    });
+  });
+
+  describe('Platform adapter structure', () => {
+    const ADAPTERS = [
+      'adapter-pencil.hbs',
+      'adapter-figma.hbs',
+      'adapter-penpot.hbs',
+      'adapter-html.hbs',
+    ];
+
+    for (const adapter of ADAPTERS) {
+      describe(adapter, () => {
+        it('should contain Design Phase, Implement Phase, and Verify Phase', () => {
+          const content = renderTemplate(
+            `skills/references/${adapter}`,
+            TEMPLATE_CONTEXT,
+          );
+          expect(content).toContain('Design Phase');
+          expect(content).toContain('Implement Phase');
+          expect(content).toContain('Verify Phase');
+        });
+      });
+    }
+  });
+
+  describe('Modified templates — design integration', () => {
+    it('prospec-implement should reference design-spec loading', () => {
+      const content = renderTemplate(
+        'skills/prospec-implement.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('design-spec.md');
+      expect(content).toContain('interaction-spec.md');
+      expect(content).toContain('MCP');
+    });
+
+    it('prospec-verify should contain design consistency dimension', () => {
+      const content = renderTemplate(
+        'skills/prospec-verify.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Design Consistency');
+      expect(content).toContain('Visual Spec Compliance');
+      expect(content).toContain('Interaction Spec Compliance');
+    });
+
+    it('prospec-tasks should reference design-spec in Startup Loading', () => {
+      const content = renderTemplate(
+        'skills/prospec-tasks.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('design-spec.md');
+      expect(content).toContain('adapter MCP');
+    });
+
+    it('proposal-format should contain UI Scope section', () => {
+      const content = renderTemplate(
+        'skills/references/proposal-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('UI Scope');
+      expect(content).toContain('full');
+      expect(content).toContain('partial');
+      expect(content).toContain('none');
     });
   });
 

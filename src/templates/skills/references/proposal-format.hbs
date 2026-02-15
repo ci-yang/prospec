@@ -133,6 +133,26 @@ Quick verification against project principles:
 
 ---
 
+### 9. UI Scope (Optional)
+
+Indicate the extent of UI work in this Story. Used by the **prospec-design** Skill to determine the design workflow.
+
+```markdown
+## UI Scope
+
+**Scope:** full | partial | none
+```
+
+| Option | When to Use |
+|--------|------------|
+| `full` | Story involves complete screens or pages with layout, components, and interactions |
+| `partial` | Story modifies existing UI elements (e.g., adding a button, tweaking a form) |
+| `none` | Story is backend-only, CLI-only, or has no visual component |
+
+**This section is optional.** If omitted, the design Skill will assume `full` and confirm with the user. Existing proposals without this section are unaffected.
+
+---
+
 ## File Length Guidelines
 
 - Keep under **150 lines**

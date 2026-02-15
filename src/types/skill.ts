@@ -52,7 +52,7 @@ export interface AgentConfig {
 export type AgentFormat = 'skills-dir' | 'instructions';
 
 /**
- * Predefined Skill definitions (10 Skills).
+ * Predefined Skill definitions (11 Skills).
  */
 export const SKILL_DEFINITIONS: SkillConfig[] = [
   {
@@ -73,6 +73,12 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
     description: '基於變更需求生成實作計劃。讀取 proposal.md、相關模組的 AI Knowledge 和 Constitution，產出結構化的 plan.md 和 delta-spec.md。',
     type: 'Planning',
     cliDependency: 'prospec change plan',
+    hasReferences: true,
+  },
+  {
+    name: 'prospec-design',
+    description: '設計階段 — 從 proposal 產出視覺與互動規格（Generate Mode），或從設計工具反向萃取規格（Extract Mode）。支援 pencil/Figma/Penpot/HTML 平台。Design phase, UI/UX specification generation and extraction.',
+    type: 'Planning',
     hasReferences: true,
   },
   {

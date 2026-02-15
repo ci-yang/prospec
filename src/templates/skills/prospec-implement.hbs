@@ -42,10 +42,19 @@ Extract architecture design and technical decisions related to current task from
 Extract file specifications for current task from delta-spec.md.
 Load relevant module AI Knowledge (Layer 2).
 
+**For UI tasks** (when design-spec.md exists):
+1. Read `.prospec/changes/[name]/design-spec.md` — identify component structure, tokens, states
+2. Read `.prospec/changes/[name]/interaction-spec.md` — understand interaction flows and transitions
+3. Read the platform adapter reference (based on `.prospec.yaml` → `design.platform`) — understand MCP tool usage for reading design data
+4. If design-spec.md does NOT exist for a UI task → warn user: "No design spec found. UI implementation will rely on proposal.md descriptions only. Consider running `/prospec-design` first."
+
 ### Phase 3: Execute Implementation
 
 Implement code based on delta-spec specifications and module design patterns.
 Follow `{{knowledge_base_path}}/_conventions.md` patterns: Service `execute()`, `atomicWrite()` for file operations, `ContentMerger` for preserving user sections.
+
+**For UI tasks — MCP-first approach:**
+Before writing any UI code, use the platform adapter's Implement Phase guidelines to read precise design values from the design tool via MCP (exact colors, spacing, font sizes, component structure). MCP-read values are more precise than design-spec.md markdown descriptions — always prefer MCP data for visual properties. Use design-spec.md as the structural blueprint, and MCP as the measurement source.
 
 ### Phase 4: Verify Implementation
 

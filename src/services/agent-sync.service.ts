@@ -305,6 +305,38 @@ function getSkillReferences(skillName: string): SkillReference[] {
         title: 'Delta Spec Format',
       },
     ],
+    'prospec-design': [
+      {
+        templateName: 'design-spec-format.hbs',
+        outputName: 'design-spec-format.md',
+        title: 'Design Spec Format',
+      },
+      {
+        templateName: 'interaction-spec-format.hbs',
+        outputName: 'interaction-spec-format.md',
+        title: 'Interaction Spec Format',
+      },
+      {
+        templateName: 'adapter-pencil.hbs',
+        outputName: 'adapter-pencil.md',
+        title: 'Platform Adapter: pencil.dev',
+      },
+      {
+        templateName: 'adapter-figma.hbs',
+        outputName: 'adapter-figma.md',
+        title: 'Platform Adapter: Figma',
+      },
+      {
+        templateName: 'adapter-penpot.hbs',
+        outputName: 'adapter-penpot.md',
+        title: 'Platform Adapter: Penpot',
+      },
+      {
+        templateName: 'adapter-html.hbs',
+        outputName: 'adapter-html.md',
+        title: 'Platform Adapter: HTML',
+      },
+    ],
     'prospec-tasks': [
       {
         templateName: 'tasks-format.hbs',

@@ -1,6 +1,6 @@
 ---
 name: prospec-verify
-description: "Verify Implementation | 驗證實作 - Run 5-dimension audit (tasks, spec compliance, constitution, spec↔knowledge consistency, tests) and assign quality grade (S/A/B/C/D). Triggers: verify, check, audit, quality, done, grade, 驗證, 檢查, 品質, 做完了, 評分"
+description: "Verify Implementation | 驗證實作 - Run 5+1 dimension audit (tasks, spec compliance, constitution, spec↔knowledge consistency, tests, design consistency) and assign quality grade (S/A/B/C/D). Triggers: verify, check, audit, quality, done, grade, 驗證, 檢查, 品質, 做完了, 評分"
 ---
 
 # Prospec Verify Skill
@@ -9,7 +9,7 @@ description: "Verify Implementation | 驗證實作 - Run 5-dimension audit (task
 
 When triggered, briefly describe in the user's language:
 - That you'll perform a comprehensive audit of the implementation
-- All 5 verification dimensions will be checked (task completion, spec compliance, Constitution full audit, Spec ↔ Knowledge consistency, tests)
+- All 5+1 verification dimensions will be checked (task completion, spec compliance, Constitution full audit, Spec ↔ Knowledge consistency, tests, and design consistency if UI scope applies)
 - A quality grade (S/A/B/C/D) with deployment recommendation will be provided
 
 ## Startup Loading
@@ -78,6 +78,30 @@ If capability specs don't exist yet, skip this dimension with a note.
 
 Check if test files exist, suggest test execution commands.
 
+### Verification 6 (Conditional): Design Consistency
+
+**Skip this dimension if:** proposal.md has `ui_scope: none`, or no `design-spec.md` exists.
+
+When applicable, verify implementation matches design specifications:
+
+**Visual Spec Compliance:**
+- Read `design-spec.md` component definitions
+- Use platform adapter's Verify Phase guidelines to compare design tool values with implementation
+- Check: color tokens, spacing, typography, component structure
+
+**Interaction Spec Compliance:**
+- Read `interaction-spec.md` flow definitions
+- Verify: screen states exist, transitions are implemented, gestures work as specified
+- Check: error states, loading states, empty states are all handled
+
+Mark each component PASS / WARN / FAIL:
+
+```
+| Component | Visual | Interaction | Status |
+|-----------|--------|-------------|--------|
+| [Name] | [match/mismatch details] | [match/mismatch details] | PASS/WARN/FAIL |
+```
+
 ## Report Format
 
 ```
@@ -112,7 +136,7 @@ WARN items are deployment risks — recommend resolving before `/prospec-archive
 - **NEVER** only spot-check the Constitution — Verify must check every principle (this is its core distinction)
 - **NEVER** give PASS without supporting evidence — every assessment must cite specific code or documents
 - **NEVER** give FAIL without remediation steps — failures must include actionable fix steps
-- **NEVER** skip any verification dimension — all 5 verifications are required
+- **NEVER** skip any verification dimension — all 5 core verifications are required; dimension 6 (design) is required when ui_scope != none
 - **NEVER** continue verification when planning documents are missing — confirm document completeness first
 - **NEVER** make subjective assessments — all judgments must be based on verifiable evidence
 - **NEVER** ignore FAIL items and give "ready to deploy" — FAIL items are deployment blockers

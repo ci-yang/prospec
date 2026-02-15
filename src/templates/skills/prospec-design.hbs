@@ -1,0 +1,133 @@
+---
+name: prospec-design
+description: "Design Phase | 設計階段 - Generate visual and interaction specs from proposal (Generate Mode) or extract specs from existing design tools (Extract Mode). Supports pencil/Figma/Penpot/HTML platforms. Triggers: design, UI spec, 設計, 視覺規格, 互動規格, generate design, extract design"
+---
+
+# Prospec Design Skill
+
+## Activation
+
+When triggered, briefly describe in the user's language:
+- That you'll read proposal.md and determine the design workflow mode
+- Generate Mode: produce design-spec.md + interaction-spec.md from proposal
+- Extract Mode: reverse-extract specs from an existing design tool via MCP
+- Platform adapter will guide tool-specific operations
+
+## Startup Loading
+
+1. Read `.prospec/changes/[name]/proposal.md` — parse UI Scope and User Stories
+2. Read `.prospec.yaml` — check `design.platform` setting (pencil|figma|penpot|html)
+3. Read `{{constitution_path}}` — prepare Constitution check
+4. **MANDATORY** — Read [`references/design-spec-format.md`](references/design-spec-format.md) for design-spec.md format
+5. **MANDATORY** — Read [`references/interaction-spec-format.md`](references/interaction-spec-format.md) for interaction-spec.md format
+6. Load the platform adapter reference based on `design.platform`:
+   - pencil → [`references/adapter-pencil.md`](references/adapter-pencil.md)
+   - figma → [`references/adapter-figma.md`](references/adapter-figma.md)
+   - penpot → [`references/adapter-penpot.md`](references/adapter-penpot.md)
+   - html → [`references/adapter-html.md`](references/adapter-html.md)
+   - If not set → default to `html` adapter (zero-dependency fallback)
+
+## Core Workflow
+
+### Phase 1: Parse Proposal + Detect Mode
+
+1. Extract `UI Scope` from proposal.md (full/partial/none)
+   - If `none` → inform user Design Phase is not needed, suggest `/prospec-tasks`
+2. Detect mode:
+
+| Condition | Mode |
+|-----------|------|
+| `.prospec/changes/[name]/design-spec.md` already exists | **Extract Mode** |
+| Design tool has existing design for this Story (check via adapter) | **Extract Mode** |
+| Otherwise | **Generate Mode** |
+
+3. Confirm detected mode with user before proceeding.
+
+### Phase 2a: Generate Mode
+
+Produce design specs from proposal.md:
+
+1. **Visual Identity** — Define color palette, typography, spacing scale, visual style based on proposal requirements and project conventions
+2. **Components** — For each UI element in the proposal:
+   - Define layout structure (flex/grid, dimensions)
+   - Define all visual states (default, hover, active, disabled, loading, error)
+   - Assign design tokens
+3. **Interaction Flows** — For each User Story:
+   - Define screen states and transitions
+   - Write trigger → action flow sequences
+   - Document gestures and micro-interactions
+4. **Responsive Strategy** — Define breakpoints and layout adaptations
+
+Write `design-spec.md` and `interaction-spec.md` following their format references.
+
+### Phase 2b: Extract Mode
+
+Reverse-extract specs from existing design:
+
+1. **Read design** — Use adapter's Implement Phase guidelines to read design tool via MCP
+2. **Map to spec structure** — Convert tool-specific data to design-spec.md format:
+   - Extract colors, typography, spacing → Visual Identity
+   - Extract component structure, states → Components
+   - Infer responsive rules → Responsive Strategy
+3. **Identify gaps** — Mark unclear design intent with `[NEEDS CLARIFICATION]`
+4. **Generate interaction-spec.md** — Infer interaction flows from design structure; mark uncertain transitions with `[NEEDS CLARIFICATION]`
+5. **User review** — Present extracted specs for user validation, resolve `[NEEDS CLARIFICATION]` items
+
+### Phase 3: Platform Execution
+
+Follow the loaded adapter's **Design Phase** guidelines:
+
+| Platform | Key Actions |
+|----------|------------|
+| pencil | `batch_design()` to create components, `set_variables()` for design tokens |
+| figma | Generate HTML prototype, push via `html-to-figma` MCP |
+| penpot | Use Penpot API to create design components |
+| html | Output HTML + CSS prototype to `design.output_dir` |
+
+Skip this phase if:
+- Generate Mode and user only wants spec documents (no design tool output)
+- Platform is not configured
+
+### Phase 4: Design Verification
+
+Validate the design output:
+
+1. **Structure check** — Verify design-spec.md has all required sections (Visual Identity, Components, Responsive Strategy)
+2. **Completeness check** — Verify every component in proposal's UI scope has a corresponding entry
+3. **Visual check** (if design tool used) — Use adapter's Verify Phase guidelines:
+   - pencil: `get_screenshot()` to capture and review
+   - figma: Compare Figma nodes with spec
+   - html: Open prototype in browser
+4. **No `[NEEDS CLARIFICATION]` remaining** — All items must be resolved
+
+### Phase 5: Summary + Next Steps
+
+Display completion summary:
+- Mode used (Generate/Extract)
+- Files created (design-spec.md, interaction-spec.md)
+- Platform artifacts (if any)
+- Unresolved items (if any)
+
+Suggest: `/prospec-plan` (if plan.md doesn't exist) or `/prospec-tasks` (if plan.md exists)
+
+## NEVER
+
+- **NEVER** include platform-specific references in design-spec.md — spec must be platform-agnostic
+- **NEVER** skip user confirmation on detected mode — always confirm Generate vs Extract
+- **NEVER** hardcode color values without defining tokens — use design token names
+- **NEVER** skip interaction states — every interactive component needs states defined
+- **NEVER** proceed with `ui_scope: none` — inform user and exit gracefully
+- **NEVER** generate design specs without reading the adapter reference — adapter guides platform execution
+- **NEVER** leave `[NEEDS CLARIFICATION]` unresolved — user must confirm or remove before Phase 4
+
+## Error Handling
+
+| Scenario | Action |
+|----------|--------|
+| proposal.md not found | Guide user to run `/prospec-new-story` first |
+| No `UI Scope` in proposal | Assume `full` and confirm with user |
+| `design.platform` not in .prospec.yaml | Default to `html` adapter, inform user |
+| MCP tool unavailable for platform | Fall back to `html` adapter, warn user |
+| Extract Mode yields mostly `[NEEDS CLARIFICATION]` | Suggest switching to Generate Mode |
+
+All generated files must be written in English.
