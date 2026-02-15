@@ -1,65 +1,177 @@
 # agent-sync — Capability Spec
 
-## Overview
+## 概述
 
-The Agent Sync capability detects installed AI CLI tools and generates appropriate configuration files (CLAUDE.md, GEMINI.md, AGENTS.md, skills) so that AI agents can work within the Prospec SDD framework.
+Agent Sync 能力偵測已安裝的 AI CLI 工具，並生成對應的配置檔（CLAUDE.md、GEMINI.md、AGENTS.md）和 SDD Skill 檔案，讓 AI agent 能在 Prospec SDD 框架內工作。採用三層 Progressive Disclosure 設計節省 token。
 
-**Status**: Active
-**Last Updated**: 2026-02-15
-**Modules**: services (agent-sync), lib (agent-detector), templates (agent-configs, skills)
+**狀態**: Active
+**最後更新**: 2026-02-15
+**相關模組**: services (agent-sync), lib (agent-detector), templates (agent-configs, skills), types (skill)
 
-## Requirements
+## 需求規格
 
-### REQ-AGNT-001: Detect Installed CLIs
+### 偵測與配置
 
-Auto-detect which AI CLI tools are installed on the system.
+### REQ-AGNT-001: 偵測已安裝的 AI CLI
 
-**Scenarios:**
-- WHEN `~/.claude` exists, THEN detect Claude Code
-- WHEN `~/.gemini` exists, THEN detect Gemini CLI
-- WHEN `--cli claude` is specified, THEN only process Claude Code
+讀取 `.prospec.yaml` 取得啟用的 agent，自動偵測系統上已安裝的 AI CLI 工具。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN `~/.claude` 存在，THEN 偵測到 Claude Code
+- WHEN `~/.gemini` 存在，THEN 偵測到 Gemini CLI
+- WHEN `--cli claude` 指定，THEN 只處理 Claude Code 配置
+- WHEN 沒有偵測到任何已安裝的 AI CLI，THEN 顯示支援的 CLI 清單並提示安裝方式
 
-### REQ-AGNT-003: Generate Claude Code CLAUDE.md
+**新增來源**: mvp-initial (2026-02-04)
 
-Generate a concise CLAUDE.md in project root with AI Knowledge location and Constitution reference.
+### REQ-AGNT-002: 自動偵測 AI CLI
 
-**Scenarios:**
-- WHEN agent sync runs, THEN CLAUDE.md is generated at project root
-- WHEN CLAUDE.md content is checked, THEN it contains Knowledge path and available Skills
+檢查系統目錄偵測已安裝的 AI CLI。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN 偵測 Claude Code，THEN 檢查 `~/.claude` 目錄是否存在
+- WHEN 偵測 Gemini CLI，THEN 檢查 `~/.gemini` 目錄是否存在
+- WHEN 偵測 Copilot CLI，THEN 檢查 `~/.copilot` 目錄是否存在
+- WHEN 偵測 Codex CLI，THEN 檢查 `~/.codex` 目錄是否存在
 
-### REQ-AGNT-004: Generate SDD Skills
+**新增來源**: mvp-initial (2026-02-04)
 
-Generate skill files for AI agents to follow the SDD workflow.
+### REQ-AGNT-003: 生成 Claude Code CLAUDE.md
 
-**Scenarios:**
-- WHEN agent sync runs, THEN skill files are generated from .hbs templates
-- WHEN skills are deployed, THEN each agent gets appropriate format (SKILL.md, rules, etc.)
+在專案根目錄生成精簡的 CLAUDE.md，含 AI Knowledge 位置指引和 Constitution 參考。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN agent sync 執行，THEN CLAUDE.md 生成在專案根目錄
+- WHEN 檢查 CLAUDE.md 內容，THEN 包含 Knowledge 路徑和可用 Skills 清單
+- WHEN CLAUDE.md 不超過 100 行，THEN 不使用 @import（避免 token 浪費）
 
-### REQ-TYPES-011: Skill Definitions
+**新增來源**: mvp-initial (2026-02-04)
 
-Define all available skills in SKILL_DEFINITIONS constant.
+### Skill 生成與管理
 
-**Scenarios:**
-- WHEN a new skill is added, THEN SKILL_DEFINITIONS is updated
-- WHEN agent sync runs, THEN it generates files for all defined skills
+### REQ-AGNT-004: 生成 SDD Skills
 
-**Added by**: add-archive-system (2026-02-09)
+為 AI agent 生成 Skill 檔案，遵循 SDD 工作流程。
 
-## Success Criteria
+**場景：**
+- WHEN agent sync 執行，THEN 從 .hbs 模板生成 Skill 檔案
+- WHEN 部署到 Claude，THEN 每個 Skill 一個目錄含 SKILL.md + references/
+- WHEN 部署到 Copilot，THEN 使用 .instructions.md 格式（inline references）
 
-- **SC-001**: `prospec agent sync` generates correct configs for all detected agents
-- **SC-002**: Deployed skills match source .hbs templates after sync
+**新增來源**: mvp-initial (2026-02-04)
 
-## Change History
+### REQ-AGNT-005: Skill 引導 Progressive Disclosure
 
-| Date | Change | Impact | REQs |
-|------|--------|--------|------|
-| 2026-02-04 | mvp-initial | Created agent sync workflow for 4 agents | REQ-AGNT-001~005 |
-| 2026-02-09 | add-archive-system | Added archive skill to definitions | REQ-TYPES-011 |
-| 2026-02-09 | add-knowledge-update | Added knowledge-update skill | REQ-TYPES-010 |
+每個 SKILL.md 引導 AI 按需讀取 AI Knowledge（先讀 `_index.md`，再讀相關模組）。
+
+**場景：**
+- WHEN Skill 被觸發（如 `/prospec-plan`），THEN AI 先讀 `_index.md` 索引
+- WHEN 識別到相關模組，THEN 再載入 `modules/{module}/README.md`
+- WHEN 需要更深資訊，THEN 讀取原始碼（Layer 3）
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-006: 指定特定 CLI
+
+使用者可透過 `--cli` 參數指定特定 CLI。
+
+**場景：**
+- WHEN 指定 `--cli claude`，THEN 只生成 Claude Code 相關配置
+- WHEN 未指定 `--cli`，THEN 處理所有偵測到的 CLI
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-007: 原子寫入策略
+
+使用原子寫入策略（暫存檔 → 重命名），寫入失敗時保留原檔案。
+
+**場景：**
+- WHEN 寫入成功，THEN 暫存檔重命名為目標檔案
+- WHEN 寫入失敗（磁碟不足、權限不足），THEN 保留原檔案並報錯
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-008: 冪等更新
+
+配置檔已存在時更新而非重複建立。
+
+**場景：**
+- WHEN CLAUDE.md 已存在，THEN 更新內容而非建立新檔案
+- WHEN Skill 目錄已存在，THEN 更新 SKILL.md 而非重建目錄
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-009: Skill 命名慣例
+
+Skill 命名遵循 `prospec-*` 慣例。
+
+**場景：**
+- WHEN 新 Skill 被建立，THEN 名稱格式為 `prospec-{name}`
+- WHEN 部署到 .claude/skills/，THEN 目錄名稱為 `prospec-{name}`
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-010: 三層 Progressive Disclosure
+
+Skill 採用三層設計控制 token 消耗。
+
+**場景：**
+- WHEN Layer 1（name + description），THEN 約 100 tokens
+- WHEN Layer 2（SKILL.md body），THEN 不超過 500 行
+- WHEN Layer 3（references/ 按需讀取），THEN 只在 Skill 內需要時載入
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-011: 模板為唯一來源
+
+Skill 模板從 `src/templates/skills/*.hbs` 生成（Single Source of Truth），注入專案 context。
+
+**場景：**
+- WHEN agent sync 執行，THEN 從 .hbs 模板 render 出最終 Skill 檔案
+- WHEN 模板更新後重新 sync，THEN 部署的 Skill 反映最新模板
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-AGNT-012: Planning Skills 呼叫 CLI
+
+Planning 類 Skills 呼叫對應的 CLI 命令建立骨架，再由 AI 填充內容。
+
+**場景：**
+- WHEN `/prospec-new-story` 觸發，THEN AI 自行建立 change 目錄和骨架檔案
+- WHEN `/prospec-ff` 觸發，THEN AI 依序完成 story → plan → tasks 三步驟
+
+**新增來源**: mvp-initial (2026-02-04)
+**修改來源**: skill-autonomy (2026-02-04) — Skills 自行建立骨架，不再呼叫 CLI
+
+### Skill Definitions
+
+### REQ-TYPES-011: Skill 定義常數
+
+在 SKILL_DEFINITIONS 常數中定義所有可用 Skills。
+
+**場景：**
+- WHEN 新 Skill 被新增，THEN SKILL_DEFINITIONS 被更新
+- WHEN agent sync 執行，THEN 為所有定義的 Skills 生成檔案
+
+**新增來源**: add-archive-system (2026-02-09)
+
+## 邊界案例
+
+- 沒有偵測到任何已安裝的 AI CLI：列出支援的 CLI 並提示安裝方式
+- 寫入失敗（磁碟空間不足、權限不足）：使用原子寫入，失敗時保留原檔案
+- Planning Skill 觸發時 Constitution 不存在：跳過 Constitution Check，不阻擋工作流
+
+## 成功指標
+
+- **SC-001**: `prospec agent sync` 為所有偵測到的 agent 生成正確配置
+- **SC-002**: 部署的 Skills 與 source .hbs 模板一致
+- **SC-005**: AI Knowledge 節省 70% 以上的 token 使用量
+
+## 變更歷史
+
+| 日期 | 變更 | 影響 | REQs |
+|------|------|------|------|
+| 2026-02-04 | mvp-initial | 建立 agent sync 工作流，支援 4 個 agent | REQ-AGNT-001~012 |
+| 2026-02-04 | skill-autonomy | Skills 自行建立骨架不再呼叫 CLI | REQ-AGNT-012 |
+| 2026-02-09 | add-archive-system | 新增 archive skill 到 definitions | REQ-TYPES-011 |
+| 2026-02-09 | add-knowledge-update | 新增 knowledge-update skill | REQ-TYPES-011 |

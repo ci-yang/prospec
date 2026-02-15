@@ -1,164 +1,324 @@
 # change-workflow — Capability Spec
 
-## Overview
+## 概述
 
-The Change Workflow capability manages the full SDD lifecycle for individual changes: creating proposals (story), generating implementation plans (plan), breaking plans into tasks, implementing, verifying, and archiving completed work.
+Change Workflow 能力管理完整的 SDD 生命週期：建立 proposals（story）、生成實作計劃（plan）、拆解任務（tasks）、實作、驗證，以及歸檔已完成的變更。也涵蓋 proposal 格式定義、capability spec 格式、規格同步和規格-知識一致性驗證。
 
-**Status**: Active
-**Last Updated**: 2026-02-15
-**Modules**: services (archive, change-story, change-plan, change-tasks), templates (skills), types (change)
+**狀態**: Active
+**最後更新**: 2026-02-15
+**相關模組**: services (archive, change-story, change-plan, change-tasks), templates (skills, references), types (change)
 
-## Requirements
+## 需求規格
 
-### REQ-CHNG-001: Create Change Directory
+### 建立變更需求（prospec change story）
 
-Create `.prospec/changes/{name}/` with `metadata.yaml` (status: story) when a new change is initiated.
+### REQ-CHNG-001: 建立變更目錄
 
-**Scenarios:**
-- WHEN user runs `prospec change story <name>`, THEN create directory structure with metadata.yaml
-- WHEN change directory already exists, THEN prompt user that change exists
+透過 `change story` 建立變更目錄結構 `.prospec/changes/{name}/`。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN 執行 `prospec change story add-auth --description "新增使用者認證功能"`，THEN 建立 `.prospec/changes/add-auth/` 目錄及 `proposal.md`、`metadata.yaml`
+- WHEN 變更目錄已存在，THEN 提示變更已存在
 
-### REQ-CHNG-002: Generate proposal.md
+**新增來源**: mvp-initial (2026-02-04)
 
-Generate proposal.md with User Story format (As a / I want / So that) and acceptance criteria.
+### REQ-CHNG-002: 生成 proposal.md
 
-**Scenarios:**
-- WHEN change story completes, THEN proposal.md contains User Story format
-- WHEN `--description` is provided, THEN description is written to Notes section
+生成 proposal.md，包含 INVEST User Story 格式和驗收標準。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN change story 完成，THEN proposal.md 包含多個 INVEST User Stories（作為/我希望/以便 + Priority + WHEN/THEN 驗收場景）
+- WHEN `--description` 提供，THEN description 寫入 proposal.md 的 Notes 區域
+- WHEN 引用 proposal-format reference，THEN 產出包含 Why、User Stories、邊界案例、功能需求、成功指標、待釐清標記
 
-### REQ-CHNG-003: Auto-identify Related Modules
+**新增來源**: mvp-initial (2026-02-04)
+**修改來源**: redesign-spec-system (2026-02-15) — 升級為 INVEST 格式 + WHEN/THEN
 
-Match change name and description against `_index.md` keywords to identify related modules.
+### REQ-CHNG-003: 自動識別相關模組
 
-**Scenarios:**
-- WHEN change name contains module keyword, THEN Related Modules section lists matching modules
-- WHEN no keywords match, THEN Related Modules section is empty
+依 `_index.md` 關鍵字匹配識別相關模組。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN 變更名稱包含模組關鍵字，THEN Related Modules 區域列出匹配的模組
+- WHEN 無關鍵字匹配，THEN Related Modules 區域為空
 
-### REQ-CHNG-004: Change Metadata Lifecycle
+**新增來源**: mvp-initial (2026-02-04)
 
-Track change status through lifecycle phases via metadata.yaml.
+### REQ-CHNG-004: 變更元資料生命週期
 
-**Scenarios:**
-- WHEN change story is created, THEN metadata.yaml has status: story
-- WHEN plan is generated, THEN status updates to plan
-- WHEN tasks are generated, THEN status updates to tasks
+透過 metadata.yaml 追蹤變更狀態。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN change story 建立，THEN metadata.yaml 有 `status: story`
+- WHEN plan 生成，THEN status 更新為 `plan`
+- WHEN tasks 生成，THEN status 更新為 `tasks`
+- WHEN 驗證完成，THEN status 更新為 `verified`
+- WHEN 歸檔完成，THEN status 更新為 `archived`
 
-### REQ-CHNG-006: Load Proposal and Module Context
+**新增來源**: mvp-initial (2026-02-04)
+**修改來源**: add-archive-system (2026-02-09) — 新增 `archived` 狀態
 
-Read proposal.md and load related module AI Knowledge for plan generation.
+### REQ-CHNG-005: 防止重複變更
 
-**Scenarios:**
-- WHEN change plan starts, THEN proposal.md and related module READMEs are loaded
-- WHEN Constitution exists, THEN it is injected as context
+變更目錄已存在時提示。
 
-**Added by**: mvp-initial (2026-02-04)
+**場景：**
+- WHEN 變更名稱已存在於 `.prospec/changes/`，THEN 提示變更已存在並退出
 
-### REQ-CHNG-009: Generate plan.md
+**新增來源**: mvp-initial (2026-02-04)
 
-Generate structured implementation plan with overview, affected modules, steps, and risks.
+### 生成實作計劃（prospec change plan）
 
-**Scenarios:**
-- WHEN context is loaded, THEN plan.md contains overview, affected modules, implementation steps, risk assessment
-- WHEN plan has more than 10 steps, THEN scope is too large — suggest splitting
+### REQ-CHNG-006: 載入 Proposal 和模組上下文
 
-**Added by**: mvp-initial (2026-02-04)
+讀取 proposal.md 並載入相關模組的 AI Knowledge。
 
-### REQ-CHNG-010: Generate delta-spec.md
+**場景：**
+- WHEN change plan 開始，THEN 讀取 proposal.md 和相關模組 READMEs
+- WHEN Constitution 存在，THEN 注入為 context
+- WHEN specs/capabilities/ 下有對應的 capability specs，THEN 載入現有行為需求作為 Layer 0 context
 
-Generate Patch Spec with ADDED/MODIFIED/REMOVED format and REQ IDs.
+**新增來源**: mvp-initial (2026-02-04)
+**修改來源**: redesign-spec-system (2026-02-15) — 新增 capability specs 載入
 
-**Scenarios:**
-- WHEN plan is generated, THEN delta-spec.md is created alongside
-- WHEN requirements are listed, THEN each has REQ-{MODULE}-{NUMBER} format
+### REQ-CHNG-007: 識別相關 AI Knowledge 模組
 
-**Added by**: mvp-initial (2026-02-04)
+識別相關的 AI Knowledge 模組並載入對應的 README。
 
-### REQ-CHNG-011: Break Plan into Tasks
+**場景：**
+- WHEN proposal 標記了相關模組，THEN 讀取對應的 `modules/{module}/README.md`
+- WHEN 模組 README 不存在，THEN 跳過該模組但發出警告
 
-Generate tasks.md with architecture-layered task breakdown.
+**新增來源**: mvp-initial (2026-02-04)
 
-**Scenarios:**
-- WHEN plan.md is valid, THEN tasks.md groups tasks by architecture layer (Types → Lib → Services → CLI → Tests)
-- WHEN task is parallelizable, THEN it is marked with [P]
+### REQ-CHNG-008: Constitution 注入
 
-**Added by**: mvp-initial (2026-02-04)
+Constitution 作為 context 注入計劃生成。
 
-### REQ-CHNG-013: Estimate Task Complexity
+**場景：**
+- WHEN Constitution 存在，THEN 所有 Planning Skills 自動執行 Constitution 快速檢查（比對至少 3 條最相關原則）
+- WHEN Constitution 不存在，THEN 跳過 Constitution Check
 
-Each task includes estimated lines of code.
+**新增來源**: mvp-initial (2026-02-04)
 
-**Scenarios:**
-- WHEN tasks are generated, THEN each includes `~{lines} lines` estimate
-- WHEN summary is displayed, THEN total task count and total estimated lines are shown
+### REQ-CHNG-009: 生成 plan.md
 
-**Added by**: mvp-initial (2026-02-04)
+生成結構化的實作計劃。
 
-### REQ-CHNG-014: Executable Task Format
+**場景：**
+- WHEN context 載入完成，THEN plan.md 包含概述、受影響模組、實作步驟、風險評估
+- WHEN 步驟超過 10 個，THEN 建議拆分為多個 Stories
+- WHEN plan 包含 MODIFIED 需求，THEN 引用 capability spec 中的現有行為作為 Before
 
-Tasks use checkbox format for progress tracking.
+**新增來源**: mvp-initial (2026-02-04)
+**修改來源**: redesign-spec-system (2026-02-15) — MODIFIED 引用 capability spec
 
-**Scenarios:**
-- WHEN tasks.md is generated, THEN each task starts with `- [ ]`
-- WHEN task is completed, THEN it is marked `- [x]`
+### REQ-CHNG-010: 生成 delta-spec.md
 
-**Added by**: mvp-initial (2026-02-04)
+生成 Delta Spec，使用 ADDED/MODIFIED/REMOVED 格式和 REQ IDs。
 
-### REQ-TYPES-010: ChangeStatus Archived Support
+**場景：**
+- WHEN plan 生成，THEN delta-spec.md 同時建立
+- WHEN 需求被列出，THEN 每個有 `REQ-{MODULE}-{NUMBER}` 格式
+- WHEN 需求被新增，THEN 包含 Description、Acceptance Criteria、Priority
+- WHEN 需求被修改，THEN 包含 Before、After、Reason
 
-Added `archived` to ChangeStatus type for completed change lifecycle.
+**新增來源**: mvp-initial (2026-02-04)
 
-**Scenarios:**
-- WHEN change is archived, THEN metadata status is set to `archived`
-- WHEN filtering changes, THEN `archived` status is a valid filter value
+### 拆分任務（prospec change tasks）
 
-**Added by**: add-archive-system (2026-02-09)
+### REQ-CHNG-011: 拆解計劃為任務
+
+生成 tasks.md，按架構層次分組。
+
+**場景：**
+- WHEN plan.md 有效，THEN tasks.md 依架構層次分組（Types → Lib → Services → CLI → Tests）
+- WHEN 任務可並行，THEN 標記 `[P]`
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-CHNG-012: 架構層次排序
+
+任務按架構層次分組。
+
+**場景：**
+- WHEN 生成 tasks.md，THEN 任務按 Types → Lib → Services → CLI → Tests 順序排列
+- WHEN 變更只影響模板，THEN 使用 Templates 作為分組
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-CHNG-013: 估算任務複雜度
+
+每個任務包含估算行數。
+
+**場景：**
+- WHEN 任務生成，THEN 每個包含 `~{lines} lines` 估算
+- WHEN 摘要顯示，THEN 包含總任務數和總估算行數
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-CHNG-014: Checkbox 任務格式
+
+任務使用 checkbox 格式追蹤進度。
+
+**場景：**
+- WHEN tasks.md 生成，THEN 每個任務以 `- [ ]` 開頭
+- WHEN 任務完成，THEN 標記為 `- [x]`
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-CHNG-015: 任務摘要統計
+
+tasks.md 包含總任務數和總估算行數摘要。
+
+**場景：**
+- WHEN tasks.md 生成，THEN 末尾包含 Summary 區段
+- WHEN 有可並行任務，THEN 摘要顯示 Parallelizable Tasks 數量
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### REQ-CHNG-016: 計劃狀態更新
+
+計劃生成完成後更新 metadata 狀態。
+
+**場景：**
+- WHEN 計劃生成完成，THEN `metadata.yaml` 的 `status` 更新為 `plan`
+- WHEN 任務生成完成，THEN `metadata.yaml` 的 `status` 更新為 `tasks`
+
+**新增來源**: mvp-initial (2026-02-04)
+
+### 歸檔（prospec archive）
+
+### REQ-TYPES-010: ChangeStatus Archived 支援
+
+`ChangeStatus` 型別支援 `archived` 狀態。
+
+**場景：**
+- WHEN 變更歸檔，THEN metadata status 設為 `archived`
+- WHEN 篩選變更，THEN `archived` 是有效的篩選值
+
+**新增來源**: add-archive-system (2026-02-09)
 
 ### REQ-SERVICES-010: Archive Service
 
-Scan, filter, move, and generate summaries for completed changes.
+掃描、篩選、搬移、生成摘要。
 
-**Scenarios:**
-- WHEN archive is executed, THEN verified changes are moved to `.prospec/archive/{date}-{name}/`
-- WHEN summary is generated, THEN it contains User Story, REQ IDs, affected modules, completion stats
-- WHEN archive completes, THEN summary is copied to `specs/history/` for version control
+**場景：**
+- WHEN archive 執行，THEN verified 變更搬移到 `.prospec/archive/{date}-{name}/`
+- WHEN 摘要生成，THEN 包含 User Story、REQ IDs、受影響模組、完成統計
+- WHEN archive 完成，THEN 摘要複製到 `specs/history/`
+- WHEN archive 完成，THEN 自動觸發 knowledge-update（失敗為非致命性）
 
-**Added by**: add-archive-system (2026-02-09)
+**新增來源**: add-archive-system (2026-02-09)
+**修改來源**: add-knowledge-update (2026-02-09) — 自動觸發 knowledge-update
+**修改來源**: redesign-spec-system (2026-02-15) — 摘要輸出到 specs/history/
 
-### REQ-TEMPLATES-010: Archive Skill Template
+### REQ-TEMPLATES-010: Archive Skill 模板
 
-Skill template for the archive workflow with 5 execution phases.
+Archive Skill 模板定義 5 個執行階段。
 
-**Scenarios:**
-- WHEN archive skill is triggered, THEN it follows Scan → Summary → Archive → Spec Sync → Knowledge Update
-- WHEN spec sync fails, THEN archiving still succeeds (non-fatal)
+**場景：**
+- WHEN archive skill 觸發，THEN 依循 Scan → Summary → Archive → Spec Sync → Knowledge Update 五階段
+- WHEN Spec Sync 階段執行，THEN 讀取 delta-spec ADDED/MODIFIED/REMOVED 合併到 specs/capabilities/
+- WHEN Spec Sync 失敗，THEN 歸檔仍然成功（非致命性）
 
-**Added by**: add-archive-system (2026-02-09)
-**Modified by**: redesign-spec-system (2026-02-15) — added Phase 3.5 Spec Sync, summary output to specs/history/
+**新增來源**: add-archive-system (2026-02-09)
+**修改來源**: redesign-spec-system (2026-02-15) — 新增 Phase 3.5 Spec Sync，摘要輸出到 specs/history/
 
-## Edge Cases
+### 格式定義與規格管理
 
-- Archive directory already exists: warn user, ask to overwrite or skip
-- Change missing delta-spec.md: archive with partial summary
-- Knowledge update failure: non-fatal, suggest manual update
+### REQ-TEMPLATES-030: 增強版 Proposal 格式參考
 
-## Success Criteria
+`proposal-format.hbs` 定義新的 proposal 結構，包含 INVEST User Stories + WHEN/THEN + 邊界案例 + FR + SC + 待釐清標記。
 
-- **SC-001**: All SDD lifecycle stages (story → plan → tasks → implement → verify → archive) produce correctly formatted artifacts
-- **SC-002**: Archive summaries accumulate in specs/history/ for version-controlled audit trail
+**場景：**
+- WHEN 引用 proposal-format reference，THEN 格式包含 8+ 結構化區段（Why、User Stories、驗收場景、邊界案例、功能需求、成功指標、相關模組、備註）
+- WHEN 撰寫 User Story，THEN 格式包含「作為/我希望/以便」+ Priority + 獨立測試 + WHEN/THEN
+- WHEN 有未決問題，THEN 標記為「待釐清」（最多 3 個）
+- WHEN 文件完成，THEN 包含 Constitution 驗證區段
 
-## Change History
+**新增來源**: redesign-spec-system (2026-02-15)
 
-| Date | Change | Impact | REQs |
-|------|--------|--------|------|
-| 2026-02-04 | mvp-initial | Created change management workflow | REQ-CHNG-001~014 |
-| 2026-02-04 | skill-autonomy | Skills autonomously create change directories | REQ-CHNG-001 |
-| 2026-02-09 | add-archive-system | Added archive lifecycle stage | REQ-TYPES-010, REQ-SERVICES-010, REQ-TEMPLATES-010 |
-| 2026-02-15 | redesign-spec-system | Archive outputs to specs/history/, added Phase 3.5 Spec Sync | REQ-TEMPLATES-010 |
+### REQ-TEMPLATES-031: Capability Spec 格式參考
+
+`capability-spec-format.hbs` 定義活的行為需求規格結構。
+
+**場景：**
+- WHEN 建立 capability spec，THEN 包含 Overview、Requirements（REQ ID + WHEN/THEN Scenarios）、邊界案例、成功指標、Change History
+- WHEN 歸檔觸發 Spec Sync，THEN 依格式新增或更新 requirements
+- WHEN requirement 有歷史修改，THEN Change History 記錄每次變更來源和日期
+
+**新增來源**: redesign-spec-system (2026-02-15)
+
+### REQ-TEMPLATES-032: New-Story Skill INVEST 引導
+
+`prospec-new-story.hbs` 引導使用者產出符合 INVEST 原則的多個 User Stories。
+
+**場景：**
+- WHEN new-story skill 觸發，THEN 訪談流程引導定義多個獨立的 User Stories
+- WHEN 收集每個 Story，THEN 收集 Priority（P0/P1/P2）和 WHEN/THEN 驗收場景
+- WHEN 訪談完成，THEN 引導填寫邊界案例、功能需求和成功指標
+- WHEN 產出 proposal.md，THEN 符合新版 proposal-format.hbs 格式
+
+**新增來源**: redesign-spec-system (2026-02-15)
+
+### REQ-TEMPLATES-033: Plan Skill Capability 載入
+
+`prospec-plan.hbs` 在 Startup Loading 階段載入 capability specs。
+
+**場景：**
+- WHEN Plan Skill Startup Loading，THEN 讀取 `specs/capabilities/` 下對應的 capability specs
+- WHEN delta-spec 有 MODIFIED 項目，THEN 引用 capability spec 現有行為作為 Before 欄位
+
+**新增來源**: redesign-spec-system (2026-02-15)
+
+### REQ-TEMPLATES-034: Verify Skill Spec-Knowledge 一致性
+
+`prospec-verify.hbs` 包含 Spec ↔ Knowledge 一致性驗證。
+
+**場景：**
+- WHEN verify skill 觸發，THEN 比對 capability spec requirements 與 ai-knowledge 實作描述
+- WHEN 報告生成，THEN 每個 requirement 顯示 PASS/WARN/FAIL 狀態
+- WHEN capability spec 有 requirement 但 ai-knowledge 無對應描述，THEN 報告 FAIL
+- WHEN ai-knowledge 描述的功能在 capability spec 中沒有 requirement，THEN 報告 WARN
+
+**新增來源**: redesign-spec-system (2026-02-15)
+
+### REQ-SPECS-001: specs/ 目錄雙層結構
+
+`prospec/specs/` 重整為雙層結構：`capabilities/`（活的需求規格）和 `history/`（歸檔摘要）。
+
+**場景：**
+- WHEN 查看 specs/，THEN 有 `capabilities/` 和 `history/` 兩個子目錄
+- WHEN 歸檔產生摘要，THEN 摘要存入 `specs/history/`
+- WHEN Spec Sync 執行，THEN capability specs 在 `specs/capabilities/` 中被建立或更新
+- WHEN specs/ 根目錄，THEN 不再直接存放歸檔摘要
+
+**新增來源**: redesign-spec-system (2026-02-15)
+
+## 邊界案例
+
+- Archive 目錄已存在：警告使用者，詢問覆蓋或跳過
+- 變更缺少 delta-spec.md：以部分摘要歸檔，Spec Sync 跳過
+- Knowledge update 失敗：非致命性，建議手動更新
+- 執行 `prospec change plan` 但找不到 story：提示先建立 story
+- 超過 30 個任務：建議拆分 Story 或合併細粒度任務
+- Spec Sync 時 capability spec 不存在：建立新的 capability spec 檔案
+- Verify 時無 capability spec：跳過 Spec ↔ Knowledge 一致性檢查
+
+## 成功指標
+
+- **SC-001**: 所有 SDD 生命週期階段（story → plan → tasks → implement → verify → archive）產出正確格式的 artifacts
+- **SC-002**: 歸檔摘要累積在 specs/history/ 提供版本控制的審計軌跡
+- **SC-003**: 系統支援同時處理 5 個以上的變更 story 而不產生混淆
+- **SC-007**: Prospec 可用於自身開發（self-host），證明工具的實用性
+
+## 變更歷史
+
+| 日期 | 變更 | 影響 | REQs |
+|------|------|------|------|
+| 2026-02-04 | mvp-initial | 建立變更管理工作流 | REQ-CHNG-001~016 |
+| 2026-02-04 | skill-autonomy | Skills 自主建立變更目錄和骨架 | REQ-CHNG-001 |
+| 2026-02-09 | add-archive-system | 新增歸檔生命週期階段 | REQ-TYPES-010, REQ-SERVICES-010, REQ-TEMPLATES-010 |
+| 2026-02-09 | add-knowledge-update | Archive 自動觸發 knowledge-update | REQ-SERVICES-010 |
+| 2026-02-15 | redesign-spec-system | INVEST proposal 格式、capability spec 格式、Spec Sync、specs/ 雙層結構、一致性驗證 | REQ-TEMPLATES-030~034, REQ-SPECS-001, REQ-TEMPLATES-010, REQ-CHNG-002, REQ-CHNG-006, REQ-CHNG-009 |
