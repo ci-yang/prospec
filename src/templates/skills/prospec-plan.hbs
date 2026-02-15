@@ -38,9 +38,19 @@ When triggered, briefly describe in the user's language:
 
 Auto-identify the current change (from directory context or ask user), read and summarize User Story.
 
-### Phase 2: Load Module Knowledge (Layer 2)
+### Phase 2: Context Mode Detection + Load Knowledge
 
-Find related modules from `_index.md`, load their `{{knowledge_base_path}}/modules/[name]/README.md`.
+**Step 1 — Detect Context Mode:**
+
+| Condition | Mode |
+|-----------|------|
+| `{{knowledge_base_path}}/modules/` has >= 2 modules with README.md | **Brownfield** |
+| Otherwise (empty or < 2 modules) | **Greenfield** |
+
+**Step 2 — Load Knowledge by Mode:**
+
+- **Brownfield**: Load related module READMEs + `{{knowledge_base_path}}/_conventions.md`. Prepare to synthesize Technical Summary in Phase 4.
+- **Greenfield**: Skip module loading. Scan project root for tech stack indicators (`package.json`, `pyproject.toml`, `.prospec.yaml`), top-level directory structure, and 2-3 core source files. Recommend `prospec knowledge init` + `/prospec-knowledge-generate`.
 
 ### Phase 3: Create Scaffolding
 
@@ -53,6 +63,7 @@ Find related modules from `_index.md`, load their `{{knowledge_base_path}}/modul
 
 Follow `references/plan-format.md` format:
 - **Overview**: Implementation strategy summary
+- **Technical Summary** (Brownfield) or **Technical Context** (Greenfield): Auto-synthesized from Phase 2 — see `references/plan-format.md` Section 2
 - **Affected Modules**: Table of impacted modules and changes
 - **Implementation Steps**: 4-8 steps with details
 - **Risk Assessment**: Risks, impact, and mitigation strategies
@@ -68,7 +79,20 @@ Follow `references/delta-spec-format.md` format:
 
 Compare against 3+ most relevant principles, focusing on architecture, testing, performance, and security.
 
-### Phase 7: Summary + Next Steps
+### Phase 7: Knowledge Quality Gate
+
+Before finalizing, verify Knowledge loading completeness:
+
+| Check Item | PASS | WARN |
+|------------|------|------|
+| Context mode detected | Brownfield/Greenfield identified | Could not determine — defaulted |
+| Module Knowledge loaded | All related module READMEs read | Some modules missing README |
+| Technical Summary synthesized | Section included in plan.md | Skipped or incomplete |
+| Capability specs checked | Existing requirements reviewed | No capability specs found |
+
+WARN items do not block — note them in plan.md Risk Assessment.
+
+### Phase 8: Summary + Next Steps
 
 Suggest: `/prospec-tasks` or manual review.
 
@@ -81,6 +105,7 @@ Suggest: `/prospec-tasks` or manual review.
 - **NEVER** start planning without a proposal.md — guide user to create a Story first
 - **NEVER** produce more than 10 Implementation Steps — too many means the Story scope is too large
 - **NEVER** ignore existing module design patterns — new implementation should follow project conventions
+- **NEVER** skip Context Mode Detection — Brownfield/Greenfield determination drives Technical Summary format
 - **NEVER** list risks in Risk Assessment without mitigation strategies
 
 ## Error Handling

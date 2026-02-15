@@ -18,6 +18,7 @@ When triggered, briefly describe in the user's language:
 2. Read `.prospec/changes/[name]/plan.md` — understand design intent
 3. Read `.prospec/changes/[name]/delta-spec.md` — understand file specifications
 4. **MANDATORY** — Read [`references/implementation-guide.md`](references/implementation-guide.md) for implementation guidelines
+5. **MANDATORY** — Read `{{knowledge_base_path}}/_conventions.md` — follow project patterns (execute(), atomicWrite(), ContentMerger)
 
 **Do NOT** load all module AI Knowledge at once. Load on demand.
 
@@ -44,7 +45,7 @@ Load relevant module AI Knowledge (Layer 2).
 ### Phase 3: Execute Implementation
 
 Implement code based on delta-spec specifications and module design patterns.
-Follow `{{knowledge_base_path}}/_conventions.md` code style.
+Follow `{{knowledge_base_path}}/_conventions.md` patterns: Service `execute()`, `atomicWrite()` for file operations, `ContentMerger` for preserving user sections.
 
 ### Phase 4: Verify Implementation
 
@@ -69,6 +70,18 @@ When all tasks are complete, suggest `/prospec-verify`.
 - **`[P]` marked tasks**: Can be parallelized but AI still executes sequentially; remind user they can assign to other developers
 - **Immediate marking**: Update tasks.md immediately after completing each task
 - **Commit strategy**: Suggest commit after completing a group of related tasks
+
+## Knowledge Quality Gate
+
+After completing each task, verify Knowledge alignment:
+
+| Check Item | PASS | WARN |
+|------------|------|------|
+| _conventions.md patterns followed | execute()/atomicWrite()/ContentMerger used where applicable | Patterns not followed — justify deviation |
+| Module README consulted | Related module API verified before implementation | Implemented without checking module README |
+| Delta-spec compliance | Implementation matches specification | Deviation documented in tasks.md |
+
+WARN items do not block — document reasoning in task completion notes.
 
 ## NEVER
 

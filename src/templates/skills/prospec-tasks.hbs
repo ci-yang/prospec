@@ -17,7 +17,8 @@ When triggered, briefly describe in the user's language:
 1. Read `.prospec/changes/[name]/plan.md` — parse implementation steps
 2. Read `.prospec/changes/[name]/delta-spec.md` — parse file changes and specifications
 3. Read `{{constitution_path}}` — prepare test coverage check
-4. **MANDATORY** — Read [`references/tasks-format.md`](references/tasks-format.md) for tasks.md format
+4. Read related module `README.md` from `{{knowledge_base_path}}/modules/` — confirm architecture layers and dependency directions for task ordering
+5. **MANDATORY** — Read [`references/tasks-format.md`](references/tasks-format.md) for tasks.md format
 
 ## Core Workflow
 
@@ -46,6 +47,7 @@ Each task format: `- [ ] [description] ~{lines} lines`. Add `[P]` marker for par
 - Single responsibility: one task does one thing
 - Verifiable: clear completion criteria
 - Right-sized: ideal 15-25 tasks, each 20-100 lines
+- Dependency direction: follow `cli → services → lib → types` order from `_conventions.md` — implement lower layers first
 
 ### Phase 4: Mark Parallelization Opportunities
 
@@ -59,7 +61,19 @@ Add statistics at end of file: Total Tasks, Parallelizable Tasks, Total Estimate
 
 Ensure each new/modified module has corresponding test tasks. If coverage is insufficient, add test tasks or raise a warning.
 
-### Phase 7: Summary + Next Steps
+### Phase 7: Knowledge Quality Gate
+
+Before finalizing, verify task decomposition against Knowledge:
+
+| Check Item | PASS | WARN |
+|------------|------|------|
+| Architecture layers confirmed | Layer order matches module dependency graph | Layer order assumed without README verification |
+| File paths verified | All task file paths exist or are clearly new | Some paths uncertain |
+| Test tasks included | Every new/modified module has test tasks | Some modules missing test coverage |
+
+WARN items do not block — add clarification notes to affected tasks.
+
+### Phase 8: Summary + Next Steps
 
 Suggest: `/prospec-implement` or manual review.
 

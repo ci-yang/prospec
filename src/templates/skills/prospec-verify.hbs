@@ -60,6 +60,10 @@ For each requirement in the relevant capability spec:
 - **WARN**: Requirement exists but AI Knowledge description is vague or outdated
 - **FAIL**: Requirement exists in spec but has no corresponding description in AI Knowledge
 
+**Staleness Detection** (additional checks):
+- AI Knowledge describes functionality with no matching requirement in capability spec → WARN (undocumented feature)
+- Implementation changed (delta-spec MODIFIED) but module README not updated → WARN + suggest `/prospec-knowledge-update`
+
 Output format:
 
 ```
@@ -90,6 +94,18 @@ Deployment Recommendation:
 - B: Recommended to fix before deploying
 - C, D: Not recommended for deployment
 ```
+
+## Knowledge Quality Gate
+
+Final Knowledge consistency summary:
+
+| Check Item | PASS | WARN |
+|------------|------|------|
+| Spec ↔ Knowledge aligned | All requirements reflected in module READMEs | Gaps identified in Verification 4/5 |
+| No stale Knowledge | Module READMEs match current implementation | READMEs outdated — suggest knowledge-update |
+| No undocumented features | All Knowledge entries have matching requirements | Features in Knowledge without requirements |
+
+WARN items are deployment risks — recommend resolving before `/prospec-archive`.
 
 ## NEVER
 

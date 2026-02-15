@@ -14,7 +14,7 @@ When triggered, briefly describe in the user's language:
 
 ## Startup Loading
 
-1. Read `{{knowledge_base_path}}/_index.md` — identify related modules
+1. Read `{{knowledge_base_path}}/_index.md` — identify related modules by matching proposal keywords against module `keywords` field
 2. Read `{{constitution_path}}` — prepare Constitution check
 3. **MANDATORY** — Read [`references/proposal-format.md`](references/proposal-format.md) for proposal.md format specification
 4. Read `{{base_dir}}/specs/capabilities/` — check existing capability specs for context
@@ -49,7 +49,7 @@ Guide the user to define one or more INVEST User Stories:
 3. **Edge Cases**: Known boundary conditions and error scenarios
 4. **Functional Requirements**: Numbered FR-001, FR-002... for traceability
 5. **Success Criteria**: Measurable SC-001, SC-002...
-6. **Related Modules**: Match from `_index.md` keywords
+6. **Related Modules**: Cross-reference proposal terms (feature names, domain concepts) against `_index.md` module keywords. List matched modules with relevance reasoning.
 7. **Open Questions**: Mark `NEEDS CLARIFICATION` for ambiguities
 
 ### Phase 5: Write proposal.md
@@ -63,7 +63,19 @@ Compare against 3+ most relevant Constitution principles:
 - **WARN**: Partially aligned, with suggestions
 - **FAIL**: Violates principle, must adjust
 
-### Phase 7: Summary + Next Steps
+### Phase 7: Knowledge Quality Gate
+
+Before finalizing, verify Knowledge awareness:
+
+| Check Item | PASS | WARN |
+|------------|------|------|
+| Related Modules identified | >= 1 module matched from _index.md | No modules matched — verify _index.md coverage |
+| Capability specs reviewed | Existing requirements checked for overlap | No capability specs found |
+| Module keywords matched | Proposal terms found in module keywords | Manual assignment needed |
+
+WARN items do not block — note them in Open Questions section.
+
+### Phase 8: Summary + Next Steps
 
 Save proposal.md, suggest:
 1. `/prospec-plan` — proceed to planning

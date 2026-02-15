@@ -63,14 +63,23 @@ After archiving, sync requirements to capability specs:
 
 **Spec Sync is non-fatal** — if it fails, archiving still succeeds. Warn the user to manually update capability specs.
 
-### Phase 4: Auto Knowledge Update
+### Phase 4: Interactive Knowledge Update
 
-After archiving, automatically trigger incremental Knowledge update:
-1. For each archived change with `delta-spec.md`, call the knowledge-update service
-2. The service parses ADDED/MODIFIED/REMOVED sections and updates affected module README.md, _index.md, and module-map.yaml
-3. Knowledge update is **non-fatal** — if it fails, archiving still succeeds
+After archiving, identify and prompt for Knowledge update:
 
-**On failure:** Display affected modules and suggest: "Knowledge auto-update failed. Run `/prospec-knowledge-update` manually to sync."
+1. Extract affected module names from delta-spec REQ ID prefixes (e.g., `REQ-SERVICES-010` → `services`, `REQ-CLI-005` → `cli`)
+2. Display specific affected modules:
+   ```
+   Affected modules from this change:
+   - [module-1]: [N] requirements changed
+   - [module-2]: [N] requirements changed
+   ```
+3. **Interactive prompt**: "Update Knowledge for these modules now? (Y/n)"
+   - **Yes**: Trigger `/prospec-knowledge-update` for listed modules
+   - **No**: Remind user to run `/prospec-knowledge-update` later
+4. Knowledge update is **non-fatal** — if it fails, archiving still succeeds
+
+**On failure:** Display: "Knowledge update failed for [module-name]. Run `/prospec-knowledge-update` manually."
 
 ## NEVER
 

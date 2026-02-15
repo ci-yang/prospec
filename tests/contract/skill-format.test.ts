@@ -214,6 +214,72 @@ describe('Skill Format Contract', () => {
     });
   });
 
+  describe('Plan format Technical Summary', () => {
+    it('should contain Technical Summary section', () => {
+      const content = renderTemplate(
+        'skills/references/plan-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Technical Summary');
+      expect(content).toContain('Brownfield');
+      expect(content).toContain('Greenfield');
+    });
+
+    it('should define both Brownfield and Greenfield formats', () => {
+      const content = renderTemplate(
+        'skills/references/plan-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Brownfield Mode');
+      expect(content).toContain('Greenfield Mode');
+      expect(content).toContain('Affected Module Overview');
+      expect(content).toContain('Tech Stack Detection');
+    });
+  });
+
+  describe('Knowledge Quality Gate in Skills', () => {
+    const SKILLS_WITH_QUALITY_GATE = [
+      'prospec-new-story',
+      'prospec-plan',
+      'prospec-tasks',
+      'prospec-implement',
+      'prospec-verify',
+    ];
+
+    for (const skillName of SKILLS_WITH_QUALITY_GATE) {
+      it(`${skillName} should contain Knowledge Quality Gate`, () => {
+        const content = renderTemplate(
+          `skills/${skillName}.hbs`,
+          TEMPLATE_CONTEXT,
+        );
+        expect(content).toContain('Knowledge Quality Gate');
+        expect(content).toContain('PASS');
+        expect(content).toContain('WARN');
+      });
+    }
+  });
+
+  describe('Plan Brownfield/Greenfield detection', () => {
+    it('should contain Context Mode Detection in prospec-plan', () => {
+      const content = renderTemplate(
+        'skills/prospec-plan.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Context Mode Detection');
+      expect(content).toContain('Brownfield');
+      expect(content).toContain('Greenfield');
+    });
+
+    it('should define detection criteria', () => {
+      const content = renderTemplate(
+        'skills/prospec-plan.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('>= 2 modules');
+      expect(content).toContain('README.md');
+    });
+  });
+
   describe('Agent config templates', () => {
     const AGENT_CONFIGS = ['claude', 'gemini', 'copilot', 'codex'];
 

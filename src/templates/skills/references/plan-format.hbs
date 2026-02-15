@@ -36,7 +36,60 @@ We will create a centralized error handler module that defines standard error ty
 
 ---
 
-### 2. Affected Modules
+### 2. Technical Summary (Context-Dependent)
+
+This section is **auto-synthesized** based on the project's Knowledge state. Include exactly ONE of the following:
+
+**Brownfield Mode** — when `{{knowledge_base_path}}/modules/` has >= 2 modules with README.md:
+
+```markdown
+## Technical Summary
+
+> Auto-synthesized from AI Knowledge for this change's context
+
+### Affected Module Overview
+| Module | Core Responsibility | Key API | Dependencies |
+|--------|-------------------|---------|--------------|
+| [name] | [responsibility] | [key exports] | [deps] |
+
+### Existing Patterns (from _conventions.md)
+- [Pattern 1]: [brief description]
+- [Pattern 2]: [brief description]
+
+### Architecture Constraints (from Constitution)
+- [Constraint 1]
+- [Constraint 2]
+```
+
+**Greenfield Mode** — when AI Knowledge is empty or has < 2 modules:
+
+```markdown
+## Technical Context (Greenfield)
+
+> AI Knowledge not yet established — substitute context collected below
+
+### Tech Stack Detection
+- Language: (inferred from .prospec.yaml or package.json/pyproject.toml)
+- Framework: (inferred from dependencies)
+- Test Framework: (inferred from devDependencies)
+
+### Project Structure Scan
+- Entry points: (src/index.ts, main.py, etc.)
+- Directory summary: (top-level directories + inferred purpose)
+
+### Detected Patterns
+- (Scan 2-3 core files for naming conventions, architecture patterns)
+
+### External Dependencies
+- (List key dependencies from package.json/requirements.txt)
+
+### [To Be Supplemented]
+- Recommend running `prospec knowledge init` + `/prospec-knowledge-generate` for full Knowledge
+```
+
+---
+
+### 3. Affected Modules
 
 Use a table to list affected modules:
 
@@ -62,7 +115,7 @@ Use a table to list affected modules:
 
 ---
 
-### 3. Implementation Steps
+### 4. Implementation Steps
 
 Use an ordered numbered list with details for each step:
 
@@ -106,7 +159,7 @@ Use an ordered numbered list with details for each step:
 
 ---
 
-### 4. Risk Assessment
+### 5. Risk Assessment
 
 Use a table to list risks, impacts, and mitigation strategies:
 
