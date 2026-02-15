@@ -1,0 +1,21 @@
+version: "1.0"
+project:
+  name: prospec
+tech_stack:
+  language: typescript
+  package_manager: pnpm
+paths:
+  base_dir: prospec
+exclude:
+  - "*.env*"
+  - "*credential*"
+  - "*secret*"
+  - node_modules
+  - .git
+agents:
+  - claude
+  - gemini
+  - copilot
+  - codex
+knowledge:
+  base_path: prospec/ai-knowledge
