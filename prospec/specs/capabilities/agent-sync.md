@@ -5,7 +5,7 @@
 Agent Sync 能力偵測已安裝的 AI CLI 工具，並生成對應的配置檔（CLAUDE.md、GEMINI.md、AGENTS.md）和 SDD Skill 檔案，讓 AI agent 能在 Prospec SDD 框架內工作。採用三層 Progressive Disclosure 設計節省 token。
 
 **狀態**: Active
-**最後更新**: 2026-02-15
+**最後更新**: 2026-02-16
 **相關模組**: services (agent-sync), lib (agent-detector), templates (agent-configs, skills), types (skill)
 
 ## 需求規格
@@ -152,8 +152,20 @@ Planning 類 Skills 呼叫對應的 CLI 命令建立骨架，再由 AI 填充內
 **場景：**
 - WHEN 新 Skill 被新增，THEN SKILL_DEFINITIONS 被更新
 - WHEN agent sync 執行，THEN 為所有定義的 Skills 生成檔案
+- WHEN prospec-design Skill 存在，THEN SKILL_DEFINITIONS 包含 name: 'prospec-design'、type: 'Planning'、hasReferences: true
 
 **新增來源**: add-archive-system (2026-02-09)
+**修改來源**: add-design-phase (2026-02-16) — 新增 prospec-design 到 SKILL_DEFINITIONS
+
+### REQ-AGNT-013: Skill Reference 映射
+
+`getSkillReferences()` 定義每個 Skill 的 reference 檔案映射，agent sync 依此生成 references/ 目錄。
+
+**場景：**
+- WHEN agent sync 執行 prospec-design，THEN 生成 6 個 reference 檔案（design-spec-format、interaction-spec-format、adapter-pencil、adapter-figma、adapter-penpot、adapter-html）
+- WHEN reference 映射新增，THEN `.claude/skills/prospec-design/references/` 下有對應 .md 檔案
+
+**新增來源**: add-design-phase (2026-02-16)
 
 ## 邊界案例
 
@@ -175,3 +187,4 @@ Planning 類 Skills 呼叫對應的 CLI 命令建立骨架，再由 AI 填充內
 | 2026-02-04 | skill-autonomy | Skills 自行建立骨架不再呼叫 CLI | REQ-AGNT-012 |
 | 2026-02-09 | add-archive-system | 新增 archive skill 到 definitions | REQ-TYPES-011 |
 | 2026-02-09 | add-knowledge-update | 新增 knowledge-update skill | REQ-TYPES-011 |
+| 2026-02-16 | add-design-phase | 新增 prospec-design Skill 定義和 6 個 reference 映射 | REQ-TYPES-011, REQ-AGNT-013 |

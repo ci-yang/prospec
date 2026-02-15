@@ -134,8 +134,10 @@ Constitution 作為 context 注入計劃生成。
 **場景：**
 - WHEN plan.md 有效，THEN tasks.md 依架構層次分組（Types → Lib → Services → CLI → Tests）
 - WHEN 任務可並行，THEN 標記 `[P]`
+- WHEN design-spec.md 存在，THEN UI 任務引用具體元件名稱，並標注透過 adapter MCP 讀取精確設計後實作
 
 **新增來源**: mvp-initial (2026-02-04)
+**修改來源**: add-design-phase (2026-02-16) — Tasks Skill 讀取 design-spec.md 進行 UI 任務拆解
 
 ### REQ-CHNG-012: 架構層次排序
 
@@ -227,6 +229,7 @@ Archive Skill 模板定義 5 個執行階段。
 **新增來源**: add-archive-system (2026-02-09)
 **修改來源**: redesign-spec-system (2026-02-15) — 新增 Phase 3.5 Spec Sync，摘要輸出到 specs/history/
 **修改來源**: enhance-knowledge-sdd-pipeline (2026-02-16) — Phase 4 互動式 Knowledge Update
+**修改來源**: add-design-phase (2026-02-16) — 歸檔流程同時搬移 design-spec.md 和 interaction-spec.md（若存在）
 
 ### 格式定義與規格管理
 
@@ -285,15 +288,18 @@ Archive Skill 模板定義 5 個執行階段。
 
 ### REQ-TEMPLATES-034: Verify Skill Spec-Knowledge 一致性
 
-`prospec-verify.hbs` 包含 Spec ↔ Knowledge 一致性驗證。
+`prospec-verify.hbs` 包含 Spec ↔ Knowledge 一致性驗證和條件式設計一致性檢查。
 
 **場景：**
 - WHEN verify skill 觸發，THEN 比對 capability spec requirements 與 ai-knowledge 實作描述
 - WHEN 報告生成，THEN 每個 requirement 顯示 PASS/WARN/FAIL 狀態
 - WHEN capability spec 有 requirement 但 ai-knowledge 無對應描述，THEN 報告 FAIL
 - WHEN ai-knowledge 描述的功能在 capability spec 中沒有 requirement，THEN 報告 WARN
+- WHEN ui_scope != none 且 design-spec.md 存在，THEN 執行第 6 維度「設計一致性」驗證（視覺規格 + 互動規格符合度）
+- WHEN ui_scope == none 或無 design-spec.md，THEN 跳過設計一致性維度
 
 **新增來源**: redesign-spec-system (2026-02-15)
+**修改來源**: add-design-phase (2026-02-16) — 新增第 6 維度「設計一致性」條件式驗證
 
 ### ADDED in enhance-knowledge-sdd-pipeline (2026-02-16)
 
@@ -371,6 +377,110 @@ Greenfield Mode 下，引導 AI 執行補償性上下文收集。
 
 **新增來源**: redesign-spec-system (2026-02-15)
 
+### 設計階段（Design Phase）
+
+### REQ-TEMPLATES-050: Design Spec 格式參考
+
+`design-spec-format.hbs` 定義平台無關的視覺設計規格結構。
+
+**場景：**
+- WHEN 引用 design-spec-format reference，THEN 包含 Visual Identity（色彩、字體、間距）、Components（佈局、狀態、token）、Responsive Strategy（斷點適配）
+- WHEN 撰寫 design spec，THEN 不包含任何平台特定引用（使用 token 而非硬編碼值）
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-051: Interaction Spec 格式參考
+
+`interaction-spec-format.hbs` 定義平台無關的互動規格結構，使用 Interaction DSL 草案語法。
+
+**場景：**
+- WHEN 引用 interaction-spec-format reference，THEN 包含 Screen/Component 定義（States、Transitions）、Flow 序列（trigger → action）、Responsive 互動差異
+- WHEN DSL 語法使用，THEN 標註為 draft-1（核心概念穩定，細節可調整）
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-052: prospec-design Skill 模板
+
+`prospec-design.hbs` 定義完整的 Design Phase 工作流程，支援 Generate 和 Extract 雙模式。
+
+**場景：**
+- WHEN design skill 觸發，THEN 讀取 proposal.md（ui_scope）和 .prospec.yaml（design.platform）偵測模式
+- WHEN design-spec.md 不存在且無設計工具現有設計，THEN 進入 Generate Mode（從 proposal 產出 design-spec.md + interaction-spec.md）
+- WHEN design-spec.md 已存在或設計工具有現有設計，THEN 進入 Extract Mode（透過 MCP 讀取設計、反向產出規格）
+- WHEN Extract Mode 遇到無法推斷的設計意圖，THEN 標記 [NEEDS CLARIFICATION] 待使用者審閱
+- WHEN Phase 3 執行，THEN 依 .prospec.yaml 指定的 platform adapter 執行設計工具操作
+- WHEN Phase 4 驗證，THEN 透過截圖或結構比對驗證設計正確性
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-053: Platform Adapter — pencil.dev
+
+`adapter-pencil.hbs` 定義 pencil.dev MCP 操作指引。
+
+**場景：**
+- WHEN Design Phase 使用 pencil adapter，THEN 使用 batch_design() 建立元件、set_variables() 設定設計 token
+- WHEN Implement Phase 使用 pencil adapter，THEN 使用 batch_get() 讀取精確設計細節、get_screenshot() 取得視覺參考
+- WHEN Verify Phase 使用 pencil adapter，THEN 使用 get_screenshot() + search_all_unique_properties() 比對實作
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-054: Platform Adapter — Figma
+
+`adapter-figma.hbs` 定義 Figma 操作指引（透過 html-to-figma MCP）。
+
+**場景：**
+- WHEN Design Phase 使用 figma adapter，THEN 產出 HTML prototype → 使用 html-to-figma MCP（import-html/import-url）推送
+- WHEN Implement Phase 使用 figma adapter，THEN 使用 Figma MCP 讀取設計節點詳細資訊（fills、strokes、auto-layout）
+- WHEN Verify Phase 使用 figma adapter，THEN 比對 Figma 節點屬性與實作
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-055: Platform Adapter — Penpot
+
+`adapter-penpot.hbs` 定義 Penpot API 操作指引。
+
+**場景：**
+- WHEN Design Phase 使用 penpot adapter，THEN 使用 Penpot API 建立設計元件
+- WHEN Implement Phase 使用 penpot adapter，THEN 匯出 Penpot 設計為可讀格式
+- WHEN Verify Phase 使用 penpot adapter，THEN API 結構比對驗證
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-056: Platform Adapter — HTML
+
+`adapter-html.hbs` 定義純 HTML prototype 產出指引（零依賴）。
+
+**場景：**
+- WHEN Design Phase 使用 html adapter，THEN 產出 prototype/ 目錄（index.html、styles.css、各頁面 HTML）
+- WHEN Implement Phase 使用 html adapter，THEN 讀取 CSS custom properties 和 HTML 結構取得精確值
+- WHEN Verify Phase 使用 html adapter，THEN DOM 結構和 CSS 屬性比對
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-057: Proposal UI Scope 欄位
+
+`proposal-format.hbs` 新增可選的 UI Scope 區段。
+
+**場景：**
+- WHEN 引用 proposal-format reference，THEN 包含 UI Scope 區段（full/partial/none 三選項）
+- WHEN ui_scope 為 full，THEN 表示需要完整的新畫面設計
+- WHEN ui_scope 為 partial，THEN 表示修改現有 UI 元件
+- WHEN ui_scope 為 none，THEN 表示純後端變更，跳過 Design Phase
+- WHEN proposal 未包含 UI Scope，THEN 舊版 proposal 不受影響
+
+**新增來源**: add-design-phase (2026-02-16)
+
+### REQ-TEMPLATES-058: Implement Skill MCP-First 設計讀取
+
+`prospec-implement.hbs` 在 UI 任務的 Phase 2 和 Phase 3 新增設計感知。
+
+**場景：**
+- WHEN 實作 UI 任務，THEN Phase 2 載入 design-spec.md + interaction-spec.md + 對應 platform adapter
+- WHEN Phase 3 執行 UI 任務，THEN 先透過 adapter MCP 讀取設計工具的精確值（色碼、間距、元件結構），再實作
+- WHEN 無 design-spec.md，THEN 發出警告（UI 任務缺少設計規格）
+
+**新增來源**: add-design-phase (2026-02-16)
+
 ## 邊界案例
 
 - Archive 目錄已存在：警告使用者，詢問覆蓋或跳過
@@ -380,6 +490,9 @@ Greenfield Mode 下，引導 AI 執行補償性上下文收集。
 - 超過 30 個任務：建議拆分 Story 或合併細粒度任務
 - Spec Sync 時 capability spec 不存在：建立新的 capability spec 檔案
 - Verify 時無 capability spec：跳過 Spec ↔ Knowledge 一致性檢查
+- Design Skill 觸發時 .prospec.yaml 無 design.platform：預設使用 html adapter
+- Extract Mode 遇到無法推斷的設計意圖：標記 [NEEDS CLARIFICATION] 待使用者審閱
+- UI 任務但無 design-spec.md：Implement Skill 發出警告
 
 ## 成功指標
 
@@ -398,3 +511,4 @@ Greenfield Mode 下，引導 AI 執行補償性上下文收集。
 | 2026-02-09 | add-knowledge-update | Archive 自動觸發 knowledge-update | REQ-SERVICES-010 |
 | 2026-02-15 | redesign-spec-system | INVEST proposal 格式、capability spec 格式、Spec Sync、specs/ 雙層結構、一致性驗證 | REQ-TEMPLATES-030~034, REQ-SPECS-001, REQ-TEMPLATES-010, REQ-CHNG-002, REQ-CHNG-006, REQ-CHNG-009 |
 | 2026-02-16 | enhance-knowledge-sdd-pipeline | Knowledge Quality Gate、Brownfield/Greenfield 偵測、Technical Summary、互動式 Knowledge Update | REQ-TEMPLATES-040~045, REQ-TEMPLATES-032, REQ-TEMPLATES-033, REQ-TEMPLATES-010 |
+| 2026-02-16 | add-design-phase | Design Phase Generate/Extract 雙模式、4 平台 adapter、UI Scope、設計感知 Tasks/Implement/Verify | REQ-TEMPLATES-050~058, REQ-TEMPLATES-010, REQ-CHNG-011, REQ-TEMPLATES-034 |

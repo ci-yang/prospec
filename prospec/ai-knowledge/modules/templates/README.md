@@ -19,11 +19,11 @@ All templates support variable interpolation, conditionals, iteration, and Handl
 | **knowledge/** | 3 | AI Knowledge generation (raw-scan.md, module-map.yaml, index.md) |
 | **steering/** | 2 | Architectural documentation (architecture.md, module-readme.hbs) |
 | **agent-configs/** | 4 | AI agent configuration files (claude.md, gemini.md, copilot.md, codex.md) |
-| **skills/** | 10 | Prospec Skill templates (prospec-explore, prospec-new-story, prospec-plan, etc.) |
-| **skills/references/** | 16 | Reference format documentation for Skills (proposal-format, plan-format, delta-spec-format, capability-spec-format, etc.) |
+| **skills/** | 11 | Prospec Skill templates (prospec-explore, prospec-new-story, prospec-plan, prospec-design, etc.) |
+| **skills/references/** | 22 | Reference format documentation for Skills (proposal-format, plan-format, delta-spec-format, capability-spec-format, design-spec-format, adapter-*, etc.) |
 | **CLAUDE.md** | 3 | Claude-specific context/memory files |
 
-**Total:** 48 template files (45 .hbs, 3 .md)
+**Total:** 55 template files (52 .hbs, 3 .md)
 
 ### Key Skill Template Enhancements
 
@@ -32,7 +32,8 @@ All templates support variable interpolation, conditionals, iteration, and Handl
 | **prospec-new-story** | Multi-story INVEST collection (Phase 4: Background, Priority, WHEN/THEN, Independent Test, Edge Cases, FR, SC) |
 | **prospec-archive** | Phase 3.5 Spec Sync: delta-spec ADDED/MODIFIED/REMOVED → capability specs merge. Summary output to `specs/history/` |
 | **prospec-plan** | Layer 0 capability specs loading at startup. MODIFIED references capability spec "Before" |
-| **prospec-verify** | 5-dimension audit: tasks + spec compliance + constitution + Spec ↔ Knowledge consistency + tests. Quality grade S/A/B/C/D |
+| **prospec-design** | Generate/Extract dual mode: Generate visual + interaction specs from proposal, or Extract from existing design tools via MCP. 4 platform adapters (pencil/Figma/Penpot/HTML) |
+| **prospec-verify** | 5+1 dimension audit: tasks + spec compliance + constitution + Spec ↔ Knowledge consistency + tests + design consistency (conditional). Quality grade S/A/B/C/D |
 
 ### Key Reference Templates
 
@@ -40,6 +41,12 @@ All templates support variable interpolation, conditionals, iteration, and Handl
 |-----------|---------|
 | **proposal-format.hbs** | 8-section INVEST proposal: Background, User Stories (Priority + WHEN/THEN), Edge Cases, FR, SC, Related Modules, Open Questions, Constitution Check |
 | **capability-spec-format.hbs** | Living requirement spec: Overview, Requirements (REQ ID + WHEN/THEN + source attribution), Edge Cases, SC, Change History, Maintenance Rules |
+| **design-spec-format.hbs** | Visual design spec: Visual Identity (color/typography/spacing tokens), Components (layout/states/tokens), Responsive Strategy (breakpoints) |
+| **interaction-spec-format.hbs** | Interaction spec: Screen/Component definitions (States/Transitions), Flows (trigger → action DSL draft-1), Responsive interaction differences |
+| **adapter-pencil.hbs** | pencil.dev MCP adapter: batch_design()/set_variables() for Design, batch_get()/get_screenshot() for Implement, structural comparison for Verify |
+| **adapter-figma.hbs** | Figma adapter: HTML prototype → html-to-figma MCP for Design, Figma MCP node reads for Implement |
+| **adapter-penpot.hbs** | Penpot API adapter: API-based component creation, export, and structural comparison |
+| **adapter-html.hbs** | HTML zero-dependency adapter: prototype/ directory output, CSS custom properties reading, DOM/CSS comparison |
 
 ## Handlebars Conventions
 

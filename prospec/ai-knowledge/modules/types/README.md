@@ -9,7 +9,7 @@
 The `types/` module is the **foundational type system** for the entire prospec CLI. It defines:
 
 - **Configuration schemas** (ProspecConfig, ChangeMetadata, ModuleMap) with Zod validation
-- **Skill definitions** (10 predefined Skills + Agent platform configs)
+- **Skill definitions** (11 predefined Skills + Agent platform configs)
 - **Error hierarchy** (structured error classes with codes and suggestions)
 - **Type inference utilities** (using `z.infer<>` for compile-time type safety)
 
@@ -19,7 +19,7 @@ This is a **leaf module** with zero internal dependencies — all other modules 
 
 1. **Schema Validation**: Define and validate .prospec.yaml, metadata.yaml, module-map.yaml using Zod
 2. **Type Inference**: Generate TypeScript types from Zod schemas via `z.infer<>`
-3. **Skill Metadata**: Centralize all 10 Skill definitions with CLI dependencies and reference flags
+3. **Skill Metadata**: Centralize all 11 Skill definitions with CLI dependencies and reference flags
 4. **Error Contracts**: Provide structured error classes with machine-readable codes and user-friendly suggestions
 5. **Constants**: Export const arrays for enums (CHANGE_STATUSES, VALID_AGENTS, KNOWLEDGE_FILE_TYPES)
 
@@ -54,7 +54,7 @@ export type ModuleMap = z.infer<typeof ModuleMapSchema>
 ### Skill System
 
 ```typescript
-// 10 predefined Skills (prospec-explore, prospec-new-story, ...)
+// 11 predefined Skills (prospec-explore, prospec-new-story, ...)
 export const SKILL_DEFINITIONS: SkillConfig[]
 
 // 4 Agent platform configs (claude, gemini, copilot, codex)
@@ -146,7 +146,7 @@ throw new ConfigNotFound();
 
 ### 4. Skill Definitions as Data
 
-**Decision**: Centralize all 10 Skill definitions in `SKILL_DEFINITIONS` array instead of code generation.
+**Decision**: Centralize all 11 Skill definitions in `SKILL_DEFINITIONS` array instead of code generation.
 
 **Rationale**:
 - Single source of truth for Skill metadata
