@@ -6,63 +6,95 @@ This document defines the expected format for `proposal.md`, used by the **prosp
 
 ## Purpose
 
-`proposal.md` is the starting point of a Story, describing user needs, acceptance criteria, and related modules.
+`proposal.md` is the starting point of a Story: it captures WHY the change is needed, WHAT it delivers (as INVEST User Stories), and HOW success is measured. Each Story should be **Independent, Negotiable, Valuable, Estimable, Small, and Testable**.
 
 ---
 
 ## Standard Format
 
-### 1. User Story
+### 1. Background (Why)
 
-Use the standard User Story format:
-
-```markdown
-## User Story
-
-As a [role/user type],
-I want [feature/requirement],
-So that [purpose/value].
-```
-
-**Example:**
+Briefly explain the motivation and problem context:
 
 ```markdown
-## User Story
+## Background
 
-As a backend developer,
-I want a unified error handling mechanism,
-So that I can manage errors consistently across the application.
+[1-3 sentences describing the problem, gap, or opportunity that motivates this change.]
 ```
 
 ---
 
-### 2. Acceptance Criteria
+### 2. User Stories
 
-Use a numbered list of specific, verifiable conditions:
+One or more INVEST-compliant User Stories, each with Priority and acceptance scenarios:
 
 ```markdown
-## Acceptance Criteria
+## User Stories
 
-1. [Specific verifiable condition 1]
-2. [Specific verifiable condition 2]
-3. [Specific verifiable condition 3]
-...
+### US-1: [Short title] [P1]
+
+As a [role],
+I want [feature],
+So that [value].
+
+**Acceptance Scenarios:**
+
+- WHEN [condition], THEN [expected outcome]
+- WHEN [condition], THEN [expected outcome]
+
+**Independent Test:**
+[How to verify this story works in isolation]
 ```
 
-**Example:**
+**Priority levels:** P1 (must-have), P2 (should-have), P3 (nice-to-have)
+
+**Guidelines:**
+- Each Story should be independently developable, testable, and deployable
+- If a Story has more than 5 acceptance scenarios, consider splitting it
+- Use concrete, measurable outcomes in WHEN/THEN (not vague descriptions)
+
+---
+
+### 3. Edge Cases
+
+Known boundary conditions and error scenarios:
 
 ```markdown
-## Acceptance Criteria
+## Edge Cases
 
-1. All API endpoints return standardized error responses
-2. Error codes follow the convention defined in {{constitution_path}}
-3. Stack traces are logged but not exposed to clients
-4. HTTP status codes map correctly to error types
+- [Edge case 1]: [Expected behavior]
+- [Edge case 2]: [Expected behavior]
 ```
 
 ---
 
-### 3. Related Modules
+### 4. Functional Requirements
+
+Numbered requirements for traceability (mapped to delta-spec REQ IDs later):
+
+```markdown
+## Functional Requirements
+
+- **FR-001**: [Requirement description]
+- **FR-002**: [Requirement description]
+```
+
+---
+
+### 5. Success Criteria
+
+Measurable indicators of completion:
+
+```markdown
+## Success Criteria
+
+- **SC-001**: [Measurable outcome]
+- **SC-002**: [Measurable outcome]
+```
+
+---
+
+### 6. Related Modules
 
 List related modules based on keyword matching from `{{knowledge_base_path}}/_index.md`:
 
@@ -73,35 +105,39 @@ List related modules based on keyword matching from `{{knowledge_base_path}}/_in
 - **module-name-2**: [Brief explanation of relevance]
 ```
 
-**Example:**
+---
+
+### 7. Open Questions (Optional)
+
+Items that need clarification before or during implementation:
 
 ```markdown
-## Related Modules
+## Open Questions
 
-- **error-handler**: Core error handling logic
-- **api-middleware**: HTTP error response formatting
-- **logger**: Error logging and monitoring
+- [ ] **NEEDS CLARIFICATION**: [Question or ambiguity]
+- [ ] **NEEDS CLARIFICATION**: [Question or ambiguity]
 ```
 
 ---
 
-### 4. Notes (Optional)
+### 8. Constitution Check
 
-Additional context, technical considerations, or constraints:
+Quick verification against project principles:
 
 ```markdown
-## Notes
+## Constitution Check
 
-- [Additional context or technical considerations]
-- [Known limitations or risks]
+- [ ] Reviewed against `{{constitution_path}}`
+- [ ] No violations identified / Violations noted: [details]
 ```
 
 ---
 
 ## File Length Guidelines
 
-- Keep under **100 lines**
-- If Acceptance Criteria exceeds 10 items, consider splitting into multiple Stories
+- Keep under **150 lines**
+- If User Stories exceed 5, consider splitting into multiple proposals
+- Each Story should have 2-5 acceptance scenarios
 
 ---
 

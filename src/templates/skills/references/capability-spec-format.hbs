@@ -1,0 +1,141 @@
+# Capability Spec Format Reference
+
+This document defines the format for capability specs in `{{base_dir}}/specs/capabilities/`. Capability specs are **living documents** that accumulate requirements across multiple changes.
+
+---
+
+## Purpose
+
+A capability spec is the **single source of truth** for WHAT a capability does. It answers "what should the system do?" while `ai-knowledge/` answers "how does it currently work?". When both agree, the system is healthy.
+
+---
+
+## Naming Convention
+
+Name files by **capability domain**, not by implementation module:
+
+| Domain Name | Covers |
+|-------------|--------|
+| `change-workflow.md` | archive, change-story, change-plan, change-tasks |
+| `knowledge-engine.md` | knowledge-init, knowledge-update, knowledge-generate |
+| `project-init.md` | init, steering, config |
+| `agent-sync.md` | agent-sync, skill-deploy |
+| `cli-infra.md` | types, errors, cli-framework |
+
+New domains can be added as capabilities grow.
+
+---
+
+## Standard Format
+
+### 1. Overview
+
+```markdown
+# {capability-name} — Capability Spec
+
+## Overview
+
+[2-3 sentences describing what this capability provides and why it exists.]
+
+**Status**: Active
+**Last Updated**: {YYYY-MM-DD}
+**Modules**: [list of ai-knowledge modules this covers]
+```
+
+---
+
+### 2. Requirements
+
+Each requirement has a REQ ID, description, and behavioral scenarios:
+
+```markdown
+## Requirements
+
+### REQ-{MODULE}-{NNN}: {Title}
+
+{Brief description of the requirement.}
+
+**Scenarios:**
+
+- WHEN {condition}, THEN {expected behavior}
+- WHEN {condition}, THEN {expected behavior}
+
+**Added by**: {change-name} ({date})
+```
+
+Group requirements under ADDED / MODIFIED headings when updating:
+
+```markdown
+### ADDED in {change-name} ({date})
+
+### REQ-SERVICES-010: Archive Service
+...
+
+### MODIFIED in {change-name} ({date})
+
+### REQ-TEMPLATES-010: Archive Skill Template
+**Before**: 4 execution phases
+**After**: 5 execution phases (added Spec Sync)
+```
+
+---
+
+### 3. Edge Cases
+
+```markdown
+## Edge Cases
+
+- {Edge case}: {Expected behavior}
+- {Edge case}: {Expected behavior}
+```
+
+---
+
+### 4. Success Criteria
+
+```markdown
+## Success Criteria
+
+- **SC-001**: {Measurable outcome}
+- **SC-002**: {Measurable outcome}
+```
+
+---
+
+### 5. Change History
+
+Chronological record of all changes that affected this capability:
+
+```markdown
+## Change History
+
+| Date | Change | Impact | REQs |
+|------|--------|--------|------|
+| {date} | {change-name} | {brief description} | REQ-XXX-NNN |
+```
+
+---
+
+## Maintenance Rules
+
+1. **ADDED** requirements: Append to the Requirements section with source attribution
+2. **MODIFIED** requirements: Update in place, record Before/After, add Change History entry
+3. **REMOVED** requirements: Remove from Requirements, add Change History entry noting removal
+4. **Never delete Change History entries** — they are the audit trail
+
+---
+
+## File Length Guidelines
+
+- Keep under **200 lines** per capability spec
+- If a capability exceeds 200 lines, consider splitting into sub-capabilities
+- Change History should summarize, not duplicate full delta-specs
+
+---
+
+## Reference Information
+
+- Project name: `{{project_name}}`
+- Capability specs path: `{{base_dir}}/specs/capabilities/`
+- Archive history path: `{{base_dir}}/specs/history/`
+- AI Knowledge path: `{{knowledge_base_path}}`

@@ -14,11 +14,12 @@ When triggered, briefly describe in the user's language:
 
 ## Startup Loading
 
-1. Read `.prospec/changes/[name]/proposal.md` — parse User Story and ACs
+1. Read `.prospec/changes/[name]/proposal.md` — parse User Stories and acceptance scenarios
 2. Read `{{knowledge_base_path}}/_index.md` — identify related modules (Layer 1)
 3. Read `{{constitution_path}}` — prepare Constitution check
-4. **MANDATORY** — Read [`references/plan-format.md`](references/plan-format.md) for plan.md format
-5. **MANDATORY** — Read [`references/delta-spec-format.md`](references/delta-spec-format.md) for delta-spec.md format
+4. Read `{{base_dir}}/specs/capabilities/` — load relevant capability specs for existing requirements context
+5. **MANDATORY** — Read [`references/plan-format.md`](references/plan-format.md) for plan.md format
+6. **MANDATORY** — Read [`references/delta-spec-format.md`](references/delta-spec-format.md) for delta-spec.md format
 
 **Do NOT** load all module AI Knowledge at once. Load on demand.
 
@@ -26,6 +27,7 @@ When triggered, briefly describe in the user's language:
 
 | Layer | What to Load | When to Load |
 |-------|-------------|--------------|
+| 0 | Capability specs | At startup — understand existing requirements before planning new ones |
 | 1 | `_index.md` | At startup — quickly identify related modules |
 | 2 | Related module `README.md` | During architecture design — understand APIs and patterns |
 | 3 | Source code | When technical questions arise — user can request explicitly |
@@ -59,7 +61,7 @@ Follow `references/plan-format.md` format:
 
 Follow `references/delta-spec-format.md` format:
 - **ADDED**: New requirements (REQ ID + Description + AC + Priority)
-- **MODIFIED**: Changed requirements (Before/After/Reason)
+- **MODIFIED**: Changed requirements — reference existing behavior from capability specs as "Before" (Before/After/Reason)
 - **REMOVED**: Removed requirements (Reason)
 
 ### Phase 6: Constitution Check

@@ -17,12 +17,13 @@ When triggered, briefly describe in the user's language:
 1. Read `{{knowledge_base_path}}/_index.md` — identify related modules
 2. Read `{{constitution_path}}` — prepare Constitution check
 3. **MANDATORY** — Read [`references/proposal-format.md`](references/proposal-format.md) for proposal.md format specification
+4. Read `{{base_dir}}/specs/capabilities/` — check existing capability specs for context
 
 ## Core Workflow
 
 ### Phase 1: Requirements Interview (3-4 questions to converge)
 
-Collect: Role (who), Feature (what), Value (why), Constraints (limitations).
+Collect: Background (why), Role (who), Feature (what), Value (why it matters), Constraints (limitations).
 
 ### Phase 2: Derive Change Name
 
@@ -35,22 +36,34 @@ Derive a kebab-case name from interview results (verb-first, 2-4 words). Confirm
 | Directory doesn't exist | Create `.prospec/changes/[name]/` + `metadata.yaml`(status: story) + empty `proposal.md` |
 | Already exists | Read existing files, proceed to populate |
 
-### Phase 4: Write proposal.md
+### Phase 4: Collect INVEST User Stories
 
-Follow `references/proposal-format.md` format:
-- User Story (As a / I want / So that)
-- Acceptance Criteria (at least 3 verifiable conditions)
-- Related Modules (match from `_index.md`)
-- Notes (optional)
+Guide the user to define one or more INVEST User Stories:
 
-### Phase 5: Constitution Check
+1. **Background**: 1-3 sentences on problem context
+2. **User Stories**: For each story:
+   - As a [specific role] / I want [feature] / So that [value]
+   - **Priority**: P1 (must-have), P2 (should-have), P3 (nice-to-have)
+   - **Acceptance Scenarios**: 2-5 WHEN/THEN pairs per story
+   - **Independent Test**: How to verify this story in isolation
+3. **Edge Cases**: Known boundary conditions and error scenarios
+4. **Functional Requirements**: Numbered FR-001, FR-002... for traceability
+5. **Success Criteria**: Measurable SC-001, SC-002...
+6. **Related Modules**: Match from `_index.md` keywords
+7. **Open Questions**: Mark `NEEDS CLARIFICATION` for ambiguities
+
+### Phase 5: Write proposal.md
+
+Follow `references/proposal-format.md` format with all sections from Phase 4.
+
+### Phase 6: Constitution Check
 
 Compare against 3+ most relevant Constitution principles:
 - **PASS**: Fully aligned
 - **WARN**: Partially aligned, with suggestions
 - **FAIL**: Violates principle, must adjust
 
-### Phase 6: Summary + Next Steps
+### Phase 7: Summary + Next Steps
 
 Save proposal.md, suggest:
 1. `/prospec-plan` — proceed to planning
@@ -62,7 +75,7 @@ Save proposal.md, suggest:
 - **NEVER** create non-kebab-case change names — all lowercase, hyphen-separated, verb-first
 - **NEVER** complete a Story without Constitution check — principles must validate the proposal
 - **NEVER** write implementation details in Acceptance Criteria — ACs focus on user-observable outcomes
-- **NEVER** create a Story with fewer than 3 acceptance criteria
+- **NEVER** create a Story with fewer than 2 acceptance scenarios (WHEN/THEN)
 - **NEVER** include technical architecture or code in proposal.md — that belongs in plan.md
 - **NEVER** forget to update metadata.yaml status
 - **NEVER** ask more than 4 questions at once

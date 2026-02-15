@@ -15,6 +15,7 @@ const TEMPLATE_CONTEXT = {
   project_name: 'test-project',
   knowledge_base_path: 'docs/ai-knowledge',
   constitution_path: 'docs/CONSTITUTION.md',
+  base_dir: 'docs',
   tech_stack: { language: 'typescript', framework: 'express' },
   skills: SKILL_DEFINITIONS.map((s) => ({
     name: s.name,
@@ -82,6 +83,7 @@ describe('Skill Format Contract', () => {
       'knowledge-generate-format.hbs',
       'archive-format.hbs',
       'knowledge-update-format.hbs',
+      'capability-spec-format.hbs',
     ];
 
     for (const ref of REFERENCE_TEMPLATES) {
@@ -135,6 +137,80 @@ describe('Skill Format Contract', () => {
       expect(refSkillNames).toContain('prospec-knowledge-generate');
       expect(refSkillNames).toContain('prospec-archive');
       expect(refSkillNames).toContain('prospec-knowledge-update');
+    });
+  });
+
+  describe('Proposal format structure', () => {
+    it('should contain 8+ required sections', () => {
+      const content = renderTemplate(
+        'skills/references/proposal-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('## Standard Format');
+      expect(content).toContain('Background');
+      expect(content).toContain('User Stories');
+      expect(content).toContain('Edge Cases');
+      expect(content).toContain('Functional Requirements');
+      expect(content).toContain('Success Criteria');
+      expect(content).toContain('Related Modules');
+      expect(content).toContain('Open Questions');
+      expect(content).toContain('Constitution Check');
+    });
+
+    it('should include INVEST and WHEN/THEN guidance', () => {
+      const content = renderTemplate(
+        'skills/references/proposal-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('INVEST');
+      expect(content).toContain('WHEN');
+      expect(content).toContain('THEN');
+      expect(content).toContain('Priority');
+    });
+
+    it('should use Handlebars variables', () => {
+      const content = renderTemplate(
+        'skills/references/proposal-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('test-project');
+      expect(content).toContain('docs/ai-knowledge');
+      expect(content).toContain('docs/CONSTITUTION.md');
+    });
+  });
+
+  describe('Capability spec format structure', () => {
+    it('should contain Overview, Requirements, and Change History sections', () => {
+      const content = renderTemplate(
+        'skills/references/capability-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('## Purpose');
+      expect(content).toContain('## Standard Format');
+      expect(content).toContain('Overview');
+      expect(content).toContain('Requirements');
+      expect(content).toContain('Change History');
+    });
+
+    it('should include WHEN/THEN scenario format', () => {
+      const content = renderTemplate(
+        'skills/references/capability-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('WHEN');
+      expect(content).toContain('THEN');
+      expect(content).toContain('REQ ID');
+    });
+
+    it('should include maintenance rules', () => {
+      const content = renderTemplate(
+        'skills/references/capability-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Maintenance Rules');
+      expect(content).toContain('ADDED');
+      expect(content).toContain('MODIFIED');
+      expect(content).toContain('REMOVED');
     });
   });
 

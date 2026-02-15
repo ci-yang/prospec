@@ -1,6 +1,6 @@
 ---
 name: prospec-verify
-description: "Verify Implementation | 驗證實作 - Verify that implementation conforms to specifications, plan, and constitution. Triggers: verify, check, audit, quality, done, 驗證, 檢查, 品質, 做完了"
+description: "Verify Implementation | 驗證實作 - Run 5-dimension audit (tasks, spec compliance, constitution, spec↔knowledge consistency, tests) and assign quality grade (S/A/B/C/D). Triggers: verify, check, audit, quality, done, grade, 驗證, 檢查, 品質, 做完了, 評分"
 ---
 
 # Prospec Verify Skill
@@ -9,7 +9,7 @@ description: "Verify Implementation | 驗證實作 - Verify that implementation 
 
 When triggered, briefly describe in the user's language:
 - That you'll perform a comprehensive audit of the implementation
-- All 4 verification dimensions will be checked (task completion, spec compliance, Constitution full audit, tests)
+- All 5 verification dimensions will be checked (task completion, spec compliance, Constitution full audit, Spec ↔ Knowledge consistency, tests)
 - A quality grade (S/A/B/C/D) with deployment recommendation will be provided
 
 ## Startup Loading
@@ -17,8 +17,9 @@ When triggered, briefly describe in the user's language:
 1. Read `.prospec/changes/[name]/tasks.md` — task completion status
 2. Read `.prospec/changes/[name]/plan.md` — design intent
 3. Read `.prospec/changes/[name]/delta-spec.md` — file specifications
-4. Read `.prospec/changes/[name]/proposal.md` — acceptance criteria
+4. Read `.prospec/changes/[name]/proposal.md` — acceptance scenarios
 5. Read `{{constitution_path}}` — for full audit
+6. Read `{{base_dir}}/specs/capabilities/` — load relevant capability specs for consistency check
 
 ## Key Difference from Other Skills
 
@@ -27,13 +28,13 @@ Verify Skill performs a **full audit** (every Constitution principle is checked)
 
 ## Core Workflow
 
-### Verification 1/4: Task Completion
+### Verification 1/5: Task Completion
 
 Parse tasks.md, calculate completion rate by architecture layer.
 - 100% → PASS
 - < 100% → WARN (list uncompleted tasks)
 
-### Verification 2/4: Delta Spec Compliance
+### Verification 2/5: Delta Spec Compliance
 
 Compare each file specification in delta-spec.md:
 - New files exist
@@ -43,14 +44,33 @@ Compare each file specification in delta-spec.md:
 
 Mark each item PASS / WARN / FAIL.
 
-### Verification 3/4: Constitution Full Audit
+### Verification 3/5: Constitution Full Audit
 
 Check **every principle** in the Constitution:
 - Find **evidence** from implementation code and planning documents
 - Mark PASS / WARN / FAIL with score (1-5)
 - FAIL items must include specific remediation steps
 
-### Verification 4/4: Test Verification
+### Verification 4/5: Spec ↔ Knowledge Consistency
+
+Compare capability spec requirements (`{{base_dir}}/specs/capabilities/`) against AI Knowledge module descriptions (`{{knowledge_base_path}}/modules/`):
+
+For each requirement in the relevant capability spec:
+- **PASS**: Requirement behavior is reflected in the corresponding module README.md
+- **WARN**: Requirement exists but AI Knowledge description is vague or outdated
+- **FAIL**: Requirement exists in spec but has no corresponding description in AI Knowledge
+
+Output format:
+
+```
+| Requirement | Spec Says | Knowledge Says | Status |
+|-------------|-----------|----------------|--------|
+| REQ-XXX-NNN | [behavior] | [description] | PASS/WARN/FAIL |
+```
+
+If capability specs don't exist yet, skip this dimension with a note.
+
+### Verification 5/5: Test Verification
 
 Check if test files exist, suggest test execution commands.
 
@@ -76,7 +96,7 @@ Deployment Recommendation:
 - **NEVER** only spot-check the Constitution — Verify must check every principle (this is its core distinction)
 - **NEVER** give PASS without supporting evidence — every assessment must cite specific code or documents
 - **NEVER** give FAIL without remediation steps — failures must include actionable fix steps
-- **NEVER** skip any verification dimension — all 4 verifications are required
+- **NEVER** skip any verification dimension — all 5 verifications are required
 - **NEVER** continue verification when planning documents are missing — confirm document completeness first
 - **NEVER** make subjective assessments — all judgments must be based on verifiable evidence
 - **NEVER** ignore FAIL items and give "ready to deploy" — FAIL items are deployment blockers

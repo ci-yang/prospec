@@ -1,6 +1,6 @@
 ---
 name: prospec-archive
-description: "Archive Changes | 歸檔變更 - Archive completed changes, generate summary, and suggest Knowledge updates. Triggers: archive, clean up, wrap up, 歸檔, 收尾, 整理完成"
+description: "Archive Changes | 歸檔變更 - Archive completed changes, generate summary, sync requirements to capability specs, and suggest Knowledge updates. Triggers: archive, clean up, wrap up, spec sync, 歸檔, 收尾, 整理完成, 規格同步"
 ---
 
 # Prospec Archive Skill
@@ -17,6 +17,7 @@ When triggered, briefly describe in the user's language:
 1. Read `.prospec/changes/` — scan all change directories and their `metadata.yaml`
 2. Read `{{constitution_path}}` — prepare Constitution spot check
 3. **MANDATORY** — Read [`references/archive-format.md`](references/archive-format.md) for summary.md format specification
+4. **MANDATORY** — Read [`references/capability-spec-format.md`](references/capability-spec-format.md) for capability spec format
 
 ## Core Workflow
 
@@ -46,7 +47,21 @@ For each confirmed change:
 2. Move all artifacts (proposal.md, plan.md, delta-spec.md, tasks.md, metadata.yaml)
 3. Place generated summary.md in archive directory
 4. Update `metadata.yaml` to `status: archived`
-5. Copy summary.md to `{base_dir}/specs/{change-name}.md` for version-controlled spec history
+5. Copy summary.md to `{base_dir}/specs/history/{change-name}.md` for version-controlled history
+
+### Phase 3.5: Spec Sync (Capability Specs)
+
+After archiving, sync requirements to capability specs:
+
+1. Read the archived `delta-spec.md` — parse ADDED / MODIFIED / REMOVED sections
+2. For each requirement:
+   - **ADDED**: Append to the matching `{base_dir}/specs/capabilities/{domain}.md`. If the capability spec does not exist, create it following `references/capability-spec-format.md`
+   - **MODIFIED**: Update the existing requirement in the capability spec. Record Before/After
+   - **REMOVED**: Remove the requirement and add a Change History entry
+3. Update each capability spec's Change History table
+4. Determine capability domain from REQ ID prefix (e.g., REQ-SERVICES → `change-workflow.md` or `knowledge-engine.md` based on context)
+
+**Spec Sync is non-fatal** — if it fails, archiving still succeeds. Warn the user to manually update capability specs.
 
 ### Phase 4: Auto Knowledge Update
 

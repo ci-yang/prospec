@@ -304,7 +304,7 @@ Details.
     const result = await execute({ cwd: '/project' });
 
     expect(result.specFiles).toHaveLength(1);
-    expect(result.specFiles[0]).toContain('/prospec/specs/feat-a.md');
+    expect(result.specFiles[0]).toContain('/prospec/specs/history/feat-a.md');
     expect(fs.existsSync(result.specFiles[0]!)).toBe(true);
 
     const specContent = fs.readFileSync(result.specFiles[0]!, 'utf-8');

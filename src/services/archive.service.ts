@@ -255,11 +255,12 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
   const specFiles: string[] = [];
 
   // Resolve specsPath from config (non-fatal if config is missing)
+  // Archive summaries go to specs/history/ subdirectory
   let specsPath: string | null = null;
   try {
     const config = await readConfig(cwd);
     const basePaths = resolveBasePaths(config, cwd);
-    specsPath = basePaths.specsPath;
+    specsPath = path.join(basePaths.specsPath, 'history');
   } catch {
     // Config not available — skip spec archiving
   }
