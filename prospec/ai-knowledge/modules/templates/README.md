@@ -155,9 +155,9 @@ Enable incremental knowledge updates—AI agents can regenerate specific section
 
 Skill reference templates provide format specifications that Skills load on-demand, keeping Skill templates concise and focused on workflow logic.
 
-### Why Chinese Content in Some Templates?
+### Language Neutrality
 
-Templates like `proposal.md.hbs` and `delta-spec.md.hbs` include Chinese placeholder text because prospec is designed for Chinese-speaking development teams, though all Skill instructions remain in English for AI agent clarity.
+Skill templates (`.hbs`) are **language-neutral** — they contain no hardcoded output language directives. Output language is determined by the project's Constitution, CLAUDE.md, or user preferences. Structural headings (`## Activation`, `## NEVER`, etc.) remain in English as parser-recognizable markers. Change workflow templates (`proposal.md.hbs`, `delta-spec.md.hbs`) include Chinese placeholder text as the project is primarily used by Chinese-speaking teams, but this is a project-level choice, not a template-level enforcement.
 
 <!-- prospec:auto-end -->
 

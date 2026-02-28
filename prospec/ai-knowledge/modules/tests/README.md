@@ -63,7 +63,7 @@ tests/
 
 | File | Tests | Purpose |
 |------|-------|---------|
-| `contract/skill-format.test.ts` | 70+ tests | Validates 10 skills, 10 reference templates, proposal-format structure (8+ sections, INVEST/WHEN-THEN), capability-spec-format structure, 4 agent configs |
+| `contract/skill-format.test.ts` | 136 tests | Validates 11 skills, 16 reference templates, proposal-format structure (8+ sections, INVEST/WHEN-THEN), capability-spec-format structure, design-spec/interaction-spec structure, 4 platform adapters, 4 agent configs, language neutrality verification |
 | `contract/cli-output.test.ts` | ~10 tests | CLI stdout/stderr format contracts |
 
 ### Layer 4: E2E Tests
