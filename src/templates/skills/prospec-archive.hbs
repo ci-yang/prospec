@@ -7,7 +7,7 @@ description: "Archive Changes | 歸檔變更 - Archive completed changes, genera
 
 ## Activation
 
-When triggered, briefly describe in the user's language:
+When triggered, briefly describe:
 - That you'll scan `.prospec/changes/` for completed changes
 - Each archived change will get a summary.md and be moved to `.prospec/archive/`
 - Affected modules will be identified and Knowledge update will be suggested
@@ -102,4 +102,3 @@ After archiving, identify and prompt for Knowledge update:
 | Archive directory already exists | Warn user, ask whether to overwrite or skip |
 | File move fails | Roll back that specific change's archive, report error, continue with others |
 
-All generated files must be written in English.

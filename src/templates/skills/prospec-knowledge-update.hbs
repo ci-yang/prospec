@@ -7,7 +7,7 @@ description: "Incremental Knowledge Update | 增量更新 AI Knowledge - Parse d
 
 ## Activation
 
-When triggered, briefly describe in the user's language:
+When triggered, briefly describe:
 - That you'll parse delta-spec.md to identify affected modules
 - Only affected modules will be scanned (not the entire codebase)
 - Module README.md, _index.md, and module-map.yaml will be updated incrementally
@@ -96,4 +96,3 @@ Update the module table within `prospec:auto-start/end` markers:
 | ContentMerger conflict | Prefer new auto content, always preserve user sections |
 | Source scan returns 0 files | Generate minimal README with module name only, warn user |
 
-All generated files must be written in English.
