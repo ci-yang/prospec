@@ -436,6 +436,38 @@ describe('Skill Format Contract', () => {
     });
   });
 
+  describe('Language neutrality — no hardcoded language directives', () => {
+    for (const skill of SKILL_DEFINITIONS) {
+      describe(`${skill.name}`, () => {
+        it('should NOT contain "written in English" directive', () => {
+          const content = renderTemplate(
+            `skills/${skill.name}.hbs`,
+            TEMPLATE_CONTEXT,
+          );
+          expect(content).not.toContain('written in English');
+        });
+
+        it('should NOT contain "in the user\'s language" directive', () => {
+          const content = renderTemplate(
+            `skills/${skill.name}.hbs`,
+            TEMPLATE_CONTEXT,
+          );
+          expect(content).not.toContain("in the user's language");
+        });
+
+        it('should retain English section headings', () => {
+          const content = renderTemplate(
+            `skills/${skill.name}.hbs`,
+            TEMPLATE_CONTEXT,
+          );
+          // All skills must have these core structural headings in English
+          expect(content).toContain('## Activation');
+          expect(content).toContain('## NEVER');
+        });
+      });
+    }
+  });
+
   describe('Agent config templates', () => {
     const AGENT_CONFIGS = ['claude', 'gemini', 'copilot', 'codex'];
 
