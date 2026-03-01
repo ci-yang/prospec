@@ -167,6 +167,29 @@ Planning 類 Skills 呼叫對應的 CLI 命令建立骨架，再由 AI 填充內
 
 **新增來源**: add-design-phase (2026-02-16)
 
+### Skill 語言中立
+
+### REQ-SKILL-009: Skill 產出語言中立
+
+SKILL.md 不包含任何硬編碼的輸出語言指令。產出語言由專案的 Constitution、CLAUDE.md 或使用者偏好決定。
+
+**場景：**
+- WHEN agent sync 從 .hbs 模板生成 SKILL.md，THEN SKILL.md 不包含 `All generated files must be written in English` 或類似語言強制指令
+- WHEN 使用者在 Constitution 規定繁體中文，THEN Skill 觸發後的產出語言遵循 Constitution
+- WHEN 無語言規定時，THEN AI 根據對話上下文自行判斷語言
+
+**新增來源**: remove-skill-language-directives (2026-03-01)
+
+### REQ-SKILL-010: Activation 語言中立
+
+SKILL.md 的 Activation 區段使用 `When triggered, briefly describe:` 格式，不指定回應語言。
+
+**場景：**
+- WHEN Skill 被觸發，THEN Activation 指引為 `When triggered, briefly describe:`（無語言指定）
+- WHEN AI 執行 Activation，THEN 回應語言由外部機制（CLAUDE.md、Constitution、對話上下文）決定
+
+**新增來源**: remove-skill-language-directives (2026-03-01)
+
 ## 邊界案例
 
 - 沒有偵測到任何已安裝的 AI CLI：列出支援的 CLI 並提示安裝方式
@@ -188,3 +211,4 @@ Planning 類 Skills 呼叫對應的 CLI 命令建立骨架，再由 AI 填充內
 | 2026-02-09 | add-archive-system | 新增 archive skill 到 definitions | REQ-TYPES-011 |
 | 2026-02-09 | add-knowledge-update | 新增 knowledge-update skill | REQ-TYPES-011 |
 | 2026-02-16 | add-design-phase | 新增 prospec-design Skill 定義和 6 個 reference 映射 | REQ-TYPES-011, REQ-AGNT-013 |
+| 2026-03-01 | remove-skill-language-directives | Skills 語言中立化，移除硬編碼語言指令 | REQ-SKILL-009, REQ-SKILL-010 |

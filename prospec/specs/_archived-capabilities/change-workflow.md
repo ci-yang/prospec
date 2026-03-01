@@ -481,6 +481,19 @@ Greenfield Mode 下，引導 AI 執行補償性上下文收集。
 
 **新增來源**: add-design-phase (2026-02-16)
 
+### Reference 語言中立
+
+### REQ-REF-001: Reference 格式文件語言中立
+
+Reference 格式文件僅定義結構和節標題（英文作為 parser 標準），不包含語言強制指令。內容語言由 Constitution 控制。
+
+**場景：**
+- WHEN 引用 proposal-format reference，THEN 不包含 `> **Language**: This document MUST be written in...` 語言強制區塊
+- WHEN 引用任何 reference 格式文件，THEN 結構標題（`## Background` 等）維持英文作為 parser 標準
+- WHEN 使用者撰寫文件，THEN 內容語言由 Constitution 或使用者偏好決定
+
+**新增來源**: remove-skill-language-directives (2026-03-01)
+
 ## 邊界案例
 
 - Archive 目錄已存在：警告使用者，詢問覆蓋或跳過
@@ -511,4 +524,5 @@ Greenfield Mode 下，引導 AI 執行補償性上下文收集。
 | 2026-02-09 | add-knowledge-update | Archive 自動觸發 knowledge-update | REQ-SERVICES-010 |
 | 2026-02-15 | redesign-spec-system | INVEST proposal 格式、capability spec 格式、Spec Sync、specs/ 雙層結構、一致性驗證 | REQ-TEMPLATES-030~034, REQ-SPECS-001, REQ-TEMPLATES-010, REQ-CHNG-002, REQ-CHNG-006, REQ-CHNG-009 |
 | 2026-02-16 | enhance-knowledge-sdd-pipeline | Knowledge Quality Gate、Brownfield/Greenfield 偵測、Technical Summary、互動式 Knowledge Update | REQ-TEMPLATES-040~045, REQ-TEMPLATES-032, REQ-TEMPLATES-033, REQ-TEMPLATES-010 |
+| 2026-03-01 | remove-skill-language-directives | Reference 格式文件語言中立化 | REQ-REF-001 |
 | 2026-02-16 | add-design-phase | Design Phase Generate/Extract 雙模式、4 平台 adapter、UI Scope、設計感知 Tasks/Implement/Verify | REQ-TEMPLATES-050~058, REQ-TEMPLATES-010, REQ-CHNG-011, REQ-TEMPLATES-034 |
