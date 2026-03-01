@@ -3,7 +3,7 @@ feature: sdd-workflow
 status: active
 last_updated: 2026-03-02
 story_count: 10
-req_count: 41
+req_count: 44
 ---
 
 # SDD 開發流程
@@ -110,11 +110,18 @@ req_count: 41
 
 ### Behavior Specifications
 
-#### REQ-TEMPLATES-033: Plan Skill Capability Loading
-- WHEN Startup Loading, THEN read capability specs + detect Context Mode
+#### REQ-TEMPLATES-033: Plan Skill Feature Spec Loading
+- WHEN Startup Loading, THEN read Feature Specs + Product Spec as Layer 0 context + detect Context Mode
 - WHEN Brownfield, THEN synthesize Technical Summary (module overview + patterns + constraints)
 - WHEN Greenfield, THEN guide compensatory collection + suggest Knowledge generation
+- WHEN delta-spec generated, THEN each REQ includes Feature/Story routing fields
 - WHEN Phase ends, THEN execute Knowledge Quality Gate
+
+#### REQ-SPEC-012: Delta-Spec Feature Routing Metadata
+delta-spec.md 每個 REQ 新增 Feature/Story 路由欄位，指定歸檔時寫入哪個 Feature Spec。
+- WHEN ADDED/MODIFIED REQ, THEN includes `**Feature**: {feature-name}` field
+- WHEN ADDED/MODIFIED REQ, THEN includes `**Story**: US-{N}` field
+- WHEN Plan Skill generates delta-spec, THEN routing fields auto-populated
 
 #### REQ-TEMPLATES-041: Plan Brownfield/Greenfield Detection
 - WHEN >= 2 modules with README.md, THEN Brownfield Mode
@@ -175,16 +182,17 @@ tasks.md 末尾含 Summary 區段（total tasks、total lines、parallelizable c
 以便歸檔前確保品質達標。
 
 **Acceptance Scenarios:**
-- WHEN 執行 `/prospec-verify` THEN 比對 capability spec 需求與 ai-knowledge 描述
+- WHEN 執行 `/prospec-verify` THEN 比對 Feature Spec 需求與 ai-knowledge 描述，並評估 Spec Health
 - WHEN 每個需求 THEN 顯示 PASS/WARN/FAIL
 - WHEN `ui_scope != none` 且有 design-spec.md THEN 額外執行設計一致性驗證
 
 ### Behavior Specifications
 
-#### REQ-TEMPLATES-034: Verify Skill Spec-Knowledge Consistency
-- WHEN triggered, THEN compare capability spec vs ai-knowledge descriptions
+#### REQ-TEMPLATES-034: Verify Skill Feature Spec-Knowledge Consistency
+- WHEN triggered, THEN compare Feature Spec User Stories + REQs vs ai-knowledge module descriptions
 - WHEN spec has req but knowledge missing, THEN FAIL
 - WHEN knowledge describes undocumented feature, THEN WARN
+- WHEN Spec Health check, THEN evaluate Density (Story ≥ 40%), Freshness (last_updated ≤ 30 days), Consistency (Feature Spec vs Knowledge)
 - WHEN ui_scope != none + design-spec.md exists, THEN execute design consistency check
 
 #### REQ-TEMPLATES-045: Verify Knowledge Staleness Detection
@@ -200,8 +208,9 @@ tasks.md 末尾含 Summary 區段（total tasks、total lines、parallelizable c
 
 **Acceptance Scenarios:**
 - WHEN 執行 `/prospec-archive` THEN 掃描 verified 變更搬至 `.prospec/archive/{date}-{name}/`
-- WHEN 歸檔完成 THEN 生成 summary.md 複製到 `specs/history/` + 自動觸發 knowledge-update
-- WHEN Spec Sync THEN 讀取 delta-spec ADDED/MODIFIED/REMOVED 合併至 `specs/capabilities/`
+- WHEN 歸檔完成 THEN 生成 summary.md + 自動觸發 knowledge-update
+- WHEN Feature Spec Sync THEN 讀取 delta-spec ADDED/MODIFIED/REMOVED 融入 `specs/features/`（Replace-in-Place）
+- WHEN Feature Spec Sync 完成 THEN 自動重新生成 `specs/product.md`
 
 ### Behavior Specifications
 
@@ -214,10 +223,17 @@ tasks.md 末尾含 Summary 區段（total tasks、total lines、parallelizable c
 - WHEN complete, THEN summary → `specs/history/` + auto-trigger knowledge-update (non-fatal)
 
 #### REQ-TEMPLATES-010: Archive Skill Template
-5 階段流程：Scan → Summary → Archive → Spec Sync → Knowledge Update。
-- WHEN Spec Sync, THEN merge delta-spec to specs/capabilities/ (non-fatal on failure)
+6 階段流程：Scan → Summary → Archive → Feature Spec Sync → Product Spec Regeneration → Knowledge Update。
+- WHEN Feature Spec Sync, THEN merge User Stories + delta-spec REQs to specs/features/ via Replace-in-Place (non-fatal on failure)
+- WHEN Product Spec Regeneration, THEN synthesize specs/product.md from all Feature Spec frontmatter (non-fatal on failure)
 - WHEN Knowledge Update, THEN extract module names from REQ ID prefixes + interactively ask update
 - WHEN archiving, THEN also move design-spec.md + interaction-spec.md if exist
+
+#### REQ-SPEC-013: Product Spec Auto-Generation
+歸檔 Feature Spec Sync 完成後，自動從所有 Feature Specs 合成 `specs/product.md`。
+- WHEN Feature Spec Sync completes, THEN trigger product.md regeneration
+- WHEN regenerating, THEN extract frontmatter from all Feature Specs in features/
+- WHEN product.md generated, THEN Feature Map links match current Feature Spec files
 
 ---
 
@@ -228,9 +244,9 @@ tasks.md 末尾含 Summary 區段（total tasks、total lines、parallelizable c
 以便規格真正成為 SDD 的 Single Source of Truth。
 
 **Acceptance Scenarios:**
-- WHEN 建立 capability spec THEN 含 Overview、Requirements（REQ ID + WHEN/THEN）、Edge Cases、Change History
-- WHEN Archive 觸發 Spec Sync THEN 依格式新增或更新 requirements
-- WHEN 查看 `specs/` THEN 有 `capabilities/` 和 `history/` 兩層
+- WHEN 建立 Feature Spec THEN 含 Who & Why、User Stories & Behavior Specs（REQ ID + WHEN/THEN）、Edge Cases、Change History
+- WHEN Archive 觸發 Feature Spec Sync THEN 融入 User Stories + 依格式新增或更新 requirements（Replace-in-Place）
+- WHEN 查看 `specs/` THEN Product-First 架構：`product.md`（PRD 入口）+ `features/`（Feature Specs）
 
 ### Behavior Specifications
 
@@ -239,12 +255,20 @@ tasks.md 末尾含 Summary 區段（total tasks、total lines、parallelizable c
 - WHEN writing Story, THEN "As a/I want/So that" + Priority + WHEN/THEN
 - WHEN open questions, THEN max 3 items
 
-#### REQ-TEMPLATES-031: Capability Spec Format Reference
-`capability-spec-format.hbs` 定義活規格結構：Overview, Requirements, Edge Cases, SC, Change History。
-- WHEN archive triggers Spec Sync, THEN add/update per format
+#### REQ-SPEC-010: Feature Spec Format Template
+`feature-spec-format.hbs` 以 User Story 為核心組織單位，REQ ID 降為 Behavior Specifications 子項。
+- WHEN creating Feature Spec, THEN structure: frontmatter → Who & Why → User Stories & Behavior Specs → Edge Cases → SC → Maintenance Rules → Deprecated → Change History
+- WHEN User Stories section, THEN occupy ≥ 40% of total content
+- WHEN Maintenance Rules, THEN define Replace-in-Place, Functional Grouping, No Inline Provenance, Deprecation over Deletion
+
+#### REQ-SPEC-011: Product Spec Format Template
+`product-spec-format.hbs`（PRD 入口）含願景、目標使用者、功能地圖、核心 Stories 摘要。
+- WHEN product.md, THEN ≤ 80 lines, readable in 2 minutes
+- WHEN Feature Map, THEN each item links to corresponding Feature Spec
+- WHEN generated, THEN synthesizable from all Feature Spec frontmatter
 
 #### REQ-SPECS-001: specs/ Directory Structure
-雙層結構：`capabilities/`（活規格）+ `history/`（歸檔摘要），根目錄不直接存放歸檔。
+Product-First 結構：`product.md`（PRD 入口）+ `features/`（Feature Specs）。歷史追溯由 Feature Spec Change History + `.prospec/archive/` 負責。
 
 #### REQ-TEMPLATES-057: Proposal UI Scope Field
 UI Scope 可選欄位（full/partial/none），none 時跳過 Design Phase，legacy proposals 不受影響。
@@ -331,8 +355,8 @@ Reference documents 僅定義結構（英文 headings），不強制內容語言
 - Knowledge update 失敗：非致命，建議手動更新
 - 無 story 就執行 plan：提示先建立 story
 - 超過 30 個任務：建議拆分 Story 或合併
-- Spec Sync 時 capability spec 不存在：建立新檔
-- Verify 無 capability spec：跳過一致性檢查
+- Feature Spec Sync 時 Feature Spec 不存在：建立新檔
+- Verify 無 Feature Spec：跳過一致性檢查
 - Design Skill 無 design.platform 設定：預設 html adapter
 - Extract Mode 模糊設計意圖：標記 [NEEDS CLARIFICATION]
 - UI 任務無 design-spec.md：Implement Skill 警告
@@ -340,9 +364,17 @@ Reference documents 僅定義結構（英文 headings），不強制內容語言
 ## Success Criteria
 
 - **SC-001**: 所有 SDD 階段（story → design → plan → tasks → implement → verify → archive）產出格式正確的 artifacts
-- **SC-002**: 歸檔摘要累積在 specs/history/ 提供版本控制的稽核軌跡
+- **SC-002**: Feature Spec Change History 累積稽核軌跡，product.md 自動反映最新功能地圖
 - **SC-003**: 支援 5+ 個並行 change story 而不混淆
 - **SC-004**: Prospec 可用於自身開發（self-host），驗證工具實用性
+
+---
+
+## Deprecated Requirements
+
+#### ~~REQ-TEMPLATES-031: Capability Spec Format Reference~~
+**Removed**: 2026-03-02 | **Change**: redesign-spec-architecture
+**Reason**: 由 REQ-SPEC-010（Feature Spec Format）取代。Feature Spec 涵蓋 Capability Spec 所有資訊並強化人類可讀性。
 
 ---
 
@@ -357,3 +389,4 @@ Reference documents 僅定義結構（英文 headings），不強制內容語言
 | 2026-02-16 | add-design-phase | Design Phase 雙模式、4 平台 adapter、UI Scope | US-9; REQ-TEMPLATES-050~058 |
 | 2026-03-01 | remove-skill-language-directives | Reference format 語言中立性 | US-7; REQ-REF-001 |
 | 2026-03-02 | v2-product-first migration | 重組為 product-first feature spec | All |
+| 2026-03-02 | redesign-spec-architecture | Product-First 架構：Feature Spec Sync、Product Spec 自動生成、Spec Health、Feature/Story 路由、deprecated Capability Spec Format | US-3,5,6,7; REQ-SPEC-010~013, REQ-TEMPLATES-010/033/034, REQ-SPECS-001; -REQ-TEMPLATES-031 |
