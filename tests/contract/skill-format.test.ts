@@ -84,6 +84,8 @@ describe('Skill Format Contract', () => {
       'archive-format.hbs',
       'knowledge-update-format.hbs',
       'capability-spec-format.hbs',
+      'feature-spec-format.hbs',
+      'product-spec-format.hbs',
       'design-spec-format.hbs',
       'interaction-spec-format.hbs',
       'adapter-pencil.hbs',
@@ -184,6 +186,171 @@ describe('Skill Format Contract', () => {
       expect(content).toContain('test-project');
       expect(content).toContain('docs/ai-knowledge');
       expect(content).toContain('docs/CONSTITUTION.md');
+    });
+  });
+
+  describe('Feature spec format structure', () => {
+    it('should contain Who & Why, User Stories, and Maintenance Rules', () => {
+      const content = renderTemplate(
+        'skills/references/feature-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Who & Why');
+      expect(content).toContain('User Stories & Behavior Specifications');
+      expect(content).toContain('Maintenance Rules');
+      expect(content).toContain('Change History');
+    });
+
+    it('should define US-NNN User Story format', () => {
+      const content = renderTemplate(
+        'skills/references/feature-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('US-NNN');
+      expect(content).toContain('As a');
+      expect(content).toContain('I want');
+      expect(content).toContain('So that');
+    });
+
+    it('should define REQ-XXX-NNN Behavior Spec format', () => {
+      const content = renderTemplate(
+        'skills/references/feature-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('REQ-{MODULE}-{NNN}');
+      expect(content).toContain('Scenarios');
+    });
+
+    it('should contain Replace-in-Place maintenance rule', () => {
+      const content = renderTemplate(
+        'skills/references/feature-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Replace-in-Place');
+      expect(content).toContain('Deprecation over Deletion');
+    });
+
+    it('should contain Deprecated Requirements and Edge Cases sections', () => {
+      const content = renderTemplate(
+        'skills/references/feature-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Deprecated Requirements');
+      expect(content).toContain('Edge Cases');
+      expect(content).toContain('Success Criteria');
+    });
+  });
+
+  describe('Product spec format structure', () => {
+    it('should contain Vision, Target Users, and Feature Map', () => {
+      const content = renderTemplate(
+        'skills/references/product-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('願景');
+      expect(content).toContain('目標使用者');
+      expect(content).toContain('功能地圖');
+    });
+
+    it('should contain Feature Map linking to features/', () => {
+      const content = renderTemplate(
+        'skills/references/product-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('features/');
+      expect(content).toContain('feature-slug');
+    });
+
+    it('should contain Product Principles and Roadmap', () => {
+      const content = renderTemplate(
+        'skills/references/product-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('產品原則');
+      expect(content).toContain('路線圖');
+    });
+
+    it('should enforce 80 line limit guideline', () => {
+      const content = renderTemplate(
+        'skills/references/product-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('80 lines');
+    });
+  });
+
+  describe('Delta-spec Feature/Story routing fields', () => {
+    it('should contain Feature routing field in ADDED format', () => {
+      const content = renderTemplate(
+        'skills/references/delta-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('**Feature:** {feature-slug}');
+      expect(content).toContain('**Story:** US-{N}');
+    });
+
+    it('should contain Feature routing field in MODIFIED format', () => {
+      const content = renderTemplate(
+        'skills/references/delta-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      // Both ADDED and MODIFIED should have Feature/Story fields
+      const featureCount = (content.match(/\*\*Feature:\*\*/g) ?? []).length;
+      expect(featureCount).toBeGreaterThanOrEqual(2);
+    });
+
+    it('should explain routing to specs/features/', () => {
+      const content = renderTemplate(
+        'skills/references/delta-spec-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('specs/features/');
+      expect(content).toContain('Spec Sync');
+    });
+  });
+
+  describe('Archive skill Feature Spec references', () => {
+    it('should reference Feature Spec Sync, not Capability Spec Sync', () => {
+      const content = renderTemplate(
+        'skills/prospec-archive.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Feature Spec Sync');
+      expect(content).not.toContain('Capability Spec Sync');
+    });
+
+    it('should reference specs/features/ path', () => {
+      const content = renderTemplate(
+        'skills/prospec-archive.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('specs/features/');
+    });
+
+    it('should not reference specs/history/ path', () => {
+      const content = renderTemplate(
+        'skills/prospec-archive.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).not.toContain('specs/history/');
+    });
+
+    it('should contain Product Spec Regeneration phase', () => {
+      const content = renderTemplate(
+        'skills/prospec-archive.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('Product Spec Regeneration');
+      expect(content).toContain('product.md');
+    });
+
+    it('should reference feature-spec-format in Startup Loading', () => {
+      const content = renderTemplate(
+        'skills/prospec-archive.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('feature-spec-format');
+      expect(content).toContain('product-spec-format');
     });
   });
 
