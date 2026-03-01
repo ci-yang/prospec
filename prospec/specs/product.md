@@ -1,6 +1,6 @@
 ---
 product: prospec
-version: 0.1.3
+version: 0.1.4
 last_updated: 2026-03-02
 ---
 
