@@ -6,7 +6,8 @@ import {
   filterByStatus,
   moveToArchive,
   generateSummary,
-  archiveToSpecs,
+  syncToFeatureSpecs,
+  generateProductSpec,
   execute,
 } from '../../../src/services/archive.service.js';
 
@@ -294,21 +295,23 @@ Details.
     expect(result.archived).toHaveLength(1);
   });
 
-  it('should copy summary to specs directory when config exists', async () => {
+  it('should sync to Feature Specs when config and delta-spec exist', async () => {
     vol.fromJSON({
       '/project/.prospec.yaml': 'project:\n  name: test-project\npaths:\n  base_dir: prospec\n',
       '/project/.prospec/changes/feat-a/metadata.yaml': 'name: feat-a\nstatus: verified\ncreated: "2026-01-01"\n',
       '/project/.prospec/changes/feat-a/proposal.md': '# Proposal\n\n## User Story\n\nAs a dev, I want X.\n',
+      '/project/.prospec/changes/feat-a/delta-spec.md': '# Delta Spec\n\n## ADDED\n\n### REQ-TYPES-001: Some type\n\n**Feature:** sdd-workflow\n**Story:** US-1\n\n**Description:**\nDetails.\n',
     });
 
     const result = await execute({ cwd: '/project' });
 
     expect(result.specFiles).toHaveLength(1);
-    expect(result.specFiles[0]).toContain('/prospec/specs/history/feat-a.md');
+    expect(result.specFiles[0]).toContain('/prospec/specs/features/sdd-workflow.md');
     expect(fs.existsSync(result.specFiles[0]!)).toBe(true);
 
     const specContent = fs.readFileSync(result.specFiles[0]!, 'utf-8');
-    expect(specContent).toContain('feat-a');
+    expect(specContent).toContain('sdd-workflow');
+    expect(specContent).toContain('REQ-TYPES-001');
   });
 
   it('should not fail archive when config is missing (no spec files)', async () => {
@@ -323,31 +326,154 @@ Details.
   });
 });
 
-// --- archiveToSpecs ---
+// --- syncToFeatureSpecs ---
 
-describe('archiveToSpecs', () => {
-  it('should write summary to specs directory', async () => {
-    vol.fromJSON({});
-    vol.mkdirSync('/project', { recursive: true });
+describe('syncToFeatureSpecs', () => {
+  it('should create new Feature Spec from delta-spec with routing fields', async () => {
+    vol.fromJSON({
+      '/archive/delta-spec.md': `# Delta Spec
 
-    const specFile = await archiveToSpecs(
-      '# feat-a Summary\n\nSome content.',
-      'feat-a',
-      '/project/prospec/specs',
-    );
+## ADDED
 
-    expect(specFile).toBe('/project/prospec/specs/feat-a.md');
-    expect(fs.existsSync(specFile)).toBe(true);
-    const content = fs.readFileSync(specFile, 'utf-8');
-    expect(content).toContain('feat-a Summary');
+### REQ-TYPES-010: Feature Spec type definitions
+
+**Feature:** sdd-workflow
+**Story:** US-1
+
+**Description:**
+Define types for Feature Spec frontmatter.
+
+**Priority:** High
+
+---
+`,
+    });
+    vol.mkdirSync('/specs/features', { recursive: true });
+
+    const files = await syncToFeatureSpecs('/archive', '/specs/features');
+
+    expect(files).toHaveLength(1);
+    expect(files[0]).toBe('/specs/features/sdd-workflow.md');
+    expect(fs.existsSync('/specs/features/sdd-workflow.md')).toBe(true);
+
+    const content = fs.readFileSync('/specs/features/sdd-workflow.md', 'utf-8');
+    expect(content).toContain('feature: sdd-workflow');
+    expect(content).toContain('status: active');
+    expect(content).toContain('REQ-TYPES-010');
+    expect(content).toContain('## Change History');
   });
 
-  it('should create specs directory if it does not exist', async () => {
+  it('should return empty array when no delta-spec exists', async () => {
     vol.fromJSON({});
-    vol.mkdirSync('/project', { recursive: true });
+    vol.mkdirSync('/archive', { recursive: true });
 
-    await archiveToSpecs('content', 'feat-b', '/project/prospec/specs');
+    const files = await syncToFeatureSpecs('/archive', '/specs/features');
+    expect(files).toHaveLength(0);
+  });
 
-    expect(fs.existsSync('/project/prospec/specs')).toBe(true);
+  it('should route multiple REQs to different Feature Specs', async () => {
+    vol.fromJSON({
+      '/archive/delta-spec.md': `# Delta Spec
+
+## ADDED
+
+### REQ-TYPES-001: Type A
+
+**Feature:** sdd-workflow
+**Story:** US-1
+
+**Description:**
+Details.
+
+---
+
+### REQ-CLI-001: CLI command
+
+**Feature:** project-setup
+**Story:** US-2
+
+**Description:**
+Details.
+
+---
+`,
+    });
+
+    const files = await syncToFeatureSpecs('/archive', '/specs/features');
+
+    expect(files).toHaveLength(2);
+    expect(fs.existsSync('/specs/features/sdd-workflow.md')).toBe(true);
+    expect(fs.existsSync('/specs/features/project-setup.md')).toBe(true);
+  });
+});
+
+// --- generateProductSpec ---
+
+describe('generateProductSpec', () => {
+  it('should generate product.md from Feature Spec frontmatter', async () => {
+    vol.fromJSON({
+      '/specs/features/sdd-workflow.md': `---
+feature: sdd-workflow
+status: active
+last_updated: 2026-01-01
+story_count: 3
+req_count: 5
+---
+
+# sdd-workflow
+`,
+      '/specs/features/ai-knowledge.md': `---
+feature: ai-knowledge
+status: active
+last_updated: 2026-01-02
+story_count: 2
+req_count: 4
+---
+
+# ai-knowledge
+`,
+    });
+
+    const result = await generateProductSpec('/specs/features', '/specs/product.md', 'test-project');
+
+    expect(result).toBe('/specs/product.md');
+    expect(fs.existsSync('/specs/product.md')).toBe(true);
+
+    const content = fs.readFileSync('/specs/product.md', 'utf-8');
+    expect(content).toContain('product: test-project');
+    expect(content).toContain('sdd-workflow');
+    expect(content).toContain('ai-knowledge');
+    expect(content).toContain('features/sdd-workflow.md');
+  });
+
+  it('should skip deprecated features in feature map', async () => {
+    vol.fromJSON({
+      '/specs/features/active-feature.md': `---
+feature: active-feature
+status: active
+last_updated: 2026-01-01
+story_count: 1
+req_count: 1
+---
+
+# active-feature
+`,
+      '/specs/features/old-feature.md': `---
+feature: old-feature
+status: deprecated
+last_updated: 2025-06-01
+story_count: 0
+req_count: 0
+---
+
+# old-feature
+`,
+    });
+
+    await generateProductSpec('/specs/features', '/specs/product.md', 'test-project');
+
+    const content = fs.readFileSync('/specs/product.md', 'utf-8');
+    expect(content).toContain('active-feature');
+    expect(content).not.toContain('old-feature');
   });
 });

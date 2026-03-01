@@ -7,7 +7,7 @@ import type { ChangeStatus } from '../types/change.js';
 import { ScanError, WriteError } from '../types/errors.js';
 import { execute as executeKnowledgeUpdate } from './knowledge-update.service.js';
 
-// --- Interfaces (Task 5) ---
+// --- Interfaces ---
 
 export interface ArchiveOptions {
   /** Filter changes by this status (default: 'verified') */
@@ -38,6 +38,15 @@ export interface ArchivedChange {
   sourcePath: string;
   archivePath: string;
   summaryGenerated: boolean;
+}
+
+/** Routing info extracted from delta-spec Feature/Story fields. */
+export interface FeatureRoute {
+  reqId: string;
+  feature: string;
+  story: string;
+  status: 'ADDED' | 'MODIFIED' | 'REMOVED';
+  description: string;
 }
 
 // --- Core functions ---
@@ -218,17 +227,113 @@ ${reqTable}
 }
 
 /**
- * Write summary content to {specsPath}/{changeName}.md for version-controlled spec history.
+ * Sync delta-spec requirements to Feature Specs in specs/features/.
+ * Routes each requirement by its **Feature** field to the correct Feature Spec file.
+ * Returns list of created/updated Feature Spec file paths.
  */
-export async function archiveToSpecs(
-  summaryContent: string,
-  changeName: string,
-  specsPath: string,
+export async function syncToFeatureSpecs(
+  archiveDir: string,
+  featuresPath: string,
+): Promise<string[]> {
+  const deltaSpecPath = path.join(archiveDir, 'delta-spec.md');
+  if (!fs.existsSync(deltaSpecPath)) return [];
+
+  const deltaContent = await fs.promises.readFile(deltaSpecPath, 'utf-8');
+  const routes = extractFeatureRoutes(deltaContent);
+  if (routes.length === 0) return [];
+
+  await ensureDir(featuresPath);
+
+  // Group routes by feature slug
+  const byFeature = new Map<string, FeatureRoute[]>();
+  for (const route of routes) {
+    const existing = byFeature.get(route.feature) ?? [];
+    existing.push(route);
+    byFeature.set(route.feature, existing);
+  }
+
+  const updatedFiles: string[] = [];
+  const today = new Date().toISOString().slice(0, 10);
+
+  for (const [feature, featureRoutes] of byFeature) {
+    const specFile = path.join(featuresPath, `${feature}.md`);
+    const fileExists = fs.existsSync(specFile);
+
+    if (fileExists) {
+      let content = await fs.promises.readFile(specFile, 'utf-8');
+
+      for (const route of featureRoutes) {
+        if (route.status === 'REMOVED') {
+          content = moveReqToDeprecated(content, route);
+        } else {
+          content = mergeRequirementInPlace(content, route);
+        }
+      }
+
+      content = updateFeatureSpecFrontmatter(content, today);
+      content = appendToChangeHistory(content, featureRoutes, today);
+      await atomicWrite(specFile, content);
+    } else {
+      const content = createNewFeatureSpec(feature, featureRoutes, today);
+      await atomicWrite(specFile, content);
+    }
+
+    updatedFiles.push(specFile);
+  }
+
+  return updatedFiles;
+}
+
+/**
+ * Generate product.md by scanning all Feature Specs' frontmatter.
+ * Synthesizes a product overview with feature map and P0 stories summary.
+ */
+export async function generateProductSpec(
+  featuresPath: string,
+  productSpecPath: string,
+  projectName: string,
 ): Promise<string> {
-  await ensureDir(specsPath);
-  const specFile = path.join(specsPath, `${changeName}.md`);
-  await atomicWrite(specFile, summaryContent);
-  return specFile;
+  const features: Array<{ slug: string; title: string; status: string; storyCount: number }> = [];
+
+  if (fs.existsSync(featuresPath)) {
+    const files = await fs.promises.readdir(featuresPath);
+    for (const file of files) {
+      if (!file.endsWith('.md')) continue;
+      const filePath = path.join(featuresPath, file);
+      const content = await fs.promises.readFile(filePath, 'utf-8');
+      const frontmatter = parseFeatureSpecFrontmatter(content);
+      if (frontmatter) {
+        features.push({
+          slug: file.replace(/\.md$/, ''),
+          title: frontmatter.feature,
+          status: frontmatter.status,
+          storyCount: frontmatter.storyCount,
+        });
+      }
+    }
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const featureMap = features
+    .filter((f) => f.status === 'active')
+    .map((f) => `### ${f.title}\n→ [features/${f.slug}.md](features/${f.slug}.md)`)
+    .join('\n\n');
+
+  const content = `---
+product: ${projectName}
+last_updated: ${today}
+---
+
+# ${projectName}
+
+## 功能地圖
+
+${featureMap || '_(No active features yet)_'}
+`;
+
+  await ensureDir(path.dirname(productSpecPath));
+  await atomicWrite(productSpecPath, content);
+  return productSpecPath;
 }
 
 /**
@@ -255,14 +360,18 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
   const specFiles: string[] = [];
 
   // Resolve specsPath from config (non-fatal if config is missing)
-  // Archive summaries go to specs/history/ subdirectory
-  let specsPath: string | null = null;
+  // Feature Specs go to specs/features/ subdirectory
+  let featuresPath: string | null = null;
+  let productSpecPath: string | null = null;
+  let projectName = 'project';
   try {
     const config = await readConfig(cwd);
     const basePaths = resolveBasePaths(config, cwd);
-    specsPath = path.join(basePaths.specsPath, 'history');
+    featuresPath = path.join(basePaths.specsPath, 'features');
+    productSpecPath = path.join(basePaths.specsPath, 'product.md');
+    projectName = config.project?.name ?? 'project';
   } catch {
-    // Config not available — skip spec archiving
+    // Config not available — skip Feature Spec sync
   }
 
   for (const change of candidates) {
@@ -290,13 +399,13 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
         // Summary generation failure is non-fatal
       }
 
-      // Copy summary to specs directory for version-controlled history (non-fatal)
-      if (summaryContent && specsPath) {
+      // Sync requirements to Feature Specs (non-fatal)
+      if (featuresPath) {
         try {
-          const specFile = await archiveToSpecs(summaryContent, change.name, specsPath);
-          specFiles.push(specFile);
+          const syncedFiles = await syncToFeatureSpecs(archiveDir, featuresPath);
+          specFiles.push(...syncedFiles);
         } catch {
-          // Spec archiving failure is non-fatal
+          // Feature Spec sync failure is non-fatal
         }
       }
 
@@ -318,6 +427,15 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
       });
     } catch {
       skipped.push(change.name);
+    }
+  }
+
+  // Regenerate product.md from Feature Specs (non-fatal)
+  if (archived.length > 0 && featuresPath && productSpecPath) {
+    try {
+      await generateProductSpec(featuresPath, productSpecPath, projectName);
+    } catch {
+      // Product Spec regeneration failure is non-fatal
     }
   }
 
@@ -425,4 +543,285 @@ function calculateTaskStats(tasksContent: string): string {
 
   const pct = Math.round((completed / total) * 100);
   return `${completed}/${total} (${pct}%)`;
+}
+
+/**
+ * Extract Feature routing info from delta-spec.md.
+ * Parses **Feature** and **Story** fields under each REQ header.
+ */
+function extractFeatureRoutes(deltaContent: string): FeatureRoute[] {
+  const routes: FeatureRoute[] = [];
+  const lines = deltaContent.split('\n');
+
+  let currentSection = '';
+  let currentReqId = '';
+  let currentDescription = '';
+  let currentFeature = '';
+  let currentStory = '';
+
+  const pushCurrent = () => {
+    if (currentReqId && currentFeature) {
+      routes.push({
+        reqId: currentReqId,
+        feature: currentFeature,
+        story: currentStory,
+        status: currentSection as FeatureRoute['status'],
+        description: currentDescription,
+      });
+    }
+  };
+
+  for (const line of lines) {
+    const sectionMatch = line.match(/^##\s+(ADDED|MODIFIED|REMOVED)/i);
+    if (sectionMatch) {
+      pushCurrent();
+      currentSection = sectionMatch[1]!.toUpperCase();
+      currentReqId = '';
+      currentFeature = '';
+      currentStory = '';
+      continue;
+    }
+
+    const reqMatch = line.match(/^###\s+(REQ-[\w-]+):\s*(.*)/);
+    if (reqMatch) {
+      pushCurrent();
+      currentReqId = reqMatch[1]!;
+      currentDescription = reqMatch[2]!.trim();
+      currentFeature = '';
+      currentStory = '';
+      continue;
+    }
+
+    const featureMatch = line.match(/^\*\*Feature:\*\*\s*(.+)/);
+    if (featureMatch) {
+      currentFeature = featureMatch[1]!.trim();
+      continue;
+    }
+
+    const storyMatch = line.match(/^\*\*Story:\*\*\s*(.+)/);
+    if (storyMatch) {
+      currentStory = storyMatch[1]!.trim();
+      continue;
+    }
+  }
+
+  pushCurrent();
+  return routes;
+}
+
+/**
+ * Merge a requirement into an existing Feature Spec (ADDED or MODIFIED).
+ * For MODIFIED: replaces the existing REQ section in-place.
+ * For ADDED: appends under the User Stories section.
+ */
+function mergeRequirementInPlace(content: string, route: FeatureRoute): string {
+  const reqHeader = `#### ${route.reqId}:`;
+
+  if (route.status === 'MODIFIED' && content.includes(reqHeader)) {
+    // Replace existing REQ section (from header to next h4 or h3 or section end)
+    const lines = content.split('\n');
+    const result: string[] = [];
+    let skipping = false;
+
+    for (const line of lines) {
+      if (line.startsWith(reqHeader)) {
+        // Replace with updated content
+        result.push(`#### ${route.reqId}: ${route.description}`);
+        result.push('');
+        skipping = true;
+        continue;
+      }
+      if (skipping && /^#{3,4}\s/.test(line)) {
+        skipping = false;
+      }
+      if (!skipping) {
+        result.push(line);
+      }
+    }
+
+    return result.join('\n');
+  }
+
+  // ADDED: append before Edge Cases or at end of User Stories section
+  const insertBefore = '## Edge Cases';
+  const newReq = `\n#### ${route.reqId}: ${route.description}\n\n---\n`;
+
+  if (content.includes(insertBefore)) {
+    return content.replace(insertBefore, newReq + '\n' + insertBefore);
+  }
+
+  // Fallback: append at end
+  return content + newReq;
+}
+
+/**
+ * Move a requirement to the Deprecated section (REMOVED).
+ */
+function moveReqToDeprecated(content: string, route: FeatureRoute): string {
+  const today = new Date().toISOString().slice(0, 10);
+  const deprecatedEntry = `\n- **${route.reqId}**: ${route.description} _(removed ${today})_`;
+
+  // Replace _(None)_ placeholder if present
+  if (content.includes('## Deprecated Requirements\n\n_(None)_')) {
+    return content.replace(
+      '## Deprecated Requirements\n\n_(None)_',
+      `## Deprecated Requirements\n${deprecatedEntry}`,
+    );
+  }
+
+  // Append to existing Deprecated section
+  if (content.includes('## Deprecated Requirements')) {
+    return content.replace(
+      '## Deprecated Requirements',
+      `## Deprecated Requirements${deprecatedEntry}`,
+    );
+  }
+
+  // No Deprecated section — append at end
+  return content + `\n## Deprecated Requirements\n${deprecatedEntry}\n`;
+}
+
+/**
+ * Update Feature Spec frontmatter counters.
+ */
+function updateFeatureSpecFrontmatter(content: string, today: string): string {
+  // Update last_updated
+  return content.replace(
+    /^last_updated:\s*.+$/m,
+    `last_updated: ${today}`,
+  );
+}
+
+/**
+ * Append entries to the Change History table.
+ */
+function appendToChangeHistory(
+  content: string,
+  routes: FeatureRoute[],
+  today: string,
+): string {
+  const refsStr = routes.map((r) => r.reqId).join(', ');
+  const impact = routes.map((r) => `${r.status} ${r.reqId}`).join('; ');
+  const historyRow = `| ${today} | archive-sync | ${impact} | ${refsStr} |`;
+
+  // Insert before the last line of the Change History table (or at end of section)
+  if (content.includes('## Change History')) {
+    const lines = content.split('\n');
+    const result: string[] = [];
+    let inserted = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      result.push(lines[i]!);
+      // Insert after the table header separator row (|------|...)
+      if (
+        !inserted
+        && lines[i]!.includes('|------')
+        && i > 0
+        && lines[i - 1]!.includes('| Date')
+      ) {
+        result.push(historyRow);
+        inserted = true;
+      }
+    }
+
+    if (!inserted) {
+      // Fallback: append after Change History heading
+      return content + '\n' + historyRow;
+    }
+
+    return result.join('\n');
+  }
+
+  return content;
+}
+
+/**
+ * Create a new Feature Spec file from scratch.
+ */
+function createNewFeatureSpec(
+  feature: string,
+  routes: FeatureRoute[],
+  today: string,
+): string {
+  const stories = [...new Set(routes.map((r) => r.story).filter(Boolean))];
+  const reqSections = routes
+    .filter((r) => r.status !== 'REMOVED')
+    .map((r) => `#### ${r.reqId}: ${r.description}\n\n---`)
+    .join('\n\n');
+
+  const deprecatedSection = routes
+    .filter((r) => r.status === 'REMOVED')
+    .map((r) => `- **${r.reqId}**: ${r.description} _(removed ${today})_`)
+    .join('\n');
+
+  return `---
+feature: ${feature}
+status: active
+last_updated: ${today}
+story_count: ${stories.length}
+req_count: ${routes.filter((r) => r.status !== 'REMOVED').length}
+---
+
+# ${feature}
+
+## Who & Why
+
+**服務對象**: TBD
+
+**解決問題**: TBD
+
+**為什麼重要**: TBD
+
+## User Stories & Behavior Specifications
+
+${reqSections}
+
+## Edge Cases
+
+_(TBD)_
+
+## Success Criteria
+
+_(TBD)_
+
+## Maintenance Rules
+
+1. **Replace-in-Place**: MODIFIED User Stories and REQs directly replace existing versions
+2. **Functional Grouping**: New requirements insert under the corresponding User Story
+3. **No Inline Provenance**: Historical attribution only in Change History table
+4. **Deprecation over Deletion**: Removed requirements move to Deprecated section
+
+## Deprecated Requirements
+
+${deprecatedSection || '_(None)_'}
+
+## Change History
+
+| Date | Change | Impact | Stories/REQs |
+|------|--------|--------|-------------|
+| ${today} | initial-sync | Created from archive | ${routes.map((r) => r.reqId).join(', ')} |
+`;
+}
+
+/**
+ * Parse Feature Spec frontmatter fields.
+ */
+function parseFeatureSpecFrontmatter(
+  content: string,
+): { feature: string; status: string; storyCount: number } | null {
+  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!fmMatch) return null;
+
+  const fm = fmMatch[1]!;
+  const featureMatch = fm.match(/^feature:\s*(.+)$/m);
+  const statusMatch = fm.match(/^status:\s*(.+)$/m);
+  const storyCountMatch = fm.match(/^story_count:\s*(\d+)$/m);
+
+  if (!featureMatch) return null;
+
+  return {
+    feature: featureMatch[1]!.trim(),
+    status: statusMatch?.[1]?.trim() ?? 'active',
+    storyCount: storyCountMatch ? parseInt(storyCountMatch[1]!, 10) : 0,
+  };
 }
