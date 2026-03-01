@@ -13,7 +13,7 @@
 | **lib** | fs, config, template, scanner, merger, yaml, logger | Active | Shared utilities — file I/O, config, templates, scanning, detection, content merging | readme, api-surface, dependencies, patterns | types |
 | **services** | init, steering, knowledge, change, archive, agent-sync | Active | Business logic — one service per CLI command, `execute()` pattern | readme, api-surface, dependencies, patterns | types, lib |
 | **cli** | commands, formatters, commander, output | Active | CLI entry point, command registration, output formatters | readme, api-surface, dependencies, patterns | types, services |
-| **templates** | handlebars, hbs, init, change, skills, agent-configs, capability-spec, proposal-format, INVEST, design-spec, interaction-spec, adapter, pencil, figma, penpot | Active | Handlebars template files for all generated artifacts, including INVEST proposal format, living capability spec format, and Design Phase (visual/interaction specs + platform adapters) | readme, api-surface, dependencies, patterns | — |
+| **templates** | handlebars, hbs, init, change, skills, agent-configs, feature-spec, product-spec, proposal-format, INVEST, design-spec, interaction-spec, adapter, pencil, figma, penpot | Active | Handlebars template files for all generated artifacts, including INVEST proposal format, Product-First Feature Spec format, Product Spec format, and Design Phase (visual/interaction specs + platform adapters) | readme, api-surface, dependencies, patterns | — |
 | **tests** | vitest, memfs, unit, integration, contract, e2e | Active | 4-layer test suite (27 test files) | readme, api-surface, dependencies, patterns | all |
 
 ## Dependency Graph

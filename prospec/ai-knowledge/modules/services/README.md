@@ -217,7 +217,7 @@ export interface ArchiveResult {
   skipped: string[];
   affectedModules: string[];
   knowledgeUpdated: boolean;
-  specFiles: string[];  // Paths to spec files written to specs/history/
+  specFiles: string[];  // Paths to Feature Spec files written to specs/features/
 }
 
 // Also exports:
@@ -225,7 +225,8 @@ export function scanChanges(cwd: string): Promise<ChangeEntry[]>
 export function filterByStatus(changes: ChangeEntry[], status?: ChangeStatus): ChangeEntry[]
 export function moveToArchive(change: ChangeEntry, cwd: string): Promise<string>
 export function generateSummary(archiveDir: string, changeName: string, createdDate: string): Promise<{ content: string; affectedModules: string[] }>
-export function archiveToSpecs(summaryContent: string, changeName: string, specsPath: string): Promise<string>
+export function syncToFeatureSpecs(archiveDir: string, featuresPath: string): Promise<string[]>
+export function generateProductSpec(featuresPath: string, productSpecPath: string, projectName: string): Promise<string>
 ```
 
 ## Workflow Sequences
@@ -265,7 +266,8 @@ export function archiveToSpecs(summaryContent: string, changeName: string, specs
    - Scans `.prospec/changes/` for verified changes
    - Moves to `.prospec/archive/{YYYY-MM-DD}-{name}/`
    - Generates `summary.md`
-   - Copies summary to `specs/history/{name}.md` via `archiveToSpecs()` (non-fatal)
+   - Syncs requirements to `specs/features/` via `syncToFeatureSpecs()` (Replace-in-Place, non-fatal)
+   - Regenerates `specs/product.md` from Feature Spec frontmatter via `generateProductSpec()` (non-fatal)
    - Auto-triggers knowledge update (non-fatal)
 
 ## Dependencies

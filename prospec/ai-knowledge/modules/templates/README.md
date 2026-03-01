@@ -20,18 +20,18 @@ All templates support variable interpolation, conditionals, iteration, and Handl
 | **steering/** | 2 | Architectural documentation (architecture.md, module-readme.hbs) |
 | **agent-configs/** | 4 | AI agent configuration files (claude.md, gemini.md, copilot.md, codex.md) |
 | **skills/** | 11 | Prospec Skill templates (prospec-explore, prospec-new-story, prospec-plan, prospec-design, etc.) |
-| **skills/references/** | 22 | Reference format documentation for Skills (proposal-format, plan-format, delta-spec-format, capability-spec-format, design-spec-format, adapter-*, etc.) |
+| **skills/references/** | 24 | Reference format documentation for Skills (proposal-format, plan-format, delta-spec-format, feature-spec-format, product-spec-format, capability-spec-format (deprecated), design-spec-format, adapter-*, etc.) |
 | **CLAUDE.md** | 3 | Claude-specific context/memory files |
 
-**Total:** 55 template files (52 .hbs, 3 .md)
+**Total:** 57 template files (54 .hbs, 3 .md)
 
 ### Key Skill Template Enhancements
 
 | Skill | Enhancement |
 |-------|-------------|
 | **prospec-new-story** | Multi-story INVEST collection (Phase 4: Background, Priority, WHEN/THEN, Independent Test, Edge Cases, FR, SC) |
-| **prospec-archive** | Phase 3.5 Spec Sync: delta-spec ADDED/MODIFIED/REMOVED → capability specs merge. Summary output to `specs/history/` |
-| **prospec-plan** | Layer 0 capability specs loading at startup. MODIFIED references capability spec "Before" |
+| **prospec-archive** | Phase 3.5 Feature Spec Sync: delta-spec ADDED/MODIFIED/REMOVED → `specs/features/` merge (Replace-in-Place). Phase 3.6 Product Spec regeneration from Feature Spec frontmatter |
+| **prospec-plan** | Layer 0 Feature Specs + Product Spec loading at startup. MODIFIED references Feature Spec "Before". Delta-spec requires Feature/Story routing fields |
 | **prospec-design** | Generate/Extract dual mode: Generate visual + interaction specs from proposal, or Extract from existing design tools via MCP. 4 platform adapters (pencil/Figma/Penpot/HTML) |
 | **prospec-verify** | 5+1 dimension audit: tasks + spec compliance + constitution + Spec ↔ Knowledge consistency + tests + design consistency (conditional). Quality grade S/A/B/C/D |
 
@@ -40,7 +40,9 @@ All templates support variable interpolation, conditionals, iteration, and Handl
 | Reference | Purpose |
 |-----------|---------|
 | **proposal-format.hbs** | 8-section INVEST proposal: Background, User Stories (Priority + WHEN/THEN), Edge Cases, FR, SC, Related Modules, Open Questions, Constitution Check |
-| **capability-spec-format.hbs** | Living requirement spec: Overview, Requirements (REQ ID + WHEN/THEN + source attribution), Edge Cases, SC, Change History, Maintenance Rules |
+| **feature-spec-format.hbs** | Product-First Feature Spec: Who & Why, User Stories (US-NNN + WHEN/THEN), Behavior Specifications (REQ-XXX-NNN), Edge Cases, SC, Deprecated Requirements, Change History |
+| **product-spec-format.hbs** | Product Spec (PRD entry): Vision, Target Users, Feature Map (auto-generated from Feature Spec frontmatter), Product Principles, Roadmap. ≤80 lines |
+| **capability-spec-format.hbs** | *(deprecated)* Living requirement spec: Overview, Requirements (REQ ID + WHEN/THEN + source attribution), Edge Cases, SC, Change History, Maintenance Rules |
 | **design-spec-format.hbs** | Visual design spec: Visual Identity (color/typography/spacing tokens), Components (layout/states/tokens), Responsive Strategy (breakpoints) |
 | **interaction-spec-format.hbs** | Interaction spec: Screen/Component definitions (States/Transitions), Flows (trigger → action DSL draft-1), Responsive interaction differences |
 | **adapter-pencil.hbs** | pencil.dev MCP adapter: batch_design()/set_variables() for Design, batch_get()/get_screenshot() for Implement, structural comparison for Verify |

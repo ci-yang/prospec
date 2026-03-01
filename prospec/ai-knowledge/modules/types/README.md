@@ -31,6 +31,7 @@ This is a **leaf module** with zero internal dependencies — all other modules 
 | `skill.ts` | Skill and Agent definitions | `SKILL_DEFINITIONS`, `AGENT_CONFIGS`, `SkillConfig`, `AgentConfig`, `SkillType`, `AgentFormat`, `AgentSyncResult` |
 | `change.ts` | Change metadata schema | `ChangeMetadataSchema`, `ChangeMetadata`, `ChangeStatus`, `CHANGE_STATUSES` |
 | `module-map.ts` | Module map schema | `ModuleMapSchema`, `ModuleMap`, `ModuleEntry`, `ModuleRelationships` |
+| `spec.ts` | Feature/Product Spec schemas | `FeatureSpecFrontmatterSchema`, `ProductSpecFrontmatterSchema`, `FeatureSpecFrontmatter`, `ProductSpecFrontmatter` |
 | `errors.ts` | Error class hierarchy | `ProspecError`, `ConfigNotFound`, `ConfigInvalid`, `ScanError`, `WriteError`, `YamlParseError`, `TemplateError`, `ModuleDetectionError`, `AlreadyExistsError`, `PrerequisiteError` |
 
 ## Public Interfaces
