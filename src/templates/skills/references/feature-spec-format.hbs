@@ -1,0 +1,150 @@
+# Feature Spec Format Reference
+
+This document defines the format for Feature Specs in `{{base_dir}}/specs/features/`. Feature Specs are **living documents** that accumulate User Stories and requirements across multiple changes. User Stories are the core organizational unit; REQ IDs serve as engineering traceability sub-items.
+
+---
+
+## Purpose
+
+A Feature Spec is the **single source of truth** for WHAT a feature does and WHY it exists. It answers "what value does this deliver to users?" while `ai-knowledge/` answers "how does it currently work?". When both agree, the system is healthy.
+
+---
+
+## Naming Convention
+
+Name files by **user-facing feature**, not by implementation module:
+
+| Feature Name | Covers |
+|-------------|--------|
+| `sdd-workflow.md` | Story, Plan, Tasks, Archive, Verify, Fast-Forward |
+| `ai-knowledge.md` | Knowledge Init, Generate, Update, Quality Gate |
+| `project-setup.md` | CLI, Init, Steering, Config, Base Directory |
+| `agent-integration.md` | Agent Sync, Skill Generation, Progressive Disclosure |
+| `design-phase.md` | Generate Mode, Extract Mode, Platform Adapters |
+
+New features can be added as the product grows.
+
+---
+
+## Standard Format
+
+### 1. Frontmatter
+
+```yaml
+---
+feature: {feature-slug}
+status: active
+last_updated: {YYYY-MM-DD}
+story_count: {N}
+req_count: {N}
+---
+```
+
+### 2. Title + Who & Why
+
+```markdown
+# {Feature Title}
+
+## Who & Why
+
+**服務對象**: [Target users]
+
+**解決問題**: [Problem being solved]
+
+**為什麼重要**: [Why this feature matters — value proposition]
+```
+
+### 3. User Stories & Behavior Specifications
+
+User Stories are the **primary organizational unit**. REQ IDs appear as sub-items under the Story they implement.
+
+```markdown
+## User Stories & Behavior Specifications
+
+### US-NNN: {Story Title} [{Priority}]
+
+{As a [role],}
+{I want [capability],}
+{So that [value].}
+
+**Acceptance Scenarios:**
+- WHEN {condition} THEN {expected behavior}
+- WHEN {condition} THEN {expected behavior}
+
+#### REQ-{MODULE}-{NNN}: {Requirement Title}
+{Brief description of the system behavior.}
+
+**Scenarios:**
+- WHEN {condition}, THEN {expected behavior}
+- WHEN {condition}, THEN {expected behavior}
+
+---
+```
+
+### 4. Edge Cases
+
+```markdown
+## Edge Cases
+
+- {Edge case}: {Expected behavior}
+- {Edge case}: {Expected behavior}
+```
+
+### 5. Success Criteria
+
+```markdown
+## Success Criteria
+
+- **SC-1**: {Measurable outcome}
+- **SC-2**: {Measurable outcome}
+```
+
+### 6. Maintenance Rules
+
+Every Feature Spec must include these rules:
+
+```markdown
+## Maintenance Rules
+
+1. **Replace-in-Place**: MODIFIED User Stories and REQs directly replace existing versions
+2. **Functional Grouping**: New requirements insert under the corresponding User Story
+3. **No Inline Provenance**: Historical attribution only in Change History table
+4. **Deprecation over Deletion**: Removed requirements move to Deprecated section
+```
+
+### 7. Deprecated Requirements
+
+```markdown
+## Deprecated Requirements
+
+_(None)_
+```
+
+When requirements are removed, move them here with removal reason and date.
+
+### 8. Change History
+
+```markdown
+## Change History
+
+| Date | Change | Impact | Stories/REQs |
+|------|--------|--------|-------------|
+| {date} | {change-name} | {brief description} | US-NNN, REQ-XXX-NNN |
+```
+
+---
+
+## File Length Guidelines
+
+- Keep under **300 lines** per Feature Spec
+- If a Feature Spec exceeds 300 lines, consider splitting into sub-features
+- User Stories section should occupy **40%+** of total content (not REQ-dominated)
+
+---
+
+## Reference Information
+
+- Project name: `{{project_name}}`
+- Feature specs path: `{{base_dir}}/specs/features/`
+- Product spec path: `{{base_dir}}/specs/product.md`
+- AI Knowledge path: `{{knowledge_base_path}}`
