@@ -19,7 +19,8 @@ When triggered, briefly describe:
 3. Read `.prospec/changes/[name]/delta-spec.md` — file specifications
 4. Read `.prospec/changes/[name]/proposal.md` — acceptance scenarios
 5. Read `{{constitution_path}}` — for full audit
-6. Read `{{base_dir}}/specs/capabilities/` — load relevant capability specs for consistency check
+6. Read `{{base_dir}}/specs/features/` — load relevant Feature Specs for consistency check
+7. Read `{{base_dir}}/specs/product.md` — understand product-level overview
 
 ## Key Difference from Other Skills
 
@@ -51,28 +52,36 @@ Check **every principle** in the Constitution:
 - Mark PASS / WARN / FAIL with score (1-5)
 - FAIL items must include specific remediation steps
 
-### Verification 4/5: Spec ↔ Knowledge Consistency
+### Verification 4/5: Feature Spec ↔ Knowledge Consistency
 
-Compare capability spec requirements (`{{base_dir}}/specs/capabilities/`) against AI Knowledge module descriptions (`{{knowledge_base_path}}/modules/`):
+Compare Feature Spec requirements (`{{base_dir}}/specs/features/`) against AI Knowledge module descriptions (`{{knowledge_base_path}}/modules/`):
 
-For each requirement in the relevant capability spec:
-- **PASS**: Requirement behavior is reflected in the corresponding module README.md
+For each User Story and requirement in the relevant Feature Spec:
+- **PASS**: User Story behavior is reflected in the corresponding module README.md
 - **WARN**: Requirement exists but AI Knowledge description is vague or outdated
-- **FAIL**: Requirement exists in spec but has no corresponding description in AI Knowledge
+- **FAIL**: Requirement exists in Feature Spec but has no corresponding description in AI Knowledge
 
 **Staleness Detection** (additional checks):
-- AI Knowledge describes functionality with no matching requirement in capability spec → WARN (undocumented feature)
+- AI Knowledge describes functionality with no matching requirement in any Feature Spec → WARN (undocumented feature)
 - Implementation changed (delta-spec MODIFIED) but module README not updated → WARN + suggest `/prospec-knowledge-update`
 
 Output format:
 
 ```
-| Requirement | Spec Says | Knowledge Says | Status |
-|-------------|-----------|----------------|--------|
-| REQ-XXX-NNN | [behavior] | [description] | PASS/WARN/FAIL |
+| Feature | Story/REQ | Spec Says | Knowledge Says | Status |
+|---------|-----------|-----------|----------------|--------|
+| {feature} | US-NNN / REQ-XXX-NNN | [behavior] | [description] | PASS/WARN/FAIL |
 ```
 
-If capability specs don't exist yet, skip this dimension with a note.
+If Feature Specs don't exist yet, skip this dimension with a note.
+
+**Spec Health** (additional quality metrics):
+
+| Metric | PASS | WARN |
+|--------|------|------|
+| **Density** | User Stories occupy ≥ 40% of Feature Spec content | REQ-dominated — Feature Spec reads like a technical checklist |
+| **Freshness** | `last_updated` within 30 days of latest related change | Stale — Feature Spec not updated after recent changes |
+| **Consistency** | Feature Spec and Knowledge describe the same behavior | Drift detected — Feature Spec and Knowledge disagree |
 
 ### Verification 5/5: Test Verification
 
@@ -125,9 +134,10 @@ Final Knowledge consistency summary:
 
 | Check Item | PASS | WARN |
 |------------|------|------|
-| Spec ↔ Knowledge aligned | All requirements reflected in module READMEs | Gaps identified in Verification 4/5 |
+| Feature Spec ↔ Knowledge aligned | All User Stories and requirements reflected in module READMEs | Gaps identified in Verification 4/5 |
 | No stale Knowledge | Module READMEs match current implementation | READMEs outdated — suggest knowledge-update |
-| No undocumented features | All Knowledge entries have matching requirements | Features in Knowledge without requirements |
+| No undocumented features | All Knowledge entries have matching Feature Spec requirements | Features in Knowledge without requirements |
+| Spec Health metrics | Density, Freshness, and Consistency all PASS | One or more Spec Health metrics degraded |
 
 WARN items are deployment risks — recommend resolving before `/prospec-archive`.
 
