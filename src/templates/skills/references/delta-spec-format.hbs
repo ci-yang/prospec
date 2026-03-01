@@ -37,6 +37,9 @@ New requirements with full details:
 
 ### REQ-{MODULE}-{NUMBER}: [Requirement title]
 
+**Feature:** {feature-slug}
+**Story:** US-{N}
+
 **Description:**
 [Detailed description of the requirement]
 
@@ -50,12 +53,18 @@ New requirements with full details:
 ---
 ```
 
+> **Feature** routes this REQ to `specs/features/{feature-slug}.md` during archive Spec Sync.
+> **Story** links this REQ to the User Story in proposal.md it implements.
+
 **Example:**
 
 ```markdown
 ## ADDED
 
 ### REQ-ERROR-HANDLER-001: Centralized Error Types
+
+**Feature:** error-handling
+**Story:** US-1
 
 **Description:**
 Define a set of standard error types that can be used across all modules in {{project_name}}. Each error type should have a unique error code and HTTP status mapping.
@@ -70,6 +79,9 @@ Define a set of standard error types that can be used across all modules in {{pr
 ---
 
 ### REQ-ERROR-HANDLER-002: Error Response Formatter
+
+**Feature:** error-handling
+**Story:** US-1
 
 **Description:**
 Implement a formatter that converts errors into standardized JSON responses for API endpoints.
@@ -95,6 +107,9 @@ Modified requirements showing before/after comparison:
 
 ### REQ-{MODULE}-{NUMBER}: [Requirement title]
 
+**Feature:** {feature-slug}
+**Story:** US-{N}
+
 **Before:**
 [Original requirement description or condition]
 
@@ -115,6 +130,9 @@ Modified requirements showing before/after comparison:
 ## MODIFIED
 
 ### REQ-API-MIDDLEWARE-003: Error Logging
+
+**Feature:** error-handling
+**Story:** US-2
 
 **Before:**
 Log all errors to console with full stack traces.
