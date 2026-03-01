@@ -17,7 +17,8 @@ When triggered, briefly describe:
 1. Read `.prospec/changes/` — scan all change directories and their `metadata.yaml`
 2. Read `{{constitution_path}}` — prepare Constitution spot check
 3. **MANDATORY** — Read [`references/archive-format.md`](references/archive-format.md) for summary.md format specification
-4. **MANDATORY** — Read [`references/capability-spec-format.md`](references/capability-spec-format.md) for capability spec format
+4. **MANDATORY** — Read [`references/feature-spec-format.md`](references/feature-spec-format.md) for Feature Spec format
+5. **MANDATORY** — Read [`references/product-spec-format.md`](references/product-spec-format.md) for Product Spec format
 
 ## Core Workflow
 
@@ -48,21 +49,32 @@ For each confirmed change:
 2. Move all artifacts (proposal.md, plan.md, delta-spec.md, tasks.md, metadata.yaml, and design-spec.md + interaction-spec.md if present)
 3. Place generated summary.md in archive directory
 4. Update `metadata.yaml` to `status: archived`
-5. Copy summary.md to `{base_dir}/specs/history/{change-name}.md` for version-controlled history
 
-### Phase 3.5: Spec Sync (Capability Specs)
+### Phase 3.5: Feature Spec Sync
 
-After archiving, sync requirements to capability specs:
+After archiving, sync User Stories and requirements to Feature Specs:
 
-1. Read the archived `delta-spec.md` — parse ADDED / MODIFIED / REMOVED sections
-2. For each requirement:
-   - **ADDED**: Append to the matching `{base_dir}/specs/capabilities/{domain}.md`. If the capability spec does not exist, create it following `references/capability-spec-format.md`
-   - **MODIFIED**: Update the existing requirement in the capability spec. Record Before/After
-   - **REMOVED**: Remove the requirement and add a Change History entry
-3. Update each capability spec's Change History table
-4. Determine capability domain from REQ ID prefix (e.g., REQ-SERVICES → `change-workflow.md` or `knowledge-engine.md` based on context)
+1. Read the archived `proposal.md` — extract User Stories (As a / I want / So that + Acceptance Scenarios)
+2. Read the archived `delta-spec.md` — parse ADDED / MODIFIED / REMOVED sections with **Feature** and **Story** routing fields
+3. For each requirement, route by the `**Feature**` field:
+   - **ADDED (new Feature)**: Create `{{base_dir}}/specs/features/{feature-slug}.md` following `references/feature-spec-format.md`. Insert User Story (from proposal) + REQ (from delta-spec) together
+   - **ADDED (existing Feature)**: Merge User Story and REQ into the existing Feature Spec under the appropriate Story section
+   - **MODIFIED**: Replace-in-place — update the User Story and REQ to their latest versions in the Feature Spec. Record the change in Change History table only (no inline Before/After)
+   - **REMOVED**: Move the requirement to the Feature Spec's Deprecated Requirements section with removal reason and date
+4. Update each affected Feature Spec's Change History table
+5. Update frontmatter counters (`story_count`, `req_count`, `last_updated`)
 
-**Spec Sync is non-fatal** — if it fails, archiving still succeeds. Warn the user to manually update capability specs.
+**Feature Spec Sync is non-fatal** — if it fails, archiving still succeeds. Warn the user to manually update Feature Specs.
+
+### Phase 3.6: Product Spec Regeneration
+
+After Feature Spec Sync completes:
+
+1. Scan all `{{base_dir}}/specs/features/*.md` — read frontmatter (`feature`, `status`, `story_count`)
+2. Extract P0 User Stories from each active Feature Spec for the Core Stories summary
+3. Regenerate `{{base_dir}}/specs/product.md` following `references/product-spec-format.md`
+
+**Product Spec Regeneration is non-fatal** — if it fails, Feature Spec Sync results are still valid.
 
 ### Phase 4: Interactive Knowledge Update
 
@@ -86,7 +98,7 @@ After archiving, identify and prompt for Knowledge update:
 
 - **NEVER** archive without user confirmation — accidental archiving moves active work out of changes/; recovery requires manual file moves
 - **NEVER** archive changes with `status: story` or `status: plan` — incomplete planning phases lack delta-spec and tasks, producing meaningless summaries and broken Spec Sync
-- **NEVER** skip summary.md generation — summary is the permanent record in specs/history/; without it, the change has no version-controlled audit trail
+- **NEVER** skip summary.md generation — summary is the permanent record in the archive directory; without it, the change has no audit trail
 - **NEVER** delete original files instead of moving — deletion is irreversible; archive preserves all artifacts for future reference and debugging
 - **NEVER** modify the content of artifacts during archive — artifacts are the historical record; any modification falsifies the development history
 - **NEVER** let Knowledge update failure block archiving — Knowledge can always be updated later via `/prospec-knowledge-update`; blocking archiving risks losing verified state
