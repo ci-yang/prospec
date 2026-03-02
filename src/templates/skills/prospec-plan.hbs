@@ -26,12 +26,13 @@ When triggered, briefly describe:
 
 ## Progressive Knowledge Loading Strategy
 
-| Layer | What to Load | When to Load |
-|-------|-------------|--------------|
-| 0 | Feature Specs + Product Spec | At startup — understand existing User Stories and requirements before planning new ones |
-| 1 | `_index.md` | At startup — quickly identify related modules |
-| 2 | Related module `README.md` | During architecture design — understand APIs and patterns |
-| 3 | Source code | When technical questions arise — user can request explicitly |
+| Layer | What to Load | When to Load | Budget |
+|-------|-------------|--------------|--------|
+| L0 | `_index.md` + `_conventions.md` + Feature Specs + Product Spec | At startup — navigate modules and understand existing requirements | ≤ 1,500 tokens (knowledge) |
+| L1 | Related module `README.md` (Recipe-First) | During architecture design — understand APIs, dependencies, and modification patterns | ≤ 400 tokens/module |
+| L2 | Source code files | When technical questions arise — user can request explicitly | On-demand |
+
+**Principles:** L0 is always loaded. L1 is loaded per-module as needed. Never duplicate L2 content in L1.
 
 ## Core Workflow
 

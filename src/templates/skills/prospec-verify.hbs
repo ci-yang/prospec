@@ -22,6 +22,16 @@ When triggered, briefly describe:
 6. Read `{{base_dir}}/specs/features/` — load relevant Feature Specs for consistency check
 7. Read `{{base_dir}}/specs/product.md` — understand product-level overview
 
+## Progressive Knowledge Loading Strategy
+
+| Layer | What to Load | When to Load | Budget |
+|-------|-------------|--------------|--------|
+| L0 | `_index.md` + `_conventions.md` + all planning docs + Feature Specs | At startup — full context for comprehensive audit | ≤ 1,500 tokens (knowledge) |
+| L1 | All affected module `README.md` (Recipe-First) | During Verification 2/5 and 4/5 — compare spec against knowledge | ≤ 400 tokens/module |
+| L2 | Source code files | During Verification 2/5 — verify implementation matches spec | On-demand |
+
+**Principles:** Verify loads more L1 than other skills (all affected modules, not just current task's module). L2 is loaded to find evidence for PASS/FAIL judgments.
+
 ## Key Difference from Other Skills
 
 Other Skills only perform **spot checks** (3 most relevant principles).

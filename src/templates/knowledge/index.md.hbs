@@ -1,13 +1,14 @@
 # AI Knowledge Index
 
-> This file is the entry point for AI assistants. Read this first to understand the project structure, then load specific module knowledge as needed.
+> This file is the entry point for AI assistants (L0 — always loaded).
+> Read this first, then load specific module READMEs (L1) as needed.
 
 <!-- prospec:auto-start -->
 ## Modules
 
-_由 `/prospec-knowledge-generate` 填充。執行 `prospec knowledge init` 產生 raw-scan.md 後，再透過 AI Skill 分析並填充此區塊。_
+_Populated by `/prospec-knowledge-generate`. Run `prospec knowledge init` first to produce raw-scan.md, then use the AI Skill to analyze and fill this section._
 
-_Table format: Module | Keywords | Status | Description | Files | Depends On_
+_Table format: Module | Keywords | Status | Description | Rationale | Depends On_
 
 ## Project Info
 
@@ -20,14 +21,15 @@ _Table format: Module | Keywords | Status | Description | Files | Depends On_
 <!-- Add custom project notes here. This section is preserved on regeneration. -->
 <!-- prospec:user-end -->
 
-## How to Use
+## Loading Rules
 
-1. Read this `_index.md` to understand available modules and their knowledge files
-2. Identify the modules relevant to your current task
-3. Check the **Files** column to see what knowledge is available per module
-4. Load the most relevant file for your task type:
-   - Understanding a module → `modules/{module}/README.md`
-   - Calling or extending APIs → `modules/{module}/api-surface.md`
-   - Assessing change impact → `modules/{module}/dependencies.md`
-   - Writing consistent code → `modules/{module}/patterns.md`
-5. Check `_conventions.md` for project-wide coding patterns
+| Layer | Files | When to Load | Token Budget |
+|-------|-------|-------------|-------------|
+| **L0** | `_index.md` + `_conventions.md` | Every conversation (auto-injected via agent config) | ≤ 1,500 tokens total |
+| **L1** | `modules/{name}/README.md` | When Skill identifies related modules from L0 keywords | ≤ 400 tokens per module |
+| **L2** | Source code files | When Agent needs implementation details | No limit (read on demand) |
+
+**Principles:**
+1. L0 answers "where to look" — L1 answers "how to modify" — L2 answers "how to write"
+2. Each layer must NOT duplicate information available in a lower layer
+3. L1 README is the only file per module — no api-surface.md, dependencies.md, or patterns.md

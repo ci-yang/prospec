@@ -24,11 +24,13 @@ When triggered, briefly describe:
 
 ## Progressive Knowledge Loading Strategy
 
-| Layer | What to Load | When to Load |
-|-------|-------------|--------------|
-| 1 | tasks.md + plan.md + delta-spec.md | At startup — understand current tasks |
-| 2 | Related module `README.md` | When starting implementation — understand module APIs and patterns |
-| 3 | Source code | When technical questions arise — verify implementation details |
+| Layer | What to Load | When to Load | Budget |
+|-------|-------------|--------------|--------|
+| L0 | `_index.md` + `_conventions.md` + tasks.md + plan.md + delta-spec.md | At startup — navigate modules and understand current tasks | ≤ 1,500 tokens (knowledge) |
+| L1 | Related module `README.md` (Recipe-First) | When starting a task — understand APIs, modification patterns, and ripple effects | ≤ 400 tokens/module |
+| L2 | Source code files | When implementing — verify details, read exact signatures | On-demand |
+
+**Principles:** L0 is always loaded. L1 is loaded per-module as needed. Never duplicate L2 content in L1.
 
 ## Core Workflow
 

@@ -2,36 +2,44 @@
 
 > {{description}}
 
-## Overview
-
-| Property | Value |
-|----------|-------|
-| Path | `{{path}}` |
-| Keywords | {{join keywords ", "}} |
-{{#if relationships.depends_on.length}}| Depends On | {{join relationships.depends_on ", "}} |
-{{/if}}{{#if relationships.used_by.length}}| Used By | {{join relationships.used_by ", "}} |
-{{/if}}
+<!-- prospec:auto-start -->
 
 ## Key Files
 
-<!-- prospec:auto-start -->
-| File | Description |
-|------|-------------|
+| File | Purpose |
+|------|---------|
 {{#each key_files}}| `{{this.path}}` | {{this.description}} |
 {{/each}}
-<!-- prospec:auto-end -->
 
 ## Public API
 
-<!-- prospec:auto-start -->
-{{#each public_api}}- **{{this.name}}**: {{this.description}}
+{{#each key_exports}}- `{{this.name}}` — {{this.description}}
 {{/each}}
-{{#unless public_api}}(No public API detected yet — run `prospec knowledge generate` to populate)
+{{#unless key_exports}}_(Run `/prospec-knowledge-generate` to populate)_
 {{/unless}}
+
+## Dependencies
+
+{{#if relationships.depends_on.length}}{{#each relationships.depends_on}}- **{{this}}**
+{{/each}}{{else}}_(None)_
+{{/if}}
+
+## Modification Guide
+
+_(Auto-generated initial guide — customize in user section below)_
+
+## Ripple Effects
+
+{{#if relationships.used_by.length}}{{#each relationships.used_by}}- Changing this module may affect **{{this}}**
+{{/each}}{{else}}_(No downstream dependents detected)_
+{{/if}}
+
+## Pitfalls
+
+_(Auto-generated initial pitfalls — customize in user section below)_
+
 <!-- prospec:auto-end -->
 
-## Internal Notes
-
 <!-- prospec:user-start -->
-<!-- Add your notes about this module here. This section is preserved on regeneration. -->
+<!-- Add module-specific notes, detailed modification guides, and pitfalls here. This section is preserved on regeneration. -->
 <!-- prospec:user-end -->

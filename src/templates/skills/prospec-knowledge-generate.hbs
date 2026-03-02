@@ -1,6 +1,6 @@
 ---
 name: prospec-knowledge-generate
-description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, analyze project structure, autonomously decide module boundaries, and produce structured module knowledge files and index. Triggers: knowledge, generate knowledge, analyze project, module split, 生成知識, 分析專案, 模組切割"
+description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, analyze project structure, autonomously decide module boundaries, and produce Recipe-First module READMEs and index. Triggers: knowledge, generate knowledge, analyze project, module split, 生成知識, 分析專案, 模組切割"
 ---
 
 # Prospec Knowledge Generate Skill
@@ -9,9 +9,9 @@ description: "Generate AI Knowledge | 生成 AI Knowledge - Read raw-scan.md, an
 
 When triggered, briefly describe:
 - That you'll read raw-scan.md to understand the project structure
-- You'll autonomously decide module boundaries based on project type
-- You'll generate structured knowledge files per module, _index.md, and _conventions.md
-- Which file types will be generated (auto-detected from project type, or from config)
+- You'll autonomously decide module boundaries using the configured granularity strategy
+- Each module gets exactly **one README.md** in Recipe-First format (≤100 lines)
+- You'll populate _index.md (with Loading Rules) and _conventions.md
 
 ## Startup Loading
 
@@ -19,11 +19,23 @@ When triggered, briefly describe:
 2. Read `{{knowledge_base_path}}/_index.md` — if exists
 3. Read `{{knowledge_base_path}}/_conventions.md` — if exists
 4. Read `{{constitution_path}}` — if exists
-5. Read `.prospec.yaml` → check `knowledge.files` if present (optional override)
+5. Read `.prospec.yaml` → check `knowledge.strategy` (auto|architecture|domain|package) and `knowledge.token_budget`
 
 ## Prerequisite
 
 Run `prospec knowledge init` first to generate `raw-scan.md` and empty scaffolding.
+
+## Token Budget
+
+All generated knowledge must respect these limits (configurable via `.prospec.yaml`):
+
+| Layer | Content | Default Budget |
+|-------|---------|---------------|
+| L0 | `_index.md` + `_conventions.md` | ≤ 1,500 tokens total |
+| L1 | Each module `README.md` | ≤ 400 tokens / ≤ 100 lines per module |
+| L2 | Source code (not generated) | On-demand, no limit |
+
+**Why budgets matter:** AI agents load L0 on every task. Bloated L0 wastes tokens on irrelevant context. L1 is loaded per-module — concise READMEs mean more modules fit in context.
 
 ## Core Workflow
 
@@ -40,73 +52,118 @@ Identify project type from raw-scan.md:
 
 The table is a reference only — actual splitting should follow the project's real structure. A project may be a **hybrid** (e.g., full-stack with both backend API and frontend).
 
-### Step 2: Determine Knowledge File Types
+### Step 2: Determine Granularity Strategy
 
-Based on the detected project type, select which file types to generate:
+Read `.prospec.yaml` → `knowledge.strategy` and apply:
 
-| Project Type | Base Files | Type-Specific Files |
-|-------------|-----------|-------------------|
-| CLI Tool / Library | readme, api-surface, dependencies, patterns | — |
-| Backend API | readme, api-surface, dependencies, patterns | **endpoints** |
-| Frontend SPA / SSR | readme, api-surface, dependencies, patterns | **components** |
-| Mobile App | readme, api-surface, dependencies, patterns | **screens** |
-| Monorepo | readme, api-surface, dependencies, patterns | _(per-package type)_ |
-| Hybrid (e.g., fullstack) | readme, api-surface, dependencies, patterns | **endpoints** + **components** |
+| Strategy | When to Use | Module = |
+|----------|------------|----------|
+| `architecture` | CLI tools, libraries with clear layer structure | Top-level `src/` directory (e.g., `commands/`, `lib/`, `services/`) |
+| `domain` | Frontend apps, feature-organized projects | Business domain inferred from routes/components/pages naming |
+| `package` | Monorepos, multi-package workspaces | Each workspace package (from pnpm-workspace.yaml, turbo.json, etc.) |
+| `auto` (default) | Unknown or new projects | Try package → domain → architecture; pick first with ≥2 modules |
 
-**Resolution priority:**
-1. If `.prospec.yaml` has `knowledge.files` → use that list exactly (explicit override)
-2. If no config → auto-detect from Step 1 analysis, using the table above
-3. `readme` is **always** included regardless of config or detection
-
-After determining file types, **tell the user** what you detected and what files will be generated. Example:
-> "Detected: Backend API (Express + TypeScript). Will generate: readme, api-surface, dependencies, patterns, endpoints."
+**After determining strategy, tell the user:**
+> "Detected: [project type] ([framework]). Strategy: [strategy]. Modules: [count] ([list])."
 
 ### Step 3: Decide Module Boundaries
 
-Based on project type and actual directory structure. Merge small directories or split large ones as needed.
+Apply the chosen strategy to split the project into modules. Guidelines:
 
-### Step 4: Create Module Knowledge Files
+- **Minimum**: 2 modules (even small projects have distinct responsibilities)
+- **Maximum**: ~15 modules (more means too fine-grained; consider merging)
+- **Merge**: Small directories with <3 files into their parent module
+- **Split**: Large modules with >30 files into sub-domains if clear boundaries exist
+- Each module must have a clear, distinct responsibility
 
-For each module, generate the determined file types:
+### Step 4: Create Module README.md (Recipe-First Format)
 
-#### Step 4a: README.md (always)
+For each module, generate **exactly one file**: `{{knowledge_base_path}}/modules/{module}/README.md`
 
-Overview, responsibilities, key files table, public interfaces, dependencies, design decisions.
+**Recipe-First structure** (each section concise, total ≤100 lines):
 
-#### Step 4b: api-surface.md (if selected)
+```markdown
+# {module_name}
 
-All public functions, classes, types, and constants with exact type signatures. Adapt to the project's language — see reference for language-specific guidance.
+> One-line description of what this module does
 
-#### Step 4c: dependencies.md (if selected)
+<!-- prospec:auto-start -->
 
-Internal import graph (what this module imports), reverse dependencies (who imports this module), third-party packages. Adapt to the project's package manager.
+## Key Files
 
-#### Step 4d: patterns.md (if selected)
+| File | Purpose |
+|------|---------|
+| `path/to/file.ts` | Brief purpose |
 
-Module-specific code patterns, error handling idioms, naming conventions, file organization. Use real code examples from source.
+(Top 10 most important files only)
 
-#### Step 4e: endpoints.md (Backend API only)
+## Public API
 
-HTTP/GraphQL/gRPC endpoints, request/response schemas, auth requirements, middleware. See reference for format.
+- `functionName()` — what it does (1-line)
+- `ClassName` — what it does (1-line)
 
-#### Step 4f: components.md (Frontend only)
+(Signature + 1-line description. Max 8 entries. Agent reads source (L2) for full API.)
 
-Component props, events/emits, slots, hooks/composables, state stores, route definitions. Adapt to the framework (React/Vue/Angular/Svelte). See reference for format.
+## Dependencies
 
-#### Step 4g: screens.md (Mobile App only)
+- **depends_on**: `module-a` (why), `module-b` (why)
+- **used_by**: `module-c`, `module-d`
 
-Screen definitions, navigation params, navigation graph, deep links, native bridge interfaces, platform differences. See reference for format.
+## Modification Guide
 
-**Re-run safety (applies to ALL file types):**
-- `prospec:auto-start/end` — overwritten on each run
-- `prospec:user-start/end` — always preserved, never overwritten
+When changing this module:
+1. [Step-by-step guidance for common modifications]
+2. [What to update together]
+
+## Ripple Effects
+
+Changes here affect:
+- [What breaks or needs updating in other modules]
+
+## Pitfalls
+
+- [Common mistakes when modifying this module]
+- [Non-obvious constraints or gotchas]
+
+<!-- prospec:auto-end -->
+
+<!-- prospec:user-start -->
+<!-- prospec:user-end -->
+```
+
+**Key principles:**
+- **No api-surface.md, dependencies.md, or patterns.md** — all information consolidated into README.md
+- **Modification Guide > API Reference** — tell agents HOW to change, not just WHAT exists
+- **Ripple Effects** — prevent agents from making isolated changes that break other modules
+- **Pitfalls** — capture tribal knowledge that prevents repeated mistakes
 
 ### Step 5: Populate _index.md
 
-Fill module table within `prospec:auto-start/end` markers. Include the **Files** column listing which knowledge files were generated per module:
+Fill module table within `prospec:auto-start/end` markers using new format:
 
 ```
-| Module | Keywords | Status | Description | Files | Depends On |
+| Module | Keywords | Status | Description | Rationale | Depends On |
+```
+
+- **Rationale**: Why this module exists as a separate unit (1 sentence)
+- **Status**: Active / Deprecated / New
+
+Also populate the **Loading Rules** section at the bottom:
+
+```markdown
+## Loading Rules
+
+| Layer | Content | When to Load | Budget |
+|-------|---------|-------------|--------|
+| L0 | _index.md + _conventions.md | Always (every task) | ≤ {l0_max} tokens |
+| L1 | modules/{name}/README.md | When working on related module | ≤ {l1_per_module} tokens/module |
+| L2 | Source code files | When implementation details needed | On-demand |
+
+**Principles:**
+- L0 is loaded on every task — keep it a navigation map, not a reference manual
+- L1 is loaded per-module — only load modules relevant to current task
+- L2 is never pre-loaded — agent reads source files when needed
+- Never duplicate L2 content in L1 — README points to source, doesn't copy it
 ```
 
 ### Step 6: Populate _conventions.md
@@ -117,10 +174,12 @@ Naming conventions, project-specific patterns, directory conventions, import ord
 
 - Each module has clear responsibility boundaries
 - No circular dependencies between modules
-- _index.md lists all modules with correct Files column
-- All `prospec:user-start/end` content preserved across all files
-- Generated file types match detected project type (or config override)
-- Language-specific syntax used correctly in api-surface.md
+- **Each module README ≤ 100 lines** (check and trim if exceeded)
+- README contains all Recipe-First sections (Key Files, Public API, Dependencies, Modification Guide, Ripple Effects, Pitfalls)
+- _index.md has Rationale column and Loading Rules section
+- **L0 total (_index.md + _conventions.md) ≤ 1,500 tokens** (estimate ~4 chars/token)
+- All `prospec:user-start/end` content preserved
+- Strategy matches project structure (auto resolved correctly)
 
 ## NEVER
 
@@ -128,10 +187,11 @@ Naming conventions, project-specific patterns, directory conventions, import ord
 - **NEVER** start without raw-scan.md — prompt user to run `prospec knowledge init` first
 - **NEVER** create circular module dependencies — module dependency graph must be a DAG
 - **NEVER** put all files in a single module — even small projects need 2-3 responsibility modules minimum
-- **NEVER** ignore Tech Stack info from raw-scan.md — it affects module splitting strategy and file type selection
+- **NEVER** ignore Tech Stack info from raw-scan.md — it affects module splitting strategy
 - **NEVER** write outdated file paths in READMEs — all paths must come from raw-scan.md real data
-- **NEVER** generate file types not in the configured list (when config exists)
-- **NEVER** use TypeScript/JavaScript syntax in api-surface.md for non-JS projects
+- **NEVER** generate api-surface.md, dependencies.md, or patterns.md — all info goes in README.md only
+- **NEVER** exceed 100 lines per module README — trim to essential information; agent uses L2 (source) for details
+- **NEVER** duplicate source code in README — use function signatures and 1-line descriptions; the README is a map, not a copy
 
 ## Error Handling
 
@@ -139,7 +199,7 @@ Naming conventions, project-specific patterns, directory conventions, import ord
 |----------|--------|
 | raw-scan.md missing | Stop, prompt `prospec knowledge init` |
 | raw-scan.md incomplete | List missing sections, suggest re-running init or manual completion |
-| Module file already exists | Only overwrite auto sections, preserve user sections |
-| Unknown custom file type | Infer content from type name, follow standard marker pattern |
+| Module README already exists | Only overwrite auto sections, preserve user sections |
+| Strategy produces <2 modules | Fall back to `architecture` strategy |
+| Module README exceeds 100 lines | Trim Key Files and Public API sections; keep Modification Guide and Pitfalls intact |
 | Ambiguous project type | Ask user to clarify, or treat as hybrid |
-
