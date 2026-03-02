@@ -18,13 +18,33 @@ const TechStackSchema = z.object({
 }).optional();
 
 export const KNOWLEDGE_FILE_TYPES = [
-  'readme', 'api-surface', 'dependencies', 'patterns',
-  'endpoints', 'components', 'screens',
+  'readme', 'endpoints', 'components', 'screens',
 ] as const;
+
+/**
+ * Knowledge module partitioning strategies.
+ *
+ * - auto: AI determines best strategy based on project structure
+ * - architecture: Split by src/ top-level directories (CLI tools, libs)
+ * - domain: Split by business domain (frontend/backend apps)
+ * - package: Split by workspace packages (monorepos)
+ */
+export const KNOWLEDGE_STRATEGIES = ['auto', 'architecture', 'domain', 'package'] as const;
+export type KnowledgeStrategy = typeof KNOWLEDGE_STRATEGIES[number];
+
+const TokenBudgetSchema = z.object({
+  l0_max: z.number().optional(),
+  l1_per_module: z.number().optional(),
+  readme_max_lines: z.number().optional(),
+}).optional();
+
+export type TokenBudget = z.infer<typeof TokenBudgetSchema>;
 
 const KnowledgeSchema = z.object({
   base_path: z.string().optional(),
   files: z.array(z.string()).optional(),
+  strategy: z.enum(KNOWLEDGE_STRATEGIES).optional(),
+  token_budget: TokenBudgetSchema,
 }).optional();
 
 export const DEFAULT_BASE_DIR = 'prospec';

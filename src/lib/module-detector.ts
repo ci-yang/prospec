@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import type { ModuleMap } from '../types/module-map.js';
+import type { KnowledgeStrategy } from '../types/config.js';
 import { ModuleDetectionError } from '../types/errors.js';
 import { parseYaml } from './yaml-utils.js';
 
@@ -71,21 +72,27 @@ export interface DetectionResult {
 }
 
 /**
- * Five-step module detection algorithm:
+ * Module detection algorithm with configurable strategy:
  *
  * 1. module-map.yaml priority (if exists)
- * 2. Directory name matching
- * 3. Architecture pattern recognition (MVC, Clean, Layered)
+ * 2. Strategy-based detection:
+ *    - architecture: Directory name matching (original behavior)
+ *    - domain: Business domain grouping (routes/controllers/components → domain modules)
+ *    - package: Workspace package detection (monorepos)
+ *    - auto: Try package → domain → architecture, pick best fit
+ * 3. Architecture pattern recognition
  * 4. Keyword generation
  * 5. Conflict resolution (merge scattered related files)
  *
  * @param files - List of file paths (relative to project root)
  * @param cwd - Project root directory
+ * @param strategy - Module partitioning strategy (default: 'auto')
  * @returns Detected modules with relationships
  */
 export function detectModules(
   files: string[],
   cwd: string = process.cwd(),
+  strategy: KnowledgeStrategy = 'auto',
 ): DetectionResult {
   try {
     // Step 1: Check for existing module-map.yaml
@@ -107,8 +114,8 @@ export function detectModules(
       };
     }
 
-    // Step 2: Directory name matching
-    const dirModules = detectFromDirectories(files);
+    // Step 2: Strategy-based detection
+    const dirModules = detectByStrategy(files, cwd, strategy);
 
     // Step 3: Architecture pattern recognition
     const architecture = detectArchitecturePattern(files);
@@ -139,6 +146,39 @@ export function detectModules(
 }
 
 /**
+ * Dispatch to the appropriate detection function based on strategy.
+ * For 'auto', tries package → domain → architecture and picks the result
+ * with the most meaningful module count (>= 2 modules).
+ */
+function detectByStrategy(
+  files: string[],
+  cwd: string,
+  strategy: KnowledgeStrategy,
+): DetectedModule[] {
+  switch (strategy) {
+    case 'architecture':
+      return detectFromDirectories(files);
+    case 'domain':
+      return detectByDomain(files);
+    case 'package':
+      return detectByPackage(files, cwd);
+    case 'auto':
+    default: {
+      // Try package first (monorepo indicator)
+      const packageModules = detectByPackage(files, cwd);
+      if (packageModules.length >= 2) return packageModules;
+
+      // Try domain (app-style projects)
+      const domainModules = detectByDomain(files);
+      if (domainModules.length >= 2) return domainModules;
+
+      // Fallback to architecture (always works)
+      return detectFromDirectories(files);
+    }
+  }
+}
+
+/**
  * Step 1: Load existing module-map.yaml if it exists.
  */
 function loadExistingModuleMap(cwd: string): ModuleMap | null {
@@ -152,8 +192,162 @@ function loadExistingModuleMap(cwd: string): ModuleMap | null {
 }
 
 /**
- * Step 2: Detect modules from directory structure.
- * Groups files by their top-level or second-level directory.
+ * Domain-based detection: group files by inferred business domain.
+ *
+ * Strategy: extract domain names from file paths by looking for domain-specific
+ * directories (e.g., src/features/auth/, src/components/checkout/, routes/orders/).
+ * Files that share a domain name across different architectural layers are merged
+ * into one domain module.
+ */
+function detectByDomain(files: string[]): DetectedModule[] {
+  const domainFiles = new Map<string, string[]>();
+
+  // Directories that indicate domain-level grouping
+  const domainParents = new Set([
+    'features', 'modules', 'domains', 'pages', 'routes',
+    'views', 'screens', 'components', 'controllers', 'services',
+  ]);
+
+  for (const file of files) {
+    const parts = file.split('/');
+    if (parts.length < 3) continue;
+
+    // Look for pattern: {any}/{domainParent}/{domainName}/...
+    // or: src/{domainParent}/{domainName}/...
+    let domainName: string | null = null;
+    for (let i = 0; i < parts.length - 1; i++) {
+      if (domainParents.has(parts[i]!) && parts[i + 1]) {
+        domainName = parts[i + 1]!;
+        break;
+      }
+    }
+
+    if (!domainName) continue;
+
+    // Normalize domain name (lowercase, strip common suffixes)
+    const normalized = domainName.toLowerCase().replace(/[-_]?(page|view|screen|controller|service|route)s?$/i, '');
+    if (normalized.length < 2) continue;
+
+    if (!domainFiles.has(normalized)) {
+      domainFiles.set(normalized, []);
+    }
+    domainFiles.get(normalized)!.push(file);
+  }
+
+  // Only keep domains with 2+ files
+  const modules: DetectedModule[] = [];
+  for (const [name, paths] of domainFiles) {
+    if (paths.length >= 2) {
+      modules.push({
+        name,
+        description: `${name} domain`,
+        paths: [`**/${name}/**`],
+        keywords: [],
+        relationships: { depends_on: [], used_by: [] },
+      });
+    }
+  }
+
+  // Add an "infra" catch-all for architectural files not in any domain
+  // (middleware, config, utils, etc.)
+  const domainPaths = new Set(modules.flatMap((m) => domainFiles.get(m.name) ?? []));
+  const infraFiles = files.filter((f) => !domainPaths.has(f) && f.split('/').length >= 2);
+  if (infraFiles.length >= 2 && modules.length >= 1) {
+    modules.push({
+      name: 'infra',
+      description: 'Infrastructure and shared utilities',
+      paths: [],
+      keywords: [],
+      relationships: { depends_on: [], used_by: [] },
+    });
+  }
+
+  return modules;
+}
+
+/**
+ * Package-based detection for monorepos.
+ *
+ * Detects workspace packages by looking for:
+ * 1. pnpm-workspace.yaml
+ * 2. turbo.json
+ * 3. package.json with "workspaces" field
+ * 4. Fallback: directories under packages/ or apps/ that contain package.json
+ */
+function detectByPackage(files: string[], cwd: string): DetectedModule[] {
+  const packageDirs = new Set<string>();
+
+  // Check for workspace config files
+  const workspacePatterns = detectWorkspacePackages(cwd);
+  if (workspacePatterns.length > 0) {
+    // Match files against workspace patterns
+    for (const file of files) {
+      for (const pattern of workspacePatterns) {
+        const base = pattern.replace(/\/?\*$/, '');
+        if (file.startsWith(base + '/')) {
+          const parts = file.slice(base.length + 1).split('/');
+          if (parts[0]) {
+            packageDirs.add(`${base}/${parts[0]}`);
+          }
+        }
+      }
+    }
+  }
+
+  // Fallback: look for packages/ or apps/ directories
+  if (packageDirs.size === 0) {
+    for (const file of files) {
+      const parts = file.split('/');
+      if (parts.length >= 3 && ['packages', 'apps'].includes(parts[0]!)) {
+        packageDirs.add(`${parts[0]}/${parts[1]}`);
+      }
+    }
+  }
+
+  if (packageDirs.size === 0) return [];
+
+  const modules: DetectedModule[] = [];
+  for (const pkgDir of packageDirs) {
+    const name = pkgDir.split('/').pop() ?? pkgDir;
+    const pkgFiles = files.filter((f) => f.startsWith(pkgDir + '/'));
+    if (pkgFiles.length >= 2) {
+      modules.push({
+        name,
+        description: `${name} package`,
+        paths: [`${pkgDir}/**`],
+        keywords: [],
+        relationships: { depends_on: [], used_by: [] },
+      });
+    }
+  }
+
+  return modules;
+}
+
+/**
+ * Detect workspace package patterns from config files.
+ */
+function detectWorkspacePackages(cwd: string): string[] {
+  // Try pnpm-workspace.yaml
+  try {
+    const content = fs.readFileSync(path.join(cwd, 'pnpm-workspace.yaml'), 'utf-8');
+    const parsed = parseYaml<{ packages?: string[] }>(content, 'pnpm-workspace.yaml');
+    if (parsed.packages) return parsed.packages;
+  } catch { /* not found */ }
+
+  // Try package.json workspaces
+  try {
+    const content = fs.readFileSync(path.join(cwd, 'package.json'), 'utf-8');
+    const parsed = JSON.parse(content) as { workspaces?: string[] | { packages?: string[] } };
+    if (Array.isArray(parsed.workspaces)) return parsed.workspaces;
+    if (parsed.workspaces?.packages) return parsed.workspaces.packages;
+  } catch { /* not found */ }
+
+  return [];
+}
+
+/**
+ * Architecture-layer detection: group files by top-level or second-level directory.
  */
 function detectFromDirectories(files: string[]): DetectedModule[] {
   const dirMap = new Map<string, string[]>();
