@@ -43,6 +43,7 @@
 
 ## Pitfalls
 
+- Template variables MUST be `snake_case` and exactly match the context object keys from service code — there is no compile-time check
 - Handlebars variables are NOT validated at compile time — typos produce empty output silently
 - `{{#each}}` blocks fail silently on `undefined` arrays — ensure context always passes arrays, not undefined
 - Skill templates output Markdown — watch for double-escaping of special characters

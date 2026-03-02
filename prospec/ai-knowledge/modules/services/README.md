@@ -35,10 +35,12 @@
 
 ## Modification Guide
 
-1. Adding a new service: Create `src/services/{name}.service.ts`, export `execute(options): Promise<Result>`.
-2. Changing knowledge output: Modify `knowledge.service.ts` — templateContext keys must match `steering/module-readme.hbs` variables.
-3. Changing steering: Modify `steering.service.ts` — reads `config.knowledge.strategy` for detectModules().
-4. Changing archive: Modify `archive.service.ts` — affects spec sync, product.md, and the Knowledge update trigger.
+1. Adding a new service: Create `src/services/{name}.service.ts`, export `execute(options): Promise<Result>`. Add matching CLI command + formatter.
+2. Changing a service result type: Update the Result interface → update the CLI formatter that consumes it → update unit test assertions.
+3. Changing knowledge output: Modify `knowledge.service.ts` — templateContext keys must match `steering/module-readme.hbs` variables (snake_case).
+4. Changing steering: Modify `steering.service.ts` — reads `config.knowledge.strategy` for detectModules().
+5. Changing archive: Modify `archive.service.ts` — affects spec sync, product.md, and the Knowledge update trigger. Archive calls knowledge-update internally.
+6. Inter-service dependencies: `archive` → `knowledge-update` (post-archive trigger), `knowledge` requires `steering` output (module-map.yaml).
 
 ## Ripple Effects
 
