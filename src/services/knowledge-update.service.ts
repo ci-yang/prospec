@@ -165,15 +165,18 @@ export async function updateModuleReadme(
     description: inferFileDescription(filePath),
   }));
 
-  // Render fresh README content
+  // Render fresh README content (Recipe-First format)
   const templateContext = {
     module_name: moduleName,
     description: `${moduleName} module`,
     path: modulePaths[0] ?? moduleName,
     keywords: [],
     relationships: { depends_on: [], used_by: [] },
-    key_files: keyFiles,
-    public_api: [],
+    key_files: keyFiles.slice(0, 10),
+    key_exports: keyFiles
+      .filter((f) => !f.path.endsWith('.test.ts') && !f.path.endsWith('.spec.ts'))
+      .slice(0, 8)
+      .map((f) => ({ name: path.basename(f.path, path.extname(f.path)), description: f.description })),
   };
 
   const newContent = renderTemplate('steering/module-readme.hbs', templateContext);

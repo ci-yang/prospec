@@ -64,8 +64,9 @@ export async function execute(
     exclude: excludePatterns,
   });
 
-  // 3. Detect modules
-  const detection: DetectionResult = detectModules(scanResult.files, cwd);
+  // 3. Detect modules (using knowledge strategy from config)
+  const strategy = config.knowledge?.strategy ?? 'auto';
+  const detection: DetectionResult = detectModules(scanResult.files, cwd, strategy);
 
   // 4. Detect tech stack
   const techStack = detectTechStack(cwd);

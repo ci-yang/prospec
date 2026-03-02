@@ -185,15 +185,15 @@ async function generateModuleReadme(
 ): Promise<'created' | 'updated'> {
   await ensureDir(path.dirname(readmePath));
 
-  // Render fresh content from template
+  // Render fresh content from template (Recipe-First format)
   const templateContext = {
     module_name: moduleInfo.name,
     description: moduleInfo.description,
     path: moduleInfo.paths[0] ?? moduleInfo.name,
     keywords: moduleInfo.keywords,
     relationships: moduleInfo.relationships,
-    key_files: moduleInfo.keyFiles,
-    public_api: [],
+    key_files: moduleInfo.keyFiles.slice(0, 10),
+    key_exports: generateKeyExports(moduleInfo),
   };
 
   const newContent = renderTemplate(
@@ -264,6 +264,35 @@ async function updateIndex(
 
   await atomicWrite(indexPath, finalContent);
   return action;
+}
+
+/**
+ * Generate simplified key exports list for Recipe-First README.
+ * Only lists export function/class names with a 1-line description.
+ * Agent can read source code (L2) for full API details.
+ */
+function generateKeyExports(
+  moduleInfo: ModuleInfo,
+): Array<{ name: string; description: string }> {
+  const exports: Array<{ name: string; description: string }> = [];
+
+  for (const file of moduleInfo.keyFiles.slice(0, 10)) {
+    const basename = path.basename(file.path, path.extname(file.path));
+    // Infer a simplified export name from the filename
+    const exportName = basename
+      .replace(/\.service$/, '.execute()')
+      .replace(/\.test$/, '')
+      .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+
+    if (!basename.endsWith('.test') && !basename.endsWith('.spec')) {
+      exports.push({
+        name: exportName,
+        description: file.description,
+      });
+    }
+  }
+
+  return exports.slice(0, 8);
 }
 
 /**
