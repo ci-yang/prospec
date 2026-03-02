@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { vol } from 'memfs';
 import { detectModules } from '../../../src/lib/module-detector.js';
-import type { KnowledgeStrategy } from '../../../src/types/config.js';
 
 vi.mock('node:fs', async () => {
   const memfs = await import('memfs');

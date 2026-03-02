@@ -383,7 +383,6 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
 
       // Generate summary
       let summaryGenerated = false;
-      let summaryContent: string | null = null;
       try {
         const { content, affectedModules } = await generateSummary(
           archiveDir,
@@ -393,7 +392,6 @@ export async function execute(options: ArchiveOptions): Promise<ArchiveResult> {
         const summaryPath = path.join(archiveDir, 'summary.md');
         await atomicWrite(summaryPath, content);
         summaryGenerated = true;
-        summaryContent = content;
         affectedModules.forEach((m) => allAffectedModules.add(m));
       } catch {
         // Summary generation failure is non-fatal
