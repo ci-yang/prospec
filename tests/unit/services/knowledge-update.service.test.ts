@@ -37,7 +37,7 @@ vi.mock('../../../src/lib/scanner.js', () => ({
 
 vi.mock('../../../src/lib/template.js', () => ({
   renderTemplate: vi.fn().mockReturnValue(
-    '# Test Module\n\n<!-- prospec:auto-start -->\n## Overview\n\nTest content\n<!-- prospec:auto-end -->\n\n<!-- prospec:user-start -->\n<!-- prospec:user-end -->\n',
+    '# Test Module\n\n<!-- prospec:auto-start -->\n## Key Files\n\n| File | Purpose |\n|------|--------|\n\n## Public API\n\n## Dependencies\n\n## Modification Guide\n\n## Ripple Effects\n\n## Pitfalls\n\n<!-- prospec:auto-end -->\n\n<!-- prospec:user-start -->\n<!-- prospec:user-end -->\n',
   ),
 }));
 
@@ -213,6 +213,59 @@ describe('updateModuleReadme', () => {
 
     const content = vol.readFileSync('/project/docs/ai-knowledge/modules/auth/README.md', 'utf-8') as string;
     expect(content).toContain('My custom notes');
+  });
+
+  it('should call renderTemplate with key_exports in context', async () => {
+    const { renderTemplate: mockRender } = await import('../../../src/lib/template.js');
+
+    vol.fromJSON({});
+    vol.mkdirSync('/project/docs/ai-knowledge/modules', { recursive: true });
+
+    await updateModuleReadme('services', ['src/services/**'], {
+      cwd: '/project',
+      knowledgeBasePath: 'docs/ai-knowledge',
+    });
+
+    const calls = vi.mocked(mockRender).mock.calls;
+    const readmeCall = calls.find((c) => c[0] === 'steering/module-readme.hbs');
+    expect(readmeCall).toBeTruthy();
+
+    const context = readmeCall![1] as Record<string, unknown>;
+    expect(context).toHaveProperty('key_exports');
+    expect(Array.isArray(context.key_exports)).toBe(true);
+    // Should NOT have public_api
+    expect(context).not.toHaveProperty('public_api');
+    // Should have key_files
+    expect(context).toHaveProperty('key_files');
+  });
+
+  it('should filter test files from key_exports', async () => {
+    const { renderTemplate: mockRender } = await import('../../../src/lib/template.js');
+    const { scanDir } = await import('../../../src/lib/scanner.js');
+    vi.mocked(scanDir).mockResolvedValueOnce({
+      files: [
+        'src/services/auth.service.ts',
+        'src/services/auth.service.test.ts',
+        'src/services/user.ts',
+      ],
+      count: 3,
+    });
+
+    vol.fromJSON({});
+    vol.mkdirSync('/project/docs/ai-knowledge/modules', { recursive: true });
+
+    await updateModuleReadme('services', ['src/services/**'], {
+      cwd: '/project',
+      knowledgeBasePath: 'docs/ai-knowledge',
+    });
+
+    const calls = vi.mocked(mockRender).mock.calls;
+    const readmeCall = calls.find((c) => c[0] === 'steering/module-readme.hbs');
+    const context = readmeCall![1] as Record<string, unknown>;
+    const keyExports = context.key_exports as Array<{ name: string }>;
+    // .test.ts files should be filtered out
+    const hasTestExport = keyExports.some((e) => e.name.includes('test'));
+    expect(hasTestExport).toBe(false);
   });
 });
 
