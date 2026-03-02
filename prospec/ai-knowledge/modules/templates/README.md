@@ -1,168 +1,55 @@
 # templates
 
-> Handlebars template files for all prospec-generated artifacts
+> Handlebars template library for all generated artifacts (57 files: 54 .hbs + 3 .md)
 
 <!-- prospec:auto-start -->
 
-## Overview
+## Key Files
 
-The **templates** module contains all Handlebars (.hbs) template files used by prospec to generate configuration files, documentation, and workflow artifacts. This module has no TypeScript code—it consists purely of template resources consumed by `lib/template.ts` via the `renderTemplate()` function.
+| File | Purpose |
+|------|---------|
+| `src/templates/init/prospec.yaml.hbs` | .prospec.yaml initialization template |
+| `src/templates/steering/architecture.md.hbs` | Architecture document generation |
+| `src/templates/steering/module-readme.hbs` | Recipe-First module README template |
+| `src/templates/knowledge/index.md.hbs` | _index.md with Loading Rules and module table |
+| `src/templates/knowledge/raw-scan.md.hbs` | Raw scan output template |
+| `src/templates/skills/*.hbs` | 11 skill templates (plan, implement, verify, etc.) |
+| `src/templates/skills/references/*.md` | 24 reference documents for skills |
+| `src/templates/change/*.hbs` | Change workflow templates (proposal, plan, delta-spec, tasks) |
+| `src/templates/agent-configs/*.hbs` | Agent config templates (Claude, Gemini, Copilot, Codex) |
 
-All templates support variable interpolation, conditionals, iteration, and Handlebars helpers. Many templates include content markers (`<!-- prospec:auto-start -->` / `<!-- prospec:user-start -->`) to enable safe incremental updates via ContentMerger.
+## Public API
 
-## Template Categories
-
-| Category | File Count | Purpose |
-|----------|------------|---------|
-| **init/** | 5 | Project initialization artifacts (prospec.yaml, constitution.md, conventions.md, index.md, agents.md) |
-| **change/** | 5 | Change workflow artifacts (proposal.md, metadata.yaml, plan.md, delta-spec.md, tasks.md) |
-| **knowledge/** | 3 | AI Knowledge generation (raw-scan.md, module-map.yaml, index.md) |
-| **steering/** | 2 | Architectural documentation (architecture.md, module-readme.hbs) |
-| **agent-configs/** | 4 | AI agent configuration files (claude.md, gemini.md, copilot.md, codex.md) |
-| **skills/** | 11 | Prospec Skill templates (prospec-explore, prospec-new-story, prospec-plan, prospec-design, etc.) |
-| **skills/references/** | 24 | Reference format documentation for Skills (proposal-format, plan-format, delta-spec-format, feature-spec-format, product-spec-format, capability-spec-format (deprecated), design-spec-format, adapter-*, etc.) |
-| **CLAUDE.md** | 3 | Claude-specific context/memory files |
-
-**Total:** 57 template files (54 .hbs, 3 .md)
-
-### Key Skill Template Enhancements
-
-| Skill | Enhancement |
-|-------|-------------|
-| **prospec-new-story** | Multi-story INVEST collection (Phase 4: Background, Priority, WHEN/THEN, Independent Test, Edge Cases, FR, SC) |
-| **prospec-archive** | Phase 3.5 Feature Spec Sync: delta-spec ADDED/MODIFIED/REMOVED → `specs/features/` merge (Replace-in-Place). Phase 3.6 Product Spec regeneration from Feature Spec frontmatter |
-| **prospec-plan** | Layer 0 Feature Specs + Product Spec loading at startup. MODIFIED references Feature Spec "Before". Delta-spec requires Feature/Story routing fields |
-| **prospec-design** | Generate/Extract dual mode: Generate visual + interaction specs from proposal, or Extract from existing design tools via MCP. 4 platform adapters (pencil/Figma/Penpot/HTML) |
-| **prospec-verify** | 5+1 dimension audit: tasks + spec compliance + constitution + Spec ↔ Knowledge consistency + tests + design consistency (conditional). Quality grade S/A/B/C/D |
-
-### Key Reference Templates
-
-| Reference | Purpose |
-|-----------|---------|
-| **proposal-format.hbs** | 8-section INVEST proposal: Background, User Stories (Priority + WHEN/THEN), Edge Cases, FR, SC, Related Modules, Open Questions, Constitution Check |
-| **feature-spec-format.hbs** | Product-First Feature Spec: Who & Why, User Stories (US-NNN + WHEN/THEN), Behavior Specifications (REQ-XXX-NNN), Edge Cases, SC, Deprecated Requirements, Change History |
-| **product-spec-format.hbs** | Product Spec (PRD entry): Vision, Target Users, Feature Map (auto-generated from Feature Spec frontmatter), Product Principles, Roadmap. ≤80 lines |
-| **capability-spec-format.hbs** | *(deprecated)* Living requirement spec: Overview, Requirements (REQ ID + WHEN/THEN + source attribution), Edge Cases, SC, Change History, Maintenance Rules |
-| **design-spec-format.hbs** | Visual design spec: Visual Identity (color/typography/spacing tokens), Components (layout/states/tokens), Responsive Strategy (breakpoints) |
-| **interaction-spec-format.hbs** | Interaction spec: Screen/Component definitions (States/Transitions), Flows (trigger → action DSL draft-1), Responsive interaction differences |
-| **adapter-pencil.hbs** | pencil.dev MCP adapter: batch_design()/set_variables() for Design, batch_get()/get_screenshot() for Implement, structural comparison for Verify |
-| **adapter-figma.hbs** | Figma adapter: HTML prototype → html-to-figma MCP for Design, Figma MCP node reads for Implement |
-| **adapter-penpot.hbs** | Penpot API adapter: API-based component creation, export, and structural comparison |
-| **adapter-html.hbs** | HTML zero-dependency adapter: prototype/ directory output, CSS custom properties reading, DOM/CSS comparison |
-
-## Handlebars Conventions
-
-### 1. Variables
-
-Templates use snake_case for variable names:
-
-```handlebars
-{{project_name}}
-{{change_name}}
-{{knowledge_base_path}}
-{{base_dir}}
-{{tech_stack.language}}
-```
-
-### 2. Conditionals
-
-```handlebars
-{{#if tech_stack}}
-tech_stack:
-  language: {{tech_stack.language}}
-{{/if}}
-
-{{#unless public_api}}
-(No public API detected yet)
-{{/unless}}
-```
-
-### 3. Iteration
-
-```handlebars
-{{#each agents}}
-  - {{this}}
-{{/each}}
-
-{{#each related_modules}}
-- **{{this.name}}**: {{this.description}}
-{{/each}}
-```
-
-### 4. Helpers
-
-Custom Handlebars helper for joining arrays:
-
-```handlebars
-{{join keywords ", "}}
-{{join relationships.depends_on ", "}}
-```
-
-### 5. Content Markers
-
-Many templates include markers for incremental updates:
-
-```handlebars
-<!-- prospec:auto-start -->
-(auto-generated content)
-<!-- prospec:auto-end -->
-
-<!-- prospec:user-start -->
-(user-editable content)
-<!-- prospec:user-end -->
-```
-
-These markers enable ContentMerger to preserve user edits while regenerating auto-managed sections.
-
-### 6. YAML Front Matter (Skill Templates)
-
-Skill templates include YAML front matter for metadata:
-
-```handlebars
----
-name: prospec-new-story
-description: "New Story | 新增故事 - Create change requests..."
----
-```
+- Templates consumed via `renderTemplate(name, context)` from `lib/template.ts`
+- No direct exports — pure resource files
 
 ## Dependencies
 
-**None.** This module contains only resource files with no internal imports.
+- **depends_on**: None (pure resources, no imports)
+- **used_by**: `lib/template.ts` → consumed by `services/*` and `cli/formatters/*`
 
-**Consumed by:**
-- `lib/template.ts` via `renderTemplate(templatePath, variables)`
+## Modification Guide
 
-**Indirectly used by:**
-- All services: `services/init.ts`, `services/story.ts`, `services/plan.ts`, `services/knowledge.ts`, etc.
-- Wherever artifacts are generated from templates
+1. Editing a template: Modify `.hbs` file directly. Variables use `{{variable}}` syntax.
+2. Adding a template: Create in appropriate subdir, call via `renderTemplate('subdir/name.hbs', ctx)`.
+3. Adding a skill: Create `skills/prospec-{name}.hbs`, add to `SKILL_DEFINITIONS` in `types/skill.ts`.
+4. Template variables must exactly match context object keys from service code.
 
-## Design Decisions
+## Ripple Effects
 
-### Why Handlebars?
+- `module-readme.hbs` changes affect ALL module README output — verify contract test
+- `index.md.hbs` changes affect _index.md format — update knowledge-generate and knowledge-update skills
+- Skill template changes require `agent-sync` to redeploy to `.claude/skills/`
+- Reference file changes affect skill behavior instructions
 
-- **Simplicity**: Logic-less templates prevent complex logic creep
-- **Extensibility**: Easy to add custom helpers (e.g., `join`)
-- **Readability**: Human-readable syntax for both developers and AI agents
-- **Safety**: No arbitrary code execution unlike some templating engines
+## Pitfalls
 
-### Why snake_case Variables?
-
-Consistency with YAML conventions and compatibility with AI agent naming patterns.
-
-### Why Content Markers?
-
-Enable incremental knowledge updates—AI agents can regenerate specific sections while preserving user notes and customizations.
-
-### Why Separate References?
-
-Skill reference templates provide format specifications that Skills load on-demand, keeping Skill templates concise and focused on workflow logic.
-
-### Language Neutrality
-
-Skill templates (`.hbs`) are **language-neutral** — they contain no hardcoded output language directives. Output language is determined by the project's Constitution, CLAUDE.md, or user preferences. Structural headings (`## Activation`, `## NEVER`, etc.) remain in English as parser-recognizable markers. Change workflow templates (`proposal.md.hbs`, `delta-spec.md.hbs`) include Chinese placeholder text as the project is primarily used by Chinese-speaking teams, but this is a project-level choice, not a template-level enforcement.
+- Handlebars variables NOT validated at compile time — typos produce empty output silently
+- `{{#each}}` blocks fail silently on undefined arrays — ensure context passes arrays, not undefined
+- Skill templates generate Markdown — watch for double escaping
+- Reference files copied verbatim — not processed through Handlebars
 
 <!-- prospec:auto-end -->
 
 <!-- prospec:user-start -->
-<!-- Add custom notes here. This section is preserved on regeneration. -->
 <!-- prospec:user-end -->
