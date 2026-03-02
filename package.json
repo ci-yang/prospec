@@ -1,6 +1,6 @@
 {
   "name": "prospec",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Progressive Spec-Driven Development CLI tool",
   "type": "module",
   "bin": {
