@@ -93,7 +93,7 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
     description: '快速前進 — 一次生成所有 planning artifacts（story → plan → tasks）。適合需求明確時快速推進。',
     type: 'Planning',
     cliDependency: 'prospec change story + plan + tasks',
-    hasReferences: false,
+    hasReferences: true,
   },
   {
     name: 'prospec-implement',
@@ -111,7 +111,7 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
     name: 'prospec-knowledge-generate',
     description: '生成 AI Knowledge。讀取 raw-scan.md，分析專案結構，自主決定模組切割並產出模組 README 和索引。',
     type: 'Lifecycle',
-    hasReferences: true,
+    hasReferences: false,
   },
   {
     name: 'prospec-archive',
@@ -123,7 +123,7 @@ export const SKILL_DEFINITIONS: SkillConfig[] = [
     name: 'prospec-knowledge-update',
     description: '增量更新 AI Knowledge。解析 delta-spec.md 識別受影響模組，掃描原始碼後更新模組 README、_index.md 和 module-map.yaml。Incremental knowledge update, delta-spec driven.',
     type: 'Lifecycle',
-    hasReferences: true,
+    hasReferences: false,
   },
 ];
 

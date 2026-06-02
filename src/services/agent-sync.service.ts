@@ -45,6 +45,7 @@ export async function execute(
   const config = await readConfig(cwd);
   const configuredAgents = config.agents ?? [];
   const basePaths = resolveBasePaths(config, cwd);
+  const baseDir = path.relative(cwd, basePaths.baseDir);
   const knowledgeBasePath = path.relative(cwd, basePaths.knowledgePath);
   const constitutionPath = path.relative(cwd, basePaths.constitutionPath);
 
@@ -72,6 +73,7 @@ export async function execute(
   // 3. Template context (shared across all agents)
   const templateContext = {
     project_name: config.project.name,
+    base_dir: baseDir,
     knowledge_base_path: knowledgeBasePath,
     constitution_path: constitutionPath,
     tech_stack: config.tech_stack ?? {},
@@ -266,7 +268,10 @@ async function generateEntryConfig(
   cwd: string,
 ): Promise<string> {
   const templateName = `agent-configs/${agentConfig.name}.md.hbs`;
-  const content = renderTemplate(templateName, templateContext);
+  const content = renderTemplate(templateName, {
+    ...templateContext,
+    skill_path: agentConfig.skillPath,
+  });
 
   const configFilePath = path.join(cwd, agentConfig.configPath);
   await ensureDir(path.dirname(configFilePath));
@@ -344,6 +349,28 @@ function getSkillReferences(skillName: string): SkillReference[] {
         title: 'Tasks Format',
       },
     ],
+    'prospec-ff': [
+      {
+        templateName: 'proposal-format.hbs',
+        outputName: 'proposal-format.md',
+        title: 'Proposal Format',
+      },
+      {
+        templateName: 'plan-format.hbs',
+        outputName: 'plan-format.md',
+        title: 'Plan Format',
+      },
+      {
+        templateName: 'delta-spec-format.hbs',
+        outputName: 'delta-spec-format.md',
+        title: 'Delta Spec Format',
+      },
+      {
+        templateName: 'tasks-format.hbs',
+        outputName: 'tasks-format.md',
+        title: 'Tasks Format',
+      },
+    ],
     'prospec-implement': [
       {
         templateName: 'implementation-guide.hbs',
@@ -351,46 +378,21 @@ function getSkillReferences(skillName: string): SkillReference[] {
         title: 'Implementation Guide',
       },
     ],
-    'prospec-knowledge-generate': [
+    'prospec-archive': [
       {
-        templateName: 'knowledge-format.hbs',
-        outputName: 'knowledge-format.md',
-        title: 'Knowledge Format',
+        templateName: 'archive-format.hbs',
+        outputName: 'archive-format.md',
+        title: 'Archive Summary Format',
       },
       {
-        templateName: 'knowledge-generate-format.hbs',
-        outputName: 'knowledge-generate-format.md',
-        title: 'Knowledge Generate Format',
+        templateName: 'feature-spec-format.hbs',
+        outputName: 'feature-spec-format.md',
+        title: 'Feature Spec Format',
       },
       {
-        templateName: 'api-surface-format.hbs',
-        outputName: 'api-surface-format.md',
-        title: 'API Surface Format',
-      },
-      {
-        templateName: 'dependencies-format.hbs',
-        outputName: 'dependencies-format.md',
-        title: 'Dependencies Format',
-      },
-      {
-        templateName: 'patterns-format.hbs',
-        outputName: 'patterns-format.md',
-        title: 'Patterns Format',
-      },
-      {
-        templateName: 'endpoints-format.hbs',
-        outputName: 'endpoints-format.md',
-        title: 'Endpoints Format',
-      },
-      {
-        templateName: 'components-format.hbs',
-        outputName: 'components-format.md',
-        title: 'Components Format',
-      },
-      {
-        templateName: 'screens-format.hbs',
-        outputName: 'screens-format.md',
-        title: 'Screens Format',
+        templateName: 'product-spec-format.hbs',
+        outputName: 'product-spec-format.md',
+        title: 'Product Spec Format',
       },
     ],
   };

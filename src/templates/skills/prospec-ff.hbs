@@ -16,10 +16,10 @@ When triggered, briefly describe:
 
 1. Read `{{knowledge_base_path}}/_index.md` — identify related modules
 2. Read `{{constitution_path}}` — prepare Constitution check
-3. **MANDATORY** — Load these three format references:
-   - `prospec-new-story/references/proposal-format.md`
-   - `prospec-plan/references/plan-format.md` + `delta-spec-format.md`
-   - `prospec-tasks/references/tasks-format.md`
+3. **MANDATORY** — Load these format references (bundled with this skill):
+   - [`references/proposal-format.md`](references/proposal-format.md)
+   - [`references/plan-format.md`](references/plan-format.md) + [`references/delta-spec-format.md`](references/delta-spec-format.md)
+   - [`references/tasks-format.md`](references/tasks-format.md)
 
 ## What Makes FF Unique
 
@@ -89,7 +89,7 @@ List all produced files, task statistics, suggest `/prospec-implement` as next s
 - **NEVER** use FF when requirements are vague — guide user to `/prospec-explore` first
 - **NEVER** skip Constitution check at any phase — every phase must be checked
 - **NEVER** ask more than 3 questions in Phase 0 — FF prioritizes speed, use `/prospec-explore` for depth
-- **NEVER** duplicate format details already defined in other Skills — load corresponding references/ directly
+- **NEVER** inline full format prose into this skill body — load this skill's `references/` files (proposal / plan / delta-spec / tasks formats) directly
 - **NEVER** skip metadata.yaml status progression — must follow story → plan → tasks sequence
 - **NEVER** discard completed phases on failure — error recovery is FF's core capability
 - **NEVER** skip Layer 2 knowledge loading — Plan phase must load related module AI Knowledge
