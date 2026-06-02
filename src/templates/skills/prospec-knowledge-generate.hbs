@@ -18,8 +18,9 @@ When triggered, briefly describe:
 1. Read `{{knowledge_base_path}}/raw-scan.md` — **must exist**, otherwise stop and prompt `prospec knowledge init`
 2. Read `{{knowledge_base_path}}/_index.md` — if exists
 3. Read `{{knowledge_base_path}}/_conventions.md` — if exists
-4. Read `{{constitution_path}}` — if exists
-5. Read `.prospec.yaml` → check `knowledge.strategy` (auto|architecture|domain|package) and `knowledge.token_budget`
+4. Read `{{knowledge_base_path}}/_module-readme-conventions.md` and `{{knowledge_base_path}}/_diagram-conventions.md` — the canonical module-README structure and diagram rules to generate against (this skill's Step 4 mirrors `_module-readme-conventions.md`)
+5. Read `{{constitution_path}}` — if exists
+6. Read `.prospec.yaml` → check `knowledge.strategy` (auto|architecture|domain|package) and `knowledge.token_budget`
 
 ## Prerequisite
 
@@ -132,6 +133,7 @@ Changes here affect:
 ```
 
 **Key principles:**
+- **Canonical template**: this Recipe-First structure mirrors `{{knowledge_base_path}}/_module-readme-conventions.md` — if the two ever diverge, that file wins. (Section order, `# {ProperName}` title, and the `prospec:auto`/`prospec:user` marker contract are defined there.)
 - **No api-surface.md, dependencies.md, or patterns.md** — all information consolidated into README.md
 - **Modification Guide > API Reference** — tell agents HOW to change, not just WHAT exists
 - **Ripple Effects** — prevent agents from making isolated changes that break other modules
