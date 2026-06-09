@@ -67,6 +67,7 @@ Follow `references/plan-format.md` format:
 - **Overview**: Implementation strategy summary
 - **Technical Summary** (Brownfield) or **Technical Context** (Greenfield): Auto-synthesized from Phase 2 — see `references/plan-format.md` Section 2
 - **Affected Modules**: Table of impacted modules and changes
+- **Call Chain**: For each primary entry point, the layered chain (e.g. `Route → Service → Repository → External`) with method names + key params, placed **before** Implementation Steps — see `references/plan-format.md` Section 4
 - **Implementation Steps**: 4-8 steps with details
 - **Risk Assessment**: Risks, impact, and mitigation strategies
 
@@ -81,7 +82,7 @@ Each requirement in delta-spec.md must include **Feature** and **Story** routing
 
 ### Phase 6: Constitution Check
 
-Compare against 3+ most relevant principles, focusing on architecture, testing, performance, and security.
+Compare against 3+ most relevant principles, focusing on architecture, testing, performance, and security. **Inspect the Phase 4 Call Chain for layering violations against the Constitution's dependency/layering rule** — e.g. a layer reaching past its neighbor, business logic placed in the entry/transport layer, a chain skipping its data-access layer, or a side effect emitted before commit — and flag any in Risk Assessment. (Structural/design review only; code-level layering is audited later by `/prospec-verify`.)
 
 ### Phase 7: Knowledge Quality Gate
 
@@ -105,7 +106,7 @@ Suggest: `/prospec-tasks` or manual review.
 - **NEVER** write code in plan.md — plan is about architecture and steps, not code
 - **NEVER** load all module AI Knowledge at once — only load related modules (Layer 2 on demand)
 - **NEVER** skip delta-spec.md — plan and delta-spec must be produced together
-- **NEVER** forget to update metadata.yaml status to `plan`
+- **NEVER** forget to update metadata.yaml status to `plan` (see `{{knowledge_base_path}}/_status-lifecycle.md`)
 - **NEVER** start planning without a proposal.md — guide user to create a Story first
 - **NEVER** produce more than 10 Implementation Steps — too many means the Story scope is too large
 - **NEVER** ignore existing module design patterns — new implementation should follow project conventions

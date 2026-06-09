@@ -88,7 +88,7 @@ Suggest: `/prospec-implement` or manual review.
 - **NEVER** produce more than 30 tasks — indicates Story scope creep; large task lists overwhelm AI context and lose coherence
 - **NEVER** create overly fine-grained tasks (<10 lines) — micro-tasks inflate task count and add checkbox overhead without meaningful progress tracking
 - **NEVER** create overly coarse tasks (>200 lines) — unverifiable; if a 200-line task fails, the entire block must be debugged and reworked
-- **NEVER** forget to update metadata.yaml status to `tasks` — downstream Skills check status to determine workflow stage
+- **NEVER** forget to update metadata.yaml status to `tasks` — downstream Skills check status to determine workflow stage (full lifecycle: `{{knowledge_base_path}}/_status-lifecycle.md`)
 - **NEVER** start decomposition without plan.md — tasks without architecture context produce random file edits instead of layered implementation
 - **NEVER** skip test tasks — Constitution requires test coverage; untested modules are deployment blockers in Verify phase
 - **NEVER** forget to mark `[P]` — Implement Skill uses this to suggest parallel developer assignment; missing markers force sequential execution

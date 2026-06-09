@@ -79,10 +79,7 @@ describe('Skill Format Contract', () => {
       'delta-spec-format.hbs',
       'tasks-format.hbs',
       'implementation-guide.hbs',
-      'knowledge-format.hbs',
-      'knowledge-generate-format.hbs',
       'archive-format.hbs',
-      'knowledge-update-format.hbs',
       'capability-spec-format.hbs',
       'feature-spec-format.hbs',
       'product-spec-format.hbs',
@@ -143,10 +140,19 @@ describe('Skill Format Contract', () => {
       expect(refSkillNames).toContain('prospec-plan');
       expect(refSkillNames).toContain('prospec-design');
       expect(refSkillNames).toContain('prospec-tasks');
+      expect(refSkillNames).toContain('prospec-ff');
       expect(refSkillNames).toContain('prospec-implement');
-      expect(refSkillNames).toContain('prospec-knowledge-generate');
       expect(refSkillNames).toContain('prospec-archive');
-      expect(refSkillNames).toContain('prospec-knowledge-update');
+    });
+
+    it('self-contained skills should have hasReferences = false', () => {
+      // knowledge-generate / knowledge-update inline their canonical format
+      // and defer to _module-readme-conventions.md — no references/ dir.
+      const selfContained = SKILL_DEFINITIONS.filter(
+        (s) => !s.hasReferences,
+      ).map((s) => s.name);
+      expect(selfContained).toContain('prospec-knowledge-generate');
+      expect(selfContained).toContain('prospec-knowledge-update');
     });
   });
 
@@ -633,6 +639,127 @@ describe('Skill Format Contract', () => {
         });
       });
     }
+  });
+
+  describe('Status lifecycle alignment', () => {
+    it('plan-format should contain a Call Chain section before Implementation Steps', () => {
+      const content = renderTemplate(
+        'skills/references/plan-format.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('### 4. Call Chain');
+      expect(content).toContain('### 5. Implementation Steps');
+      expect(content).toContain('### 6. Risk Assessment');
+    });
+
+    it('prospec-plan should reference Call Chain and layering inspection', () => {
+      const content = renderTemplate('skills/prospec-plan.hbs', TEMPLATE_CONTEXT);
+      expect(content).toContain('Call Chain');
+      expect(content).toContain('layering violations');
+    });
+
+    it('prospec-verify should contain a Status Update gate (S/A only)', () => {
+      const content = renderTemplate('skills/prospec-verify.hbs', TEMPLATE_CONTEXT);
+      expect(content).toContain('## Status Update');
+      expect(content).toContain('status: verified');
+      expect(content).toContain('Grade B / C / D');
+      expect(content).toContain('Call Chain ↔ layering');
+    });
+
+    it('prospec-archive should gate on verified status only', () => {
+      const content = renderTemplate('skills/prospec-archive.hbs', TEMPLATE_CONTEXT);
+      expect(content).toContain('only `verified` changes are archivable');
+      expect(content).not.toContain('offer to archive changes with other statuses');
+    });
+
+    it('prospec-implement should set status: implemented when tasks complete', () => {
+      const content = renderTemplate(
+        'skills/prospec-implement.hbs',
+        TEMPLATE_CONTEXT,
+      );
+      expect(content).toContain('status: implemented');
+    });
+
+    it('lifecycle-owning skills should point to _status-lifecycle.md', () => {
+      for (const name of [
+        'prospec-new-story',
+        'prospec-plan',
+        'prospec-tasks',
+        'prospec-implement',
+        'prospec-verify',
+        'prospec-archive',
+      ]) {
+        const content = renderTemplate(`skills/${name}.hbs`, TEMPLATE_CONTEXT);
+        expect(content).toContain('_status-lifecycle.md');
+      }
+    });
+
+    it('prospec-ff should load its own bundled references, not sibling dirs', () => {
+      const content = renderTemplate('skills/prospec-ff.hbs', TEMPLATE_CONTEXT);
+      expect(content).toContain('references/proposal-format.md');
+      expect(content).toContain('references/plan-format.md');
+      expect(content).toContain('references/delta-spec-format.md');
+      expect(content).toContain('references/tasks-format.md');
+      // must NOT reach into sibling skill directories (dangling in skills-dir
+      // layout, nonexistent under Copilot's inline model)
+      expect(content).not.toContain('prospec-new-story/references/');
+      expect(content).not.toContain('prospec-plan/references/');
+      expect(content).not.toContain('prospec-tasks/references/');
+    });
+
+    it('knowledge skills should defer to _module-readme-conventions.md', () => {
+      for (const name of [
+        'prospec-knowledge-generate',
+        'prospec-knowledge-update',
+      ]) {
+        const content = renderTemplate(`skills/${name}.hbs`, TEMPLATE_CONTEXT);
+        expect(content).toContain('_module-readme-conventions.md');
+      }
+    });
+
+    it('convention reference templates should render', () => {
+      for (const tmpl of [
+        'init/status-lifecycle.md.hbs',
+        'init/module-readme-conventions.md.hbs',
+        'init/diagram-conventions.md.hbs',
+      ]) {
+        const content = renderTemplate(tmpl, TEMPLATE_CONTEXT);
+        expect(content.length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe('Agent config skill reference paths', () => {
+    it('claude config should point references at .claude/skills', () => {
+      const content = renderTemplate('agent-configs/claude.md.hbs', {
+        ...TEMPLATE_CONTEXT,
+        skill_path: '.claude/skills',
+      });
+      expect(content).toContain('.claude/skills/prospec-archive/references/');
+      expect(content).not.toContain('.prospec/skills/');
+    });
+
+    it('gemini config should point references at .gemini/skills', () => {
+      const content = renderTemplate('agent-configs/gemini.md.hbs', {
+        ...TEMPLATE_CONTEXT,
+        skill_path: '.gemini/skills',
+      });
+      expect(content).toContain('.gemini/skills/prospec-archive/references/');
+      expect(content).not.toContain('.prospec/skills/');
+    });
+
+    it('self-contained skills should not emit a References line', () => {
+      const content = renderTemplate('agent-configs/claude.md.hbs', {
+        ...TEMPLATE_CONTEXT,
+        skill_path: '.claude/skills',
+      });
+      expect(content).not.toContain(
+        '.claude/skills/prospec-knowledge-generate/references/',
+      );
+      expect(content).not.toContain(
+        '.claude/skills/prospec-knowledge-update/references/',
+      );
+    });
   });
 
   describe('Agent config templates', () => {

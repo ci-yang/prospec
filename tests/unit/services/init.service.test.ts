@@ -59,6 +59,14 @@ describe('init.service', () => {
     expect(fs.existsSync('/project/prospec/ai-knowledge/_index.md')).toBe(true);
     expect(fs.existsSync('/project/prospec/ai-knowledge/_conventions.md')).toBe(true);
     expect(fs.existsSync('/project/prospec/specs/.gitkeep')).toBe(true);
+
+    // Canonical convention docs referenced by skills
+    expect(result.createdFiles).toContain('prospec/ai-knowledge/_status-lifecycle.md');
+    expect(result.createdFiles).toContain('prospec/ai-knowledge/_module-readme-conventions.md');
+    expect(result.createdFiles).toContain('prospec/ai-knowledge/_diagram-conventions.md');
+    expect(fs.existsSync('/project/prospec/ai-knowledge/_status-lifecycle.md')).toBe(true);
+    expect(fs.existsSync('/project/prospec/ai-knowledge/_module-readme-conventions.md')).toBe(true);
+    expect(fs.existsSync('/project/prospec/ai-knowledge/_diagram-conventions.md')).toBe(true);
   });
 
   it('should throw AlreadyExistsError when config exists', async () => {

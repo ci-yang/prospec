@@ -24,14 +24,13 @@ When triggered, briefly describe:
 
 ### Phase 1: Scan and Confirm Targets
 
-Scan `.prospec/changes/` for changes with `status: verified` (default).
+Scan `.prospec/changes/` for changes with `status: verified` — **only `verified` changes are archivable** (status lifecycle: `{{knowledge_base_path}}/_status-lifecycle.md`).
 Display a table of archivable changes:
 
 | Change Name | Status | Created | Modules |
 |-------------|--------|---------|---------|
 
-If no verified changes found, offer to archive changes with other statuses (with warning).
-Confirm with user before proceeding.
+If a change is not `verified`, do NOT archive it — tell the user to run `/prospec-verify` and reach grade S/A first (that is what sets `status: verified`). Confirm with user before proceeding.
 
 ### Phase 2: Generate Summary
 
@@ -97,7 +96,7 @@ After archiving, identify and prompt for Knowledge update:
 ## NEVER
 
 - **NEVER** archive without user confirmation — accidental archiving moves active work out of changes/; recovery requires manual file moves
-- **NEVER** archive changes with `status: story` or `status: plan` — incomplete planning phases lack delta-spec and tasks, producing meaningless summaries and broken Spec Sync
+- **NEVER** archive a change that is not `status: verified` — only `/prospec-verify` at grade S/A produces `verified`; archiving `story` / `plan` / `tasks` / `implemented` bypasses the verification gate and risks meaningless summaries, broken Spec Sync, or unverified work entering the permanent record. Tell the user to verify to S/A first (lifecycle: `{{knowledge_base_path}}/_status-lifecycle.md`)
 - **NEVER** skip summary.md generation — summary is the permanent record in the archive directory; without it, the change has no audit trail
 - **NEVER** delete original files instead of moving — deletion is irreversible; archive preserves all artifacts for future reference and debugging
 - **NEVER** modify the content of artifacts during archive — artifacts are the historical record; any modification falsifies the development history

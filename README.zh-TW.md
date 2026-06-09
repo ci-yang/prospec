@@ -223,7 +223,7 @@ src/
 ## 測試
 
 ```bash
-# 執行所有測試（350 個測試）
+# 執行所有測試（450 個測試）
 pnpm test
 
 # Watch 模式
@@ -234,13 +234,19 @@ pnpm run typecheck
 
 # Lint
 pnpm run lint
+
+# 端到端檢查：build 後在暫存專案實跑 `init` + `agent sync`，
+# 驗證生成的 Skills / system md 是否正確
+pnpm run verify:skills
 ```
 
-**測試覆蓋率**：350 個測試橫跨 4 大類：
-- Unit tests（lib + services）：201 tests
-- Contract tests（CLI 輸出 + Skill 格式）：117 tests
+**測試覆蓋率**：450 個測試橫跨 4 大類：
+- Unit tests（lib + services）：222 tests
+- Contract tests（CLI 輸出 + Skill 格式）：196 tests
 - Integration tests：15 tests
 - E2E tests：17 tests
+
+`verify:skills` 在測試套件之外，以真實的 `init` + `agent sync` 產出做端到端驗證：檢查 agent 專屬的 reference 路徑、無 dangling reference、canonical convention 文件、`base_dir` 相對的 spec 路徑，以及 Copilot 的 inline references。
 
 ---
 

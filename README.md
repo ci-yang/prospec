@@ -5,7 +5,7 @@
 [![npm version](https://img.shields.io/npm/v/prospec.svg?style=flat-square)](https://www.npmjs.com/package/prospec)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-350%20passing-success?style=flat-square)](tests/)
+[![Tests](https://img.shields.io/badge/tests-450%20passing-success?style=flat-square)](tests/)
 [![Node](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org/)
 
 **Progressive Spec-Driven Development CLI**
@@ -223,7 +223,7 @@ src/
 ## Testing
 
 ```bash
-# Run all tests (350 tests)
+# Run all tests (450 tests)
 pnpm test
 
 # Watch mode
@@ -234,13 +234,19 @@ pnpm run typecheck
 
 # Lint
 pnpm run lint
+
+# End-to-end check: build, run `init` + `agent sync` in a throwaway
+# project, and assert the generated Skills / system md are well-formed
+pnpm run verify:skills
 ```
 
-**Test Coverage**: 350 tests across 4 categories:
-- Unit tests (lib + services): 201 tests
-- Contract tests (CLI output + Skill format): 117 tests
+**Test Coverage**: 450 tests across 4 categories:
+- Unit tests (lib + services): 222 tests
+- Contract tests (CLI output + Skill format): 196 tests
 - Integration tests: 15 tests
 - E2E tests: 17 tests
+
+`verify:skills` complements the suite with a real `init` + `agent sync` run, asserting agent-specific reference paths, no dangling references, canonical convention docs, `base_dir`-relative spec paths, and Copilot inlining.
 
 ---
 

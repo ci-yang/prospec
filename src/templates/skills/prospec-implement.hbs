@@ -73,7 +73,7 @@ Update checkbox in tasks.md `- [ ]` → `- [x]`, display updated progress.
 ### Phase 6: Move to Next Task
 
 Auto-locate next uncompleted task. If switching architecture layers, load new module knowledge.
-When all tasks are complete, suggest `/prospec-verify`.
+When all tasks are complete, update `.prospec/changes/[name]/metadata.yaml` → `status: implemented`, then suggest `/prospec-verify`.
 
 ## Task Execution Rules
 
@@ -103,6 +103,7 @@ WARN items do not block — document reasoning in task completion notes.
 - **NEVER** deviate from delta-spec.md specifications without documenting — undocumented deviations cause Verify FAIL and capability spec inconsistency
 - **NEVER** skip quality check before marking complete — unmarked type errors and spec mismatches compound across tasks, making late fixes exponentially harder
 - **NEVER** forget to suggest `/prospec-verify` when all tasks are complete — users may skip verification and proceed to archive, missing quality issues
+- **NEVER** leave `status: tasks` after completing all tasks — set `status: implemented` so metadata distinguishes "implemented, awaiting verify" from "tasks planned"; see `{{knowledge_base_path}}/_status-lifecycle.md`
 
 ## Error Handling
 

@@ -41,6 +41,13 @@ tests (validates all)
 4. Consult `CONSTITUTION.md` for architectural constraints
 5. Use `module-map.yaml` for dependency relationships
 
+## Conventions
+
+- `_conventions.md` — coding patterns, naming, architecture, dependency direction
+- `_module-readme-conventions.md` — canonical structure for module READMEs (what `/prospec-knowledge-generate` and `/prospec-knowledge-update` produce against)
+- `_diagram-conventions.md` — Mermaid diagram conventions for supplementary flow docs
+- `_status-lifecycle.md` — the `story → … → archived` change status lifecycle every skill follows
+
 ## Loading Rules
 
 | Layer | Content | When to Load | Budget |

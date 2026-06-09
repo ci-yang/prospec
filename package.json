@@ -19,6 +19,7 @@
     "test:watch": "vitest",
     "lint": "eslint src/ tests/",
     "typecheck": "tsc --noEmit",
+    "verify:skills": "bash scripts/verify-skills.sh",
     "prepublishOnly": "npm run build"
   },
   "keywords": [

@@ -139,6 +139,19 @@ export async function execute(options: InitOptions): Promise<InitResult> {
   await atomicWrite(indexPath, indexContent);
   createdFiles.push(`${baseDir}/ai-knowledge/_index.md`);
 
+  // Canonical convention docs (prospec-owned; referenced by skills)
+  const conventionDocs: { template: string; output: string }[] = [
+    { template: 'init/status-lifecycle.md.hbs', output: '_status-lifecycle.md' },
+    { template: 'init/module-readme-conventions.md.hbs', output: '_module-readme-conventions.md' },
+    { template: 'init/diagram-conventions.md.hbs', output: '_diagram-conventions.md' },
+  ];
+  for (const doc of conventionDocs) {
+    const docPath = path.join(knowledgePath, doc.output);
+    const docContent = renderTemplate(doc.template, templateContext);
+    await atomicWrite(docPath, docContent);
+    createdFiles.push(`${baseDir}/ai-knowledge/${doc.output}`);
+  }
+
   // .gitkeep for specs/
   const gitkeepPath = path.join(specsPath, '.gitkeep');
   await atomicWrite(gitkeepPath, '');

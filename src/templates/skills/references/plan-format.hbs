@@ -115,7 +115,27 @@ Use a table to list affected modules:
 
 ---
 
-### 4. Implementation Steps
+### 4. Call Chain
+
+Present the core call chain for each primary entry point **before** the Implementation Steps — the layered chain from transport down to data access and external side effects — with method names and key params. This surfaces layering violations (a layer reaching past its neighbor, business logic in the entry/transport layer, a skipped data-access layer, a commit-before-emit side effect) at design time. Maps to `_conventions.md` and the Constitution's dependency/layering rule.
+
+```markdown
+## Call Chain
+
+POST /orders/{id}/submit
+  → OrderRoute.submit(order_id, auth)
+  → OrderService.submit(order_id)                    [orchestration]
+  → Order.submit()                                   [entity state transition]
+  → OrderRepository.update(filter, {status})
+  → after-commit hook → emit("order_submitted")      [side effect]
+```
+
+- One chain per primary entry point touched by this change.
+- Each layer: method name + key params. Mark cross-layer types (named types, never anonymous bags) and external side effects (registered via after-commit hook, never inline before commit).
+
+---
+
+### 5. Implementation Steps
 
 Use an ordered numbered list with details for each step:
 
@@ -159,7 +179,7 @@ Use an ordered numbered list with details for each step:
 
 ---
 
-### 5. Risk Assessment
+### 6. Risk Assessment
 
 Use a table to list risks, impacts, and mitigation strategies:
 
